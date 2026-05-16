@@ -2,30 +2,270 @@
 import BaseLayout from '@layouts/Base.astro';
 import NavBar from '@components/scafold/Nav.astro';
 import Footer from '@components/scafold/Footer.astro';
+import { BRANDING_STORAGE_KEY, defaultBranding } from '@/config/branding';
+import { CYBERBRO_SETTINGS_STORAGE_KEY, defaultCyberbroSettings } from '@/config/cyberbro';
+
+const runtime = `
+(() => {
+  const STORAGE_KEY = ${JSON.stringify(BRANDING_STORAGE_KEY)};
+  const defaults = ${JSON.stringify(defaultBranding)};
+  const CYBERBRO_STORAGE_KEY = ${JSON.stringify(CYBERBRO_SETTINGS_STORAGE_KEY)};
+  const defaultsCyberbro = ${JSON.stringify(defaultCyberbroSettings)};
+
+  const form = document.getElementById('branding-form');
+  const status = document.getElementById('branding-status');
+  const resetBtn = document.getElementById('reset-branding');
+  const cyberbroForm = document.getElementById('cyberbro-form');
+  const cyberbroStatus = document.getElementById('cyberbro-status');
+  const resetCyberbroBtn = document.getElementById('reset-cyberbro');
+
+  const mergeBranding = (base, overrides) => ({
+    ...base,
+    ...overrides,
+    theme: { ...base.theme, ...(overrides?.theme || {}) },
+  });
+
+  const getOverrides = () => {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  };
+
+  const setStatus = (message) => {
+    if (status) status.textContent = message;
+  };
+
+  const setCyberbroStatus = (message) => {
+    if (cyberbroStatus) cyberbroStatus.textContent = message;
+  };
+
+  const populate = () => {
+    if (!form) return;
+    const branding = mergeBranding(defaults, getOverrides());
+    form.querySelectorAll('[name]').forEach((field) => {
+      const key = field.getAttribute('name');
+      if (!key) return;
+      const value = key.startsWith('theme.') ? branding.theme?.[key.split('.')[1]] : branding[key];
+      if (field.type === 'checkbox') {
+        field.checked = Boolean(value);
+      } else if (value !== undefined && value !== null) {
+        field.value = String(value);
+      }
+    });
+  };
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const fd = new FormData(form);
+    const overrides = {
+      name: fd.get('name'),
+      titleLong: fd.get('titleLong'),
+      description: fd.get('description'),
+      heroTitle: fd.get('heroTitle'),
+      heroSubtitle: fd.get('heroSubtitle'),
+      heroInputLabel: fd.get('heroInputLabel'),
+      sourceLabel: fd.get('sourceLabel'),
+      deployLabel: fd.get('deployLabel'),
+      apiLabel: fd.get('apiLabel'),
+      sponsorLabel: fd.get('sponsorLabel'),
+      repoUrl: fd.get('repoUrl'),
+      apiSourceUrl: fd.get('apiSourceUrl'),
+      dockerImage: fd.get('dockerImage'),
+      companyName: fd.get('companyName'),
+      companyUrl: fd.get('companyUrl'),
+      logoPath: fd.get('logoPath'),
+      appIconPath: fd.get('appIconPath'),
+      ogImagePath: fd.get('ogImagePath'),
+      appleTouchIconPath: fd.get('appleTouchIconPath'),
+      faviconSvgPath: fd.get('faviconSvgPath'),
+      faviconPngPath: fd.get('faviconPngPath'),
+      showSponsor: fd.get('showSponsor') === 'on',
+      theme: {
+        primary: fd.get('theme.primary'),
+        primaryLighter: fd.get('theme.primaryLighter'),
+        textColor: fd.get('theme.textColor'),
+        textColorSecondary: fd.get('theme.textColorSecondary'),
+        background: fd.get('theme.background'),
+        backgroundDarker: fd.get('theme.backgroundDarker'),
+        backgroundLighter: fd.get('theme.backgroundLighter'),
+        primaryTransparent: fd.get('theme.primaryTransparent'),
+      },
+    };
+
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
+    window.dispatchEvent(new Event('web-check-branding-refresh'));
+    setStatus('Saved. Branding changes apply immediately in this browser.');
+  });
+
+  resetBtn?.addEventListener('click', () => {
+    window.localStorage.removeItem(STORAGE_KEY);
+    populate();
+    window.dispatchEvent(new Event('web-check-branding-refresh'));
+    setStatus('Branding reset to env defaults.');
+  });
+
+  const populateCyberbro = () => {
+    if (!cyberbroForm) return;
+    let settings = defaultsCyberbro;
+    try {
+      const raw = window.localStorage.getItem(CYBERBRO_STORAGE_KEY);
+      settings = raw ? { ...defaultsCyberbro, ...JSON.parse(raw) } : defaultsCyberbro;
+    } catch {}
+
+    cyberbroForm.querySelectorAll('[name]').forEach((field) => {
+      const key = field.getAttribute('name');
+      if (!key) return;
+      const value = settings[key];
+      if (field.type === 'checkbox') field.checked = Boolean(value);
+      else if (value !== undefined && value !== null) field.value = String(value);
+    });
+  };
+
+  cyberbroForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const fd = new FormData(cyberbroForm);
+    const settings = {
+      enabled: fd.get('enabled') === 'on',
+      baseUrl: fd.get('baseUrl'),
+      timeoutMs: fd.get('timeoutMs'),
+      engines: fd.get('engines'),
+    };
+    window.localStorage.setItem(CYBERBRO_STORAGE_KEY, JSON.stringify(settings));
+    window.dispatchEvent(new Event('web-check-branding-refresh'));
+    setCyberbroStatus('Saved. Cyberbro settings will be used on the next results fetch.');
+  });
+
+  resetCyberbroBtn?.addEventListener('click', () => {
+    window.localStorage.removeItem(CYBERBRO_STORAGE_KEY);
+    populateCyberbro();
+    setCyberbroStatus('Cyberbro settings reset to env defaults.');
+  });
+
+  populate();
+  populateCyberbro();
+})();
+`;
 ---
 
 <BaseLayout
-  title="Account | Web Check"
-  description="Login or sign up for a free account on Web Check, to manage API access, save reports, enable website change notificiations and more!"
+  title="Branding Studio | Web Check"
+  description="Edit the Web Check whitelabel branding from a GUI and preview changes instantly."
 >
   <div class="web-check-page">
     <NavBar />
     <main>
-      <!-- <h1>Login</h1>
-      <p>
-        Your Web Check account is your gateway to managing API access, as well as additional functionality
-      </p> -->
-
-      <div class="under-development">
-        <h4>Account management is currently under development.</h4>
+      <div class="intro card">
+        <h1>Branding Studio</h1>
         <p>
-          Once complete, you will be able to login to your account to manage API access, save
-          reports, enable website change notificiations and more!
+          Edit the whitelabel settings from the GUI. Changes are stored in this browser via
+          localStorage, so this is perfect for fast prototyping and demos.
+        </p>
+        <p class="muted">
+          For shared or production branding, keep using <code>PUBLIC_BRAND_*</code> env vars.
         </p>
       </div>
+
+      <form id="branding-form" class="editor-grid">
+        <section class="card">
+          <h2>Core branding</h2>
+          <label>Name<input name="name" /></label>
+          <label>Long title<input name="titleLong" /></label>
+          <label>Description<textarea name="description" rows="4"></textarea></label>
+          <label>Company name<input name="companyName" /></label>
+          <label>Company URL<input name="companyUrl" /></label>
+          <label>Repo URL<input name="repoUrl" /></label>
+          <label>API source URL<input name="apiSourceUrl" /></label>
+          <label>Docker image<input name="dockerImage" /></label>
+        </section>
+
+        <section class="card">
+          <h2>Homepage copy</h2>
+          <label>Hero title<textarea name="heroTitle" rows="3"></textarea></label>
+          <label>Hero subtitle<textarea name="heroSubtitle" rows="3"></textarea></label>
+          <label>Input label<input name="heroInputLabel" /></label>
+          <label>Source button label<input name="sourceLabel" /></label>
+          <label>Deploy button label<input name="deployLabel" /></label>
+          <label>API button label<input name="apiLabel" /></label>
+          <label>Sponsor label<input name="sponsorLabel" /></label>
+          <label class="checkbox"><input type="checkbox" name="showSponsor" /> Show sponsor section</label>
+        </section>
+
+        <section class="card">
+          <h2>Assets</h2>
+          <label>Logo path<input name="logoPath" /></label>
+          <label>App icon path<input name="appIconPath" /></label>
+          <label>OG image path<input name="ogImagePath" /></label>
+          <label>Apple touch icon path<input name="appleTouchIconPath" /></label>
+          <label>Favicon SVG path<input name="faviconSvgPath" /></label>
+          <label>Favicon PNG path<input name="faviconPngPath" /></label>
+        </section>
+
+        <section class="card">
+          <h2>Theme</h2>
+          <div class="color-grid">
+            <label>Primary<input type="color" name="theme.primary" /></label>
+            <label>Primary lighter<input type="color" name="theme.primaryLighter" /></label>
+            <label>Text<input type="color" name="theme.textColor" /></label>
+            <label>Text secondary<input name="theme.textColorSecondary" placeholder="#ffffffb6" /></label>
+            <label>Background<input type="color" name="theme.background" /></label>
+            <label>Background darker<input type="color" name="theme.backgroundDarker" /></label>
+            <label>Background lighter<input type="color" name="theme.backgroundLighter" /></label>
+            <label>Primary transparent<input name="theme.primaryTransparent" placeholder="#d6fb4130" /></label>
+          </div>
+          <p class="muted small">
+            Alpha-based values like text secondary and primary transparent accept text-style hex values.
+          </p>
+        </section>
+
+        <section class="card actions full-width">
+          <div class="button-row">
+            <button type="submit" class="primary">Save branding</button>
+            <button type="button" id="reset-branding">Reset to defaults</button>
+          </div>
+          <p id="branding-status" class="status muted">No unsaved status yet.</p>
+        </section>
+      </form>
+
+      <div class="intro card cyberbro-intro">
+        <h1>Cyberbro Integration</h1>
+        <p>
+          Tune the bundled Cyberbro integration from the GUI. These overrides are also stored in this browser,
+          so they’re ideal for testing alternate backends, engine mixes, and timeouts without editing env vars.
+        </p>
+      </div>
+
+      <form id="cyberbro-form" class="editor-grid cyberbro-grid">
+        <section class="card">
+          <h2>Runtime settings</h2>
+          <label class="checkbox"><input type="checkbox" name="enabled" /> Enable Cyberbro cards</label>
+          <label>Cyberbro API base URL<input name="baseUrl" placeholder="http://cyberbro:5000/api" /></label>
+          <label>Timeout (ms)<input name="timeoutMs" inputmode="numeric" /></label>
+          <label>
+            Engines (comma-separated)
+            <textarea name="engines" rows="4" placeholder="google_safe_browsing,virustotal,phishtank,threatfox,alienvault,urlscan"></textarea>
+          </label>
+        </section>
+
+        <section class="card actions">
+          <h2>Notes</h2>
+          <p class="muted">
+            These values affect the Web Check Cyberbro threat cards on future fetches. They do not rewrite the
+            server env, and they do not reconfigure the Cyberbro container itself.
+          </p>
+          <div class="button-row">
+            <button type="submit" class="primary">Save Cyberbro settings</button>
+            <button type="button" id="reset-cyberbro">Reset to defaults</button>
+          </div>
+          <p id="cyberbro-status" class="status muted">No Cyberbro override status yet.</p>
+        </section>
+      </form>
     </main>
     <Footer />
   </div>
+  <script is:inline set:html={runtime}></script>
 </BaseLayout>
 
 <style lang="scss">
@@ -42,30 +282,119 @@ import Footer from '@components/scafold/Footer.astro';
     @include mobile-down {
       padding: 0.5rem;
     }
-    .under-development {
-      border: 2px solid var(--warning);
-      background: #ffff0012;
-      padding: 1rem;
-      margin: 2rem auto;
-      border-radius: 4px;
-      h4 {
-        margin-bottom: 1rem;
-      }
-      p {
-        font-size: 1.1rem;
-        line-height: 1.5;
-      }
+  }
+
+  main {
+    width: 80vw;
+    margin: 0 auto;
+    min-height: 100%;
+    flex-grow: 1;
+    padding: 3rem 0 2rem 0;
+    max-width: 1200px;
+  }
+
+  .editor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+    @include tablet-landscape-down {
+      grid-template-columns: 1fr;
     }
-    main {
-      width: 80vw;
-      margin: 0 auto;
-      min-height: 100%;
-      flex-grow: 1;
-      padding: 5rem 0 2rem 0;
-      max-width: 1200px;
-      @include mobile-down {
-        padding: 1rem 0;
-      }
+  }
+
+  .card {
+    background: var(--background);
+    border: 1px solid var(--primary-transparent);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .full-width {
+    grid-column: 1 / -1;
+  }
+
+  h1, h2 {
+    margin-top: 0;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.9rem;
+    font-weight: 600;
+  }
+
+  input, textarea, button {
+    font: inherit;
+  }
+
+  input, textarea {
+    background: var(--background-lighter);
+    color: var(--text-color);
+    border: 1px solid var(--primary-transparent);
+    border-radius: 6px;
+    padding: 0.75rem;
+  }
+
+  input[type='color'] {
+    padding: 0.2rem;
+    min-height: 3rem;
+  }
+
+  .checkbox {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .checkbox input {
+    width: auto;
+    margin: 0;
+  }
+
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    @include mobile-down {
+      grid-template-columns: 1fr;
     }
+  }
+
+  .button-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  button {
+    background: var(--background-lighter);
+    color: var(--text-color);
+    border: 1px solid var(--primary-transparent);
+    border-radius: 6px;
+    padding: 0.8rem 1.2rem;
+    cursor: pointer;
+  }
+
+  button.primary {
+    background: var(--primary);
+    color: var(--background);
+    border-color: var(--primary);
+    font-weight: 700;
+  }
+
+  .muted {
+    color: var(--text-color-secondary);
+  }
+
+  .small {
+    font-size: 0.9rem;
+  }
+
+  .status {
+    margin: 1rem 0 0 0;
   }
 </style>

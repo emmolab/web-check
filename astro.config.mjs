@@ -30,6 +30,8 @@ const site = unwrapEnvVar('SITE_URL', 'https://web-check.xyz');
 
 // The base URL of the site (if serving from a subdirectory)
 const base = unwrapEnvVar('BASE_URL', '/');
+const brandName = unwrapEnvVar('PUBLIC_BRAND_NAME', 'Web Check');
+const repoUrl = unwrapEnvVar('PUBLIC_BRAND_REPO_URL', 'https://github.com/lissy93/web-check');
 
 // Should run the app in boss-mode (requires extra configuration)
 const isBossServer = unwrapEnvVar('BOSS_SERVER', false);
@@ -56,11 +58,10 @@ const adapter = getAdapter(deployTarget);
 
 // Print build information to console
 console.log(
-  `\n\x1b[1m\x1b[35m Preparing to start build of Web Check.... \x1b[0m\n`,
+  `\n\x1b[1m\x1b[35m Preparing to start build of ${brandName}.... \x1b[0m\n`,
   `\x1b[35m\x1b[2mCompiling for "${deployTarget}" using "${output}" mode, ` +
     `to deploy to "${site}" at "${base}"\x1b[0m\n`,
-  `\x1b[2m\x1b[36m🛟 For documentation and support, visit the GitHub repo: ` +
-    `https://github.com/lissy93/web-check \n`,
+  `\x1b[2m\x1b[36m🛟 For documentation and support, visit: ${repoUrl} \n`,
   `💖 Found Web-Check useful? Consider sponsoring us on GitHub ` +
     `to help fund maintenance & development.\x1b[0m\n`,
 );

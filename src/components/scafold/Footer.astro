@@ -1,27 +1,29 @@
 ---
-const repo = 'github.com/lissy93/web-check';
-const github = `https://${repo}`;
+import { branding } from '@/config/branding';
 
-const licenseText = 'MIT';
+const github = branding.repoUrl;
+const repo = github.replace(/^https?:\/\//, '');
+
+const licenseText = branding.copyrightLabel;
 const licenseLink = `${github}/blob/master/LICENSE`;
 
 const aboutLink = '/about';
-const projectName = 'Web Check';
+const projectName = branding.name;
 
-const authorName = 'Alicia Sykes';
-const authorLink = 'https://aliciasykes.com';
+const authorName = branding.companyName;
+const authorLink = branding.companyUrl;
 const currentYear = new Date().getFullYear();
 ---
 
 <footer>
   <p>
-    View source at <a href={github}>{repo}</a>
+    View source at <a href={github} data-brand-href="repoUrl">{repo}</a>
   </p>
   <p>
-    <a href={aboutLink}>{projectName}</a>
+    <a href={aboutLink} data-brand-text="name">{projectName}</a>
     is licensed under
     <a href={licenseLink}>{licenseText}</a>
-    - © <a href={authorLink}>{authorName}</a>
+    - © <a href={authorLink} data-brand-href="companyUrl" data-brand-text="companyName">{authorName}</a>
     {currentYear}
   </p>
 </footer>

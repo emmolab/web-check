@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cyberbro - Payload Too Large">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>413 Payload Too Large - Cyberbro</title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        .error-container {
+            max-width: 600px;
+            padding: var(--spacing-xl);
+        }
+
+        .error-code {
+            font-size: 6rem;
+            font-weight: 700;
+            color: var(--warning-color);
+            margin: 0;
+            line-height: 1;
+        }
+
+        .error-title {
+            font-size: 2rem;
+            margin: var(--spacing-md) 0;
+            color: var(--text-color);
+        }
+
+        body.dark-mode .error-title {
+            color: var(--dark-text-color);
+        }
+
+        .error-message {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        body.dark-mode .error-message {
+            color: var(--dark-text-secondary);
+        }
+
+        .error-image {
+            margin: var(--spacing-lg) 0;
+        }
+
+        .error-image img {
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .error-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="error-container">
+        <h1 class="error-code">413</h1>
+        <h2 class="error-title">Payload Too Large</h2>
+        <p class="error-message">Whoa there! Looks like you tried to upload something a bit too hefty. Maybe try to paste less data?</p>
+        <p class="error-message">If this is from the demo, remember: this limit is here to avoid users breaking the API quotas. Sharing is caring!</p>
+        <div class="error-image">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg" alt="Fat Cat" width="200">
+        </div>
+        <div class="error-actions">
+            <a href="/" class="btn btn-icon">
+                <span>🏠</span>
+                <span>Go to Home</span>
+            </a>
+            <a href="https://github.com/stanfrbd/cyberbro" target="_blank" class="btn btn-outline btn-icon">
+                <span>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub" width="16" height="16">
+                </span>
+                <span>GitHub</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Apply dark mode if enabled
+        function applyDarkMode() {
+            const savedMode = localStorage.getItem("darkMode");
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (savedMode === "true" || (savedMode === null && prefersDark)) {
+                document.body.classList.add("dark-mode");
+            }
+        }
+
+        applyDarkMode();
+    </script>
+</body>
+
+</html>

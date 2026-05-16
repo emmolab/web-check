@@ -1,8 +1,67 @@
 version: '3.9'
 services:
   web-check:
-    container_name: Web-Check
-    image: lissy93/web-check
+    container_name: web-check
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${WEB_CHECK_IMAGE:-web-check-local}
     ports:
       - 3000:3000
+    environment:
+      - CYBERBRO_ENABLED=${CYBERBRO_ENABLED:-true}
+      - CYBERBRO_BASE_URL=${CYBERBRO_BASE_URL:-http://cyberbro:5000/api}
+      - CYBERBRO_THREAT_ENGINES=${CYBERBRO_THREAT_ENGINES:-google_safe_browsing,virustotal,phishtank,threatfox,alienvault,urlscan}
+      - CYBERBRO_TIMEOUT_MS=${CYBERBRO_TIMEOUT_MS:-30000}
+      - PUBLIC_BRAND_NAME=${PUBLIC_BRAND_NAME:-Web Check}
+      - PUBLIC_BRAND_REPO_URL=${PUBLIC_BRAND_REPO_URL:-https://github.com/lissy93/web-check}
+    depends_on:
+      cyberbro:
+        condition: service_healthy
+    restart: unless-stopped
+
+  cyberbro:
+    container_name: cyberbro
+    build:
+      context: ./vendor/cyberbro
+      dockerfile: Dockerfile
+    image: ${CYBERBRO_IMAGE:-cyberbro-bundled}
+    ports:
+      - '${CYBERBRO_HOST_PORT:-5000}:5000'
+    environment:
+      - API_PREFIX=api
+      - FLASK_ENV=production
+      - FLASK_DEBUG=${FLASK_DEBUG:-false}
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5000
+      - DISABLE_VERSION_CHECK=${DISABLE_VERSION_CHECK:-true}
+      - PROXY_URL=${PROXY_URL:-}
+      - SSL_VERIFY=${SSL_VERIFY:-true}
+      - GOOGLE_SAFE_BROWSING=${GOOGLE_SAFE_BROWSING:-}
+      - VIRUSTOTAL=${VIRUSTOTAL:-}
+      - THREATFOX=${THREATFOX:-}
+      - ALIENVAULT=${ALIENVAULT:-}
+      - CRIMINALIP_API_KEY=${CRIMINALIP_API_KEY:-}
+      - URLSCAN_API_KEY=${URLSCAN_API_KEY:-}
+      - MISP_URL=${MISP_URL:-}
+      - MISP_API_KEY=${MISP_API_KEY:-}
+      - OPENCTI_URL=${OPENCTI_URL:-}
+      - OPENCTI_API_KEY=${OPENCTI_API_KEY:-}
+      - RANSOMWARE_LIVE_API_KEY=${RANSOMWARE_LIVE_API_KEY:-}
+      - SHODAN=${SHODAN:-}
+      - WEBSCOUT=${WEBSCOUT:-}
+      - GUI_ENABLED_ENGINES=${GUI_ENABLED_ENGINES:-google_safe_browsing,virustotal,phishtank,threatfox,alienvault,urlscan}
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/', timeout=5)\" || exit 1",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    volumes:
+      - ./vendor/cyberbro/data:/app/data
+      - ./vendor/cyberbro/logs:/var/log/cyberbro
     restart: unless-stopped

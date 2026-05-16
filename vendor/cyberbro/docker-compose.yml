@@ -1,0 +1,72 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cyberbro
+    ports:
+      - "${HOST_PORT:-5000}:${FLASK_PORT:-5000}"
+    environment:
+      - ABUSEIPDB=${ABUSEIPDB:-}
+      - ALIENVAULT=${ALIENVAULT:-}
+      - API_CACHE_TIMEOUT=${API_CACHE_TIMEOUT:-}
+      - API_PREFIX=${API_PREFIX:-}
+      - CRIMINALIP_API_KEY=${CRIMINALIP_API_KEY:-}
+      - CROWDSTRIKE_CLIENT_ID=${CROWDSTRIKE_CLIENT_ID:-}
+      - CROWDSTRIKE_CLIENT_SECRET=${CROWDSTRIKE_CLIENT_SECRET:-}
+      - CROWDSTRIKE_FALCON_BASE_URL=${CROWDSTRIKE_FALCON_BASE_URL:-}
+      - DFIR_IRIS_API_KEY=${DFIR_IRIS_API_KEY:-}
+      - DFIR_IRIS_URL=${DFIR_IRIS_URL:-}
+      - FLASK_ENV=production
+      - FLASK_DEBUG=${FLASK_DEBUG:-}
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=${FLASK_PORT:-5000}
+      - GOOGLE_CSE_CX=${GOOGLE_CSE_CX:-}
+      - GOOGLE_CSE_KEY=${GOOGLE_CSE_KEY:-}
+      - GOOGLE_SAFE_BROWSING=${GOOGLE_SAFE_BROWSING:-}
+      - GUI_CACHE_TIMEOUT=${GUI_CACHE_TIMEOUT:-}
+      - GUI_ENABLED_ENGINES=${GUI_ENABLED_ENGINES:-}
+      - GUNICORN_THREADS_COUNT=${GUNICORN_THREADS_COUNT:-}
+      - GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-}
+      - GUNICORN_WORKERS_COUNT=${GUNICORN_WORKERS_COUNT:-}
+      - HISTER_TOKEN=${HISTER_TOKEN:-}
+      - HISTER_BASE_URL=${HISTER_BASE_URL:-}
+      - IPAPI=${IPAPI:-}
+      - IPINFO=${IPINFO:-}
+      - MAX_FORM_MEMORY_SIZE=${MAX_FORM_MEMORY_SIZE:-}
+      - MDE_CLIENT_ID=${MDE_CLIENT_ID:-}
+      - MDE_CLIENT_SECRET=${MDE_CLIENT_SECRET:-}
+      - MDE_TENANT_ID=${MDE_TENANT_ID:-}
+      - MISP_API_KEY=${MISP_API_KEY:-}
+      - MISP_URL=${MISP_URL:-}
+      - MISP_FEEDBACK_SERVER_URL=${MISP_FEEDBACK_SERVER_URL:-}
+      - MISP_FEEDBACK_TOKEN=${MISP_FEEDBACK_TOKEN:-}
+      - OPENCTI_API_KEY=${OPENCTI_API_KEY:-}
+      - OPENCTI_URL=${OPENCTI_URL:-}
+      - PROXY_URL=${PROXY_URL:-}
+      - RANSOMWARE_LIVE_API_KEY=${RANSOMWARE_LIVE_API_KEY:-}
+      - RL_ANALYZE_API_KEY=${RL_ANALYZE_API_KEY:-}
+      - RL_ANALYZE_URL=${RL_ANALYZE_URL:-}
+      - ROSTI_API_KEY=${ROSTI_API_KEY:-}
+      - SHODAN=${SHODAN:-}
+      - SPUR_US=${SPUR_US:-}
+      - SSL_VERIFY=${SSL_VERIFY:-}
+      - THREATFOX=${THREATFOX:-}
+      - VIRUSTOTAL=${VIRUSTOTAL:-}
+      - WEBSCOUT=${WEBSCOUT:-}
+      - DISABLE_VERSION_CHECK=${DISABLE_VERSION_CHECK:-}
+      - MIGRATE_OWNERSHIP_ON_START=${MIGRATE_OWNERSHIP_ON_START:-true}
+    restart: always
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import os,urllib.request; port=os.getenv('FLASK_PORT','5000'); urllib.request.urlopen(f'http://127.0.0.1:{port}/', timeout=5)\" || exit 1",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    volumes:
+      - ./data:/app/data
+      - ./logs:/var/log/cyberbro

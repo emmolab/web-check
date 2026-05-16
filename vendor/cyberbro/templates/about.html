@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Cyberbro - About{% endblock title %}
+
+{% block content %}
+{{ super() }}
+<div class="page-header">
+    <h1>About Cyberbro</h1>
+    <p>Simple and efficient observable reputation checking</p>
+</div>
+
+<div class="cards-container">
+    <div class="card">
+        <h3>About Cyberbro</h3>
+        <p>
+            Cyberbro aims to provide a simple and efficient way to check the reputation of your observables using
+            multiple threat intelligence services, without having to deploy a complex solution.
+        </p>
+        <p>
+            This application is inspired by <a href="https://cybergordon.com/" target="_blank">CyberGordon</a> and <a
+                href="https://intelowlproject.github.io/" target="_blank">IntelOwl</a>.
+        </p>
+        <p>
+            Cyberbro is built using Python and Flask.
+        </p>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: var(--spacing-xl);">
+    <h2>Features</h2>
+    <ul style="list-style-position: inside; padding-left: 0;">
+        <li>Handles various input types: paste raw logs, IoCs, fanged IoCs, and they will be parsed using regex.</li>
+        <li>Checks if an observable (IP, hash, domain, URL) is malicious using services like VirusTotal, AbuseIPDB,
+            IPInfo, Spur.us, IP Quality Score, MDE, Google Safe Browsing, Shodan, Abusix, Phishtank, and more.</li>
+        <li>Generates comprehensive reports with search and filter features (type, country, risk, detection,
+            proxy/VPN).</li>
+        <li>Utilizes multithreading to speed up the process (artificially limited with time.sleep() due to free API
+            usage).</li>
+        <li>Performs reverse DNS lookups.</li>
+        <li>Checks abuse contacts for IPs, URLs, and domains (Abusix).</li>
+        <li>Allows exporting results to CSV and Excel files.</li>
+        <li>Verifies if the observable has been seen on the Microsoft Defender for Endpoint (MDE) platform (your
+            tenant).</li>
+        <li>Supports proxy usage if needed.</li>
+    </ul>
+</div>
+
+<div class="card">
+    <p style="margin: 0; font-weight: 600;">Cyberbro <strong>{{ version }}</strong></p>
+    <p style="margin-top: var(--spacing-sm);">For more information, visit the <a href="https://github.com/stanfrbd/cyberbro" target="_blank">GitHub repository</a>.</p>
+</div>
+
+{% endblock content %}

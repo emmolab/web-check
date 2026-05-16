@@ -1,0 +1,40 @@
+# With docker
+
+## Using the `git` repo
+
+* Go to your cyberbro directory (e.g. `/opt/cyberbro`).
+* `docker compose down` (optional)
+* `git pull`
+* `docker compose build --no-cache` (optional)
+* `docker compose up --build --force-recreate -d`
+!!! warning
+    Be careful that your `.env` is up to date.
+
+## Using the image from GitHub packages
+
+!!! info
+    Assuming you already have a valid custom docker compose file using the image `ghcr.io/stanfrbd/cyberbro:latest`
+
+* Go to your cyberbro directory (e.g. `/opt/cyberbro`) where your custom `docker compose` file is located.
+
+```
+docker compose down # optional
+docker-compose up -d --pull always --force-recreate
+```
+
+!!! warning
+    Be careful that your environment variables / `.env` and your custom `docker compose` file are up to date.
+
+# Without docker
+
+!!! info
+    It is recommended to use `virtualenv` or `uv` to isolate the installation.
+
+* Go to your cyberbro directory (e.g. `/opt/cyberbro`).
+* `git pull`
+* `pip install -r requirements.txt`
+* `rm data/version_cache.json`
+* `gunicorn -b 0.0.0.0:5000 app:app --timeout 120` (or restart via your process manager, e.g. `systemctl restart cyberbro`)
+
+!!! warning
+    Be careful that your `.env` or exported environment variables are up to date.

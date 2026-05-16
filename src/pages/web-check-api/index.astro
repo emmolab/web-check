@@ -1,16 +1,17 @@
 ---
+import { branding } from '@/config/branding';
 import BaseLayout from '@layouts/Base.astro';
 import NavBar from '@components/scafold/Nav.astro';
 import Footer from '@components/scafold/Footer.astro';
 ---
 
-<BaseLayout title="API | Web Check" description="Get started with the Web Check API.">
+<BaseLayout title={`API | ${branding.name}`} description={`Get started with the ${branding.name} API.`}>
   <div class="web-check-page">
     <NavBar />
     <main>
-      <h1>Web Check API</h1>
+      <h1>{branding.name} API</h1>
       <p class="intro">
-        The Web Check API gives you programatic access to over 30 categories of web metrics.<br />
+        The {branding.name} API gives you programatic access to over 30 categories of web metrics.<br />
         Integrate into your own workflows and applications, to monitor any website's performance, SEO,
         security, and more.
       </p>
@@ -40,36 +41,12 @@ import Footer from '@components/scafold/Footer.astro';
           <h3>API Source</h3>
           <p>View, edit, download or deploy the API from source.</p>
           <div class="buttons">
-            <a href="https://github.com/xray-web/web-check-api" target="_blank" rel="noreferrer">
+            <a href={branding.apiSourceUrl} target="_blank" rel="noreferrer">
               <img src="/assets/images/github.svg" />
               GitHub
             </a>
           </div>
         </div>
-
-        <!-- { cardData.map((card, cardIndex) => (
-          <div class="card">
-            <span class="option">Option #{cardIndex + 1}</span>
-            <h3>{card.title}</h3>
-            <p>{card.description}</p>
-            { card.buttons && (
-              <div class="buttons">
-                { card.buttons.map(button => (
-                  <a href={button.link}>
-                    <img src={button.image} />
-                    {button.name}
-                  </a>
-                ))}
-              </div>
-            )}
-            { card.command && (
-              <div class="shaddow docker-command">
-                <code>{card.command}</code>
-                <button><Icon name="copy" size={0.8} /></button>
-              </div>
-            )}
-          </div>
-        ))} -->
       </div>
     </main>
     <Footer />
@@ -213,53 +190,34 @@ import Footer from '@components/scafold/Footer.astro';
       var(--c1)
     );
     position: relative;
-    z-index: 1;
-    transition: all 0.3s ease;
-    width: fit-content;
     &:before,
     &:after {
       content: '';
       position: absolute;
-      top: -1px;
-      left: -1px;
+      top: -0.1rem;
+      left: -0.1rem;
+      right: -0.1rem;
+      bottom: -0.1rem;
+      border-radius: 4px;
       background: var(--gradient-shadow);
-      background-size: 400%;
-      width: calc(100% + 2px);
-      height: calc(100% + 2px);
-      z-index: -1;
-      animation: animate 10s linear infinite;
-      transition: all 0.3s ease;
+      z-index: 1;
+      background-size: 200%;
+      animation: gradient-animation 5s infinite;
     }
-
-    &:before {
-      opacity: 0.1;
-    }
-
     &:after {
-      filter: blur(3px);
-      opacity: 0.3;
+      filter: blur(1rem);
+      opacity: 0.5;
     }
-
-    &:hover {
-      &:before,
-      &:after {
-        animation: animate 40s linear infinite;
-      }
-      &:after {
-        opacity: 0.7;
-      }
+  }
+  @keyframes gradient-animation {
+    0% {
+      background-position: 0% 0;
     }
-
-    @keyframes animate {
-      0% {
-        background-position: 0 0;
-      }
-      50% {
-        background-position: 120% 0;
-      }
-      100% {
-        background-position: 0 0;
-      }
+    50% {
+      background-position: 100% 0;
+    }
+    100% {
+      background-position: 0% 0;
     }
   }
 </style>

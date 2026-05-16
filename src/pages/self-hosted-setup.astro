@@ -1,4 +1,5 @@
 ---
+import { branding } from '@/config/branding';
 import BaseLayout from '@layouts/Base.astro';
 import NavBar from '@components/scafold/Nav.astro';
 import Footer from '@components/scafold/Footer.astro';
@@ -8,13 +9,13 @@ const cardData = [
   {
     title: 'Deploy with Docker',
     description:
-      "Just one command, and you'll have your own Web Check instance running on your server in minutes.",
-    command: 'docker run -p 3000:3000 lissy93/web-check',
+      `Just one command, and you'll have your own ${branding.name} instance running on your server in minutes.`,
+    command: `docker run -p 3000:3000 ${branding.dockerImage}`,
   },
   {
     title: '1-Click Deploy',
     description:
-      "Don't have a server? Not a problem! Deploy Web Check with one click on Vercel or Netlify.",
+      `Don't have a server? Not a problem! Deploy ${branding.name} with one click on Vercel or Netlify.`,
     buttons: [
       {
         name: 'Vercel',
@@ -37,12 +38,12 @@ const cardData = [
   },
   {
     title: 'Build from Source',
-    description: 'Want to customize Web Check? Clone the repository and deploy it on your server.',
+    description: `Want to customize ${branding.name}? Clone the repository and deploy it on your server.`,
     buttons: [
       {
         name: 'GitHub',
         image: '/assets/images/github.svg',
-        link: '',
+        link: branding.repoUrl,
       },
     ],
   },
@@ -50,14 +51,14 @@ const cardData = [
 ---
 
 <BaseLayout
-  title="Self-Hosted Setup | Web Check"
-  description="Get started with running Web Check locally or on your own server."
+  title={`Self-Hosted Setup | ${branding.name}`}
+  description={`Get started with running ${branding.name} locally or on your own server.`}
 >
   <div class="web-check-page">
     <NavBar />
     <main>
       <h1>Self-Hosted Setup</h1>
-      <p>Get your own free instance of Web Check, running locally or on your server.</p>
+      <p>Get your own instance of {branding.name}, running locally or on your server.</p>
 
       <div class="option-cards">
         {

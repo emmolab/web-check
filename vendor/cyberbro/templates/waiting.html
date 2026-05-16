@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cyberbro - Analysis in Progress">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Analysis in Progress - Cyberbro</title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        .waiting-container {
+            max-width: 500px;
+            padding: var(--spacing-xl);
+        }
+
+        .loader {
+            border: 8px solid var(--border-color);
+            border-top: 8px solid var(--primary-color);
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto var(--spacing-lg);
+        }
+
+        body.dark-mode .loader {
+            border-color: var(--dark-border-color);
+            border-top-color: var(--primary-light);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .waiting-text {
+            font-size: 1.25rem;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        body.dark-mode .waiting-text {
+            color: var(--dark-text-color);
+        }
+
+        .waiting-subtext {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: var(--spacing-sm);
+        }
+
+        body.dark-mode .waiting-subtext {
+            color: var(--dark-text-secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="waiting-container">
+        <div class="loader"></div>
+        <p class="waiting-text">Analysis in Progress</p>
+        <p class="waiting-subtext">This may take a few moments...</p>
+    </div>
+
+    <script>
+        // Function to apply dark mode if enabled
+        function applyDarkMode() {
+            const savedMode = localStorage.getItem("darkMode");
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (savedMode === "true" || (savedMode === null && prefersDark)) {
+                document.body.classList.add("dark-mode");
+            }
+        }
+
+        // Function to check if the analysis is complete
+        function checkResults() {
+            fetch('{{ API_PREFIX }}/is_analysis_complete/{{ analysis_id }}')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.complete) {
+                        window.location.href = '/results/{{ analysis_id }}';
+                    } else {
+                        setTimeout(checkResults, 1000);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Call the functions on page load
+        applyDarkMode();
+        checkResults();
+    </script>
+</body>
+
+</html>

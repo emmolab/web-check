@@ -1,15 +1,12 @@
 ---
-
+import { branding } from '@/config/branding';
 ---
 
 <nav class="navbar">
   <div class="nav-left">
     <a href="/" class="logo-link" aria-label="Home">
-      <img width="64" src="/favicon.svg" alt="Site Logo" />
-      <h2 class="site-title">
-        <span class="first">Web</span>
-        <span class="second">Check</span>
-      </h2>
+      <img width="64" src={branding.logoPath} alt={`${branding.name} logo`} data-brand-src="logoPath" data-brand-alt="name" />
+      <h2 class="site-title" data-brand-text="name">{branding.name}</h2>
     </a>
   </div>
   <div class="nav-right">
@@ -56,13 +53,7 @@
           font-weight: bold;
           color: var(--primary);
           font-size: 1.8rem;
-          .first {
-            color: var(--primary);
-          }
-          .second {
-            color: var(--text-color);
-            font-style: italic;
-          }
+          letter-spacing: 0.01em;
         }
       }
     }

@@ -1,4 +1,6 @@
 ---
+import { branding } from '@/config/branding';
+
 const sponsorName = 'Terminal Trove';
 const sponsorTagline = 'The $HOME of all things terminal.';
 const sponsorLink =
@@ -13,7 +15,7 @@ const ctaImageSrc = 'https://i.ibb.co/5jJ4bzZ/terminal-trove-cta.png';
 
 <div class="sponsored-but-dont-block">
   <div>
-    <h5>Sponsored by <a href={sponsorLink}>{sponsorName}</a></h5>
+    <h5>{branding.sponsorLabel} <a href={sponsorLink}>{sponsorName}</a></h5>
     <p>
       {sponsorTagline}<br />
       {ctaPreText}

@@ -1,0 +1,24 @@
+__pycache__/
+.dccache
+.pytest_cache
+.qodo
+.ruff_cache
+.venv
+*.csv
+*.db
+*.xlsx
+data/
+log*/
+site/
+.cache/
+# test files should be added with git add -f
+tests/
+# text files should be added with git add -f
+*.txt
+# Sensitive files
+secrets.json
+.env
+
+# Claude Code
+CLAUDE.md
+.claude/

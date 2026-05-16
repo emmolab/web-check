@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import type { ReactNode } from 'react';
 
+import { branding } from '@/config/branding';
 import { StyledCard } from 'client/components/Form/Card';
 import Heading from 'client/components/Form/Heading';
 import colors from 'client/styles/colors';
@@ -20,9 +21,15 @@ const Nav = (props: { children?: ReactNode }) => {
   return (
     <Header as="header">
       <Heading color={colors.primary} size="large">
-        <img width="64" src="/favicon.svg" alt="Web Check Icon" />
-        <a href="/" target="_self">
-          Web Check
+        <img
+          width="64"
+          src={branding.appIconPath}
+          alt={`${branding.name} icon`}
+          data-brand-src="appIconPath"
+          data-brand-alt="name"
+        />
+        <a href="/" target="_self" data-brand-text="name">
+          {branding.name}
         </a>
       </Heading>
       {props.children && props.children}

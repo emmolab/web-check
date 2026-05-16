@@ -1,4 +1,5 @@
 ---
+import { branding } from '@/config/branding';
 import AnimatedButton from './AnimatedButton.astro';
 import AnimatedInput from './AnimatedInput.astro';
 import Screenshots from './Screenshots.astro';
@@ -7,18 +8,14 @@ import Screenshots from './Screenshots.astro';
 <div class="hero">
   <div class="left">
     <h1>
-      <img src="/favicon.svg" alt="Check Web" width="64" />
-      <span class="web">Web</span>
-      <span class="check">Check</span>
+      <img src={branding.logoPath} alt={`${branding.name} logo`} width="64" data-brand-src="logoPath" data-brand-alt="name" />
+      <span class="brand-name" data-brand-text="name">{branding.name}</span>
     </h1>
     <div class="homepage-action-content">
-      <h2>We give you X-Ray<br />Vision for your Website</h2>
-      <h3>
-        In just 20 seconds, you can see
-        <span>what attackers already know</span>
-      </h3>
+      <h2 data-brand-text="heroTitle">{branding.heroTitle}</h2>
+      <h3 data-brand-text="heroSubtitle">{branding.heroSubtitle}</h3>
       <form name="live-start" autocomplete="off" action="/check" class="live-start" id="live-start">
-        <label for="url">Enter a URL to start 👇</label>
+        <label for="url" data-brand-text="heroInputLabel">{branding.heroInputLabel}</label>
         <AnimatedInput />
         <AnimatedButton />
       </form>
@@ -75,12 +72,8 @@ import Screenshots from './Screenshots.astro';
         width: 3rem;
         margin-right: 0.5rem;
       }
-      .web {
-        color: var(--text-color);
-      }
-      .check {
+      .brand-name {
         color: var(--primary);
-        font-style: italic;
       }
     }
     .homepage-action-content {
@@ -99,10 +92,8 @@ import Screenshots from './Screenshots.astro';
       h3 {
         font-weight: normal;
         font-size: 1.3rem;
-        span {
-          color: var(--primary);
-          font-style: italic;
-        }
+        color: var(--text-color);
+        line-height: 1.4;
       }
       form {
         margin-top: 1.5rem;

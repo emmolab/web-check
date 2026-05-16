@@ -1,4 +1,4 @@
-name: 🐳 Build + Publish Docker Image
+name: 🐳 Build + Publish Docker Images
 
 on:
   workflow_dispatch:
@@ -11,38 +11,48 @@ on:
       - src/**
       - api/**
       - public/**
+      - vendor/cyberbro/**
+      - docker-compose.yml
       - Dockerfile
+      - .github/workflows/docker.yml
 
 permissions:
   contents: read
   packages: write
 
 env:
-  IMAGE_NAME: web-check
-  DOCKER_USER: lissy93
   GHCR_REGISTRY: ghcr.io
-  DOCKERHUB_REGISTRY: docker.io
 
 jobs:
   docker:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - image_name: web-check
+            context: .
+            file: ./Dockerfile
+          - image_name: web-check-cyberbro
+            context: ./vendor/cyberbro
+            file: ./vendor/cyberbro/Dockerfile
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v6
 
-      - name: Extract tag name 🏷️
+      - name: Prepare image metadata 🧾
         shell: bash
-        run: echo "GIT_TAG=$(echo ${GITHUB_REF#refs/tags/} | sed 's/\//_/g')" >> $GITHUB_ENV
+        run: |
+          echo "GIT_TAG=$(echo ${GITHUB_REF#refs/tags/} | sed 's/\//_/g')" >> $GITHUB_ENV
+          echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
 
-      - name: Compute tags 🔖
-        id: compute-tags
+      - name: Compute GHCR tag 🔖
+        shell: bash
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-            echo "GHCR_TAG=${GHCR_REGISTRY}/${DOCKER_USER}/${IMAGE_NAME}:latest" >> $GITHUB_ENV
-            echo "DOCKERHUB_TAG=${DOCKERHUB_REGISTRY}/${DOCKER_USER}/${IMAGE_NAME}:latest" >> $GITHUB_ENV
+            echo "GHCR_TAG=${GHCR_REGISTRY}/${OWNER_LC}/${{ matrix.image.image_name }}:latest" >> $GITHUB_ENV
           else
-            echo "GHCR_TAG=${GHCR_REGISTRY}/${DOCKER_USER}/${IMAGE_NAME}:${GIT_TAG}" >> $GITHUB_ENV
-            echo "DOCKERHUB_TAG=${DOCKERHUB_REGISTRY}/${DOCKER_USER}/${IMAGE_NAME}:${GIT_TAG}" >> $GITHUB_ENV
+            echo "GHCR_TAG=${GHCR_REGISTRY}/${OWNER_LC}/${{ matrix.image.image_name }}:${GIT_TAG}" >> $GITHUB_ENV
           fi
 
       - name: Set up QEMU 🐧
@@ -58,20 +68,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Login to DockerHub 🔑
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ env.DOCKERHUB_REGISTRY }}
-          username: ${{ env.DOCKER_USER }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: Build and push Docker images 🛠️
+      - name: Build and push image 🛠️
         uses: docker/build-push-action@v7
         with:
-          context: .
-          file: ./Dockerfile
+          context: ${{ matrix.image.context }}
+          file: ${{ matrix.image.file }}
           push: true
           platforms: linux/amd64,linux/arm64/v8
-          tags: |
-            ${{ env.GHCR_TAG }}
-            ${{ env.DOCKERHUB_TAG }}
+          tags: ${{ env.GHCR_TAG }}

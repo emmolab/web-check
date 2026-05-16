@@ -34,16 +34,18 @@ import ArchivesCard from 'client/components/Results/Archives';
 import RankCard from 'client/components/Results/Rank';
 import BlockListsCard from 'client/components/Results/BlockLists';
 import ThreatsCard from 'client/components/Results/Threats';
+import CyberbroOverviewCard from 'client/components/Results/CyberbroOverview';
+import CyberbroSourcesCard from 'client/components/Results/CyberbroSources';
 import TlsConnectionCard from 'client/components/Results/TlsConnection';
 import TlsSecurityAuditCard from 'client/components/Results/TlsSecurityAudit';
 import TlsClientCompatCard from 'client/components/Results/TlsClientCompat';
 import SubdomainsCard from 'client/components/Results/Subdomains';
 
+import { getCyberbroSettings } from '@/config/cyberbro';
 import type { JobSpec, JobContext, JobsState } from './types';
 
 const URL_ONLY = ['url'] as const;
 
-// Build a fetcher that hits a local /api path then maps the success body
 const fetchAndProcess =
   (path: string, process: (raw: any) => any = (r) => r) =>
   async (ctx: JobContext) => {
@@ -54,7 +56,6 @@ const fetchAndProcess =
     return raw?.error ? raw : process(raw);
   };
 
-// Sleep ms, reject AbortError if signal fires
 const sleep = (ms: number, signal: AbortSignal) =>
   new Promise<void>((resolve, reject) => {
     if (signal.aborted) return reject(new DOMException('aborted', 'AbortError'));
@@ -70,7 +71,6 @@ const sleep = (ms: number, signal: AbortSignal) =>
     signal.addEventListener('abort', onAbort, { once: true });
   });
 
-// Re-run fetchOnce while shouldRetry(raw) holds, sleeping delay ms between attempts
 const retrying = (
   path: string,
   shouldRetry: (raw: any) => boolean,
@@ -90,7 +90,6 @@ const retrying = (
   };
 };
 
-// Re-run while the body has { pending: true }
 const fetchAndPoll = (path: string) =>
   retrying(
     path,
@@ -102,7 +101,6 @@ const fetchAndPoll = (path: string) =>
     }),
   );
 
-// Re-run on transient errors or when the server hints `retryable: true`
 const fetchAndRetry = (path: string) =>
   retrying(
     path,
@@ -112,6 +110,18 @@ const fetchAndRetry = (path: string) =>
     (last) => last,
   );
 
+const fetchCyberbro = async (ctx: JobContext) => {
+  const settings = getCyberbroSettings();
+  const params = new URLSearchParams({ url: ctx.address });
+  params.set('enabled', String(settings.enabled));
+  params.set('baseUrl', settings.baseUrl);
+  params.set('timeoutMs', String(settings.timeoutMs));
+  params.set('engines', settings.engines);
+  const res = await fetch(`${ctx.api}/cyberbro?${params.toString()}`, { signal: ctx.signal });
+  const raw = await parseJson(res);
+  return raw?.error || raw?.skipped ? raw : raw;
+};
+
 const card = (
   id: string,
   title: string,
@@ -120,7 +130,6 @@ const card = (
   extras: { pick?: any; fallback?: any } = {},
 ) => ({ id, title, tags, Component, ...extras });
 
-// Pick a child key of the raw response, null when missing so cards hide cleanly
 const at = (key: string) => (raw: any) => raw?.[key] ?? null;
 
 export const jobs: JobSpec[] = [
@@ -262,6 +271,15 @@ export const jobs: JobSpec[] = [
     fetcher: fetchAndProcess('threats?url=${url}'),
   },
   {
+    id: 'cyberbro',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [
+      card('cyberbro-overview', 'Cyberbro Threat Intel', ['security'], CyberbroOverviewCard),
+      card('cyberbro-sources', 'Cyberbro Sources', ['security', 'meta'], CyberbroSourcesCard),
+    ],
+    fetcher: fetchCyberbro,
+  },
+  {
     id: 'mail-config',
     expectedAddressTypes: [...URL_ONLY],
     cards: [card('mail-config', 'Email Configuration', ['server'], MailConfigCard)],
@@ -351,7 +369,6 @@ export const jobs: JobSpec[] = [
   },
 ];
 
-// Flat list of every card id (1+ per job). Used by ProgressBar and the result grid
 export const allCardIds: string[] = jobs.flatMap((j) => j.cards.map((c) => c.id));
 
 export const allCards: Array<{ jobId: string; card: JobSpec['cards'][number] }> = jobs.flatMap(
