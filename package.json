@@ -9,8 +9,6 @@
   "scripts": {
     "start": "node server",
     "build": "astro check && astro build",
-    "dev:vercel": "PLATFORM='vercel' npx vercel dev",
-    "dev:netlify": "PLATFORM='netlify' npx netlify dev",
     "dev:api": "DISABLE_GUI='true' PORT='3001' nodemon server",
     "dev:astro": "PUBLIC_API_ENDPOINT=http://localhost:3001/api astro dev",
     "dev": "concurrently -c magenta,cyan -n backend,frontend 'yarn dev:api' 'yarn dev:astro'",
@@ -70,13 +68,10 @@
     "yaml": "^2.8.3"
   },
   "devDependencies": {
-    "@astrojs/cloudflare": "^13.3.1",
-    "@astrojs/netlify": "^7.0.8",
     "@astrojs/node": "^10.0.6",
     "@astrojs/sitemap": "^3.7.2",
     "@astrojs/svelte": "^8.1.0",
     "@astrojs/ts-plugin": "^1.10.7",
-    "@astrojs/vercel": "^10.0.6",
     "@typescript-eslint/parser": "^8.59.2",
     "concurrently": "^9.2.1",
     "eslint": "^10.3.0",

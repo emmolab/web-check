@@ -243,19 +243,17 @@ const Home = (): JSX.Element => {
           <a
             target="_blank"
             rel="noreferrer"
-            href="https://github.com/lissy93/web-check"
+            href="https://github.com/emmolab/web-check"
             title="Check out the source code and documentation on GitHub, and get support or contribute"
           >
             <Button>View on GitHub</Button>
           </a>
-          <a
-            target="_blank"
-            rel="noreferrer"
-            href="https://app.netlify.com/start/deploy?repository=https://github.com/lissy93/web-check"
-            title="Deploy your own private or public instance of Web-Check to Netlify"
+          <Link
+            to="/self-hosted-setup"
+            title="See self-hosting instructions for Docker and source deployments"
           >
-            <Button>Deploy your own</Button>
-          </a>
+            <Button>Self-host</Button>
+          </Link>
           <Link
             to="/check/about#api-documentation"
             title="View the API documentation, to use Web-Check programmatically"
