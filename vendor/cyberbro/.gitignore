@@ -15,6 +15,7 @@ site/
 tests/
 # text files should be added with git add -f
 *.txt
+!requirements.txt
 # Sensitive files
 secrets.json
 .env
