@@ -109,7 +109,7 @@ const runtime = `
             Load order: local <code>.env</code> first, then <code>BRANDING_ENV_URL</code>, then <code>BRANDING_ENV_FILE</code>.
           </p>
           <p class="muted small">
-            After changing branding inputs, rebuild and restart the app so generated pages and metadata stay aligned.
+            After changing branding inputs in Docker, bring the stack down and back up so the container re-runs its startup build with the updated branding.
           </p>
         </section>
       </div>

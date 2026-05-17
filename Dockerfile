@@ -46,6 +46,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock ./
 COPY --from=build /app .
+COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends chromium traceroute && \
@@ -60,5 +61,6 @@ ENV CHROME_PATH='/usr/bin/chromium' \
     PUPPETEER_EXECUTABLE_PATH='/usr/bin/chromium' \
     PUPPETEER_SKIP_DOWNLOAD='true'
 
-# Define the command executed when the container starts and start the server.js of the Node.js application
-CMD ["yarn", "start"]
+# Build frontend assets from runtime env, then start the app
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+CMD ["/usr/local/bin/docker-entrypoint.sh"]

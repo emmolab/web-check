@@ -85,6 +85,7 @@ BRANDING_ENV_FILE='/branding/branding.full.env'
 ```
 
 For Docker Compose, that usually means mounting a folder containing the file and exporting `BRANDING_ENV_FILE`.
+The bundled compose file also loads your local `.env` into the `web-check` container, so `PUBLIC_BRAND_*`, `BRANDING_ENV_FILE`, and `BRANDING_ENV_URL` are available at startup.
 
 ## How to use a remote URL
 
@@ -110,4 +111,5 @@ These are also available through the GUI at `/branding/branding.minimal.env` and
 - Only branding-related keys are loaded from `BRANDING_ENV_FILE` and `BRANDING_ENV_URL`.
 - Cyberbro browser-local overrides remain available on `/account` because they do not rebrand the app or affect other users.
 - Production/shared branding should come from env vars or these external env files, not browser storage.
-- After changing branding inputs, rebuild and restart the app so the generated frontend and metadata stay in sync.
+- In Docker deployments, use `docker compose down && docker compose up -d` after branding changes so the container re-runs its startup build with the updated env.
+- For direct non-Docker runs, rebuild and restart the app so the generated frontend and metadata stay in sync.

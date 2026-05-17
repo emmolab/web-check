@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import { loadEnv } from 'vite';
+import { loadExternalBrandingEnv } from './src/config/branding-env.js';
 
 // Integrations
 import svelte from '@astrojs/svelte';
@@ -8,6 +9,8 @@ import sitemap from '@astrojs/sitemap';
 
 // Adapter
 import nodeAdapter from '@astrojs/node';
+
+await loadExternalBrandingEnv();
 
 // Pre-load .env so values are available in this config, before Vite
 const fileEnv = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), '');

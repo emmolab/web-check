@@ -25,10 +25,12 @@ export WEB_CHECK_IMAGE=ghcr.io/emmolab/web-check:latest
 export CYBERBRO_IMAGE=ghcr.io/emmolab/web-check-cyberbro:latest
 
 docker compose pull
+docker compose down
 docker compose up -d
 ```
 
 The bundled `docker-compose.yml` now defaults to pulling the published GHCR images directly.
+It also passes your local `.env` into the containers and performs a runtime frontend build on container start, so branding env changes apply to pulled images.
 If you want to build locally instead, run `docker build` manually or create a compose override for local builds.
 
 ## Key docs
@@ -59,7 +61,7 @@ Example files are available at:
 - `/branding/branding.minimal.env`
 - `/branding/branding.full.env`
 
-After changing branding inputs, rebuild and restart the app so the generated frontend stays in sync.
+After changing branding inputs in Docker, run `docker compose down && docker compose up -d` so the container re-runs its startup build with the new branding.
 
 ## Cyberbro integration
 
