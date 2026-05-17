@@ -99,7 +99,7 @@ if (process.env.API_ENABLE_RATE_LIMIT === 'true') {
   app.use(API_DIR, limiters);
 }
 
-app.get('/cyberbro/static/*', async (req, res) => {
+app.get(/^\/cyberbro\/static\/(.+)$/, async (req, res) => {
   try {
     const assetPath = req.params[0];
     const upstream = await fetch(`${getCyberbroConsoleBaseUrl(req)}/static/${assetPath}`);
