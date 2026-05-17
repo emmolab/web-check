@@ -8,6 +8,7 @@ on:
     tags:
       - '*'
     paths:
+      - server.js
       - src/**
       - api/**
       - public/**
