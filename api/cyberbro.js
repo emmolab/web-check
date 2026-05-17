@@ -1,3 +1,4 @@
+import { isIP } from 'node:net';
 import middleware from './_common/middleware.js';
 import { httpGet, httpPost } from './_common/http.js';
 import { parseTarget } from './_common/parse-target.js';
@@ -143,7 +144,12 @@ const getRuntimeSettings = (request) => {
 
 const pickPrimaryResult = (results, hostname) => {
   if (!Array.isArray(results) || results.length === 0) return null;
+  const hostnameType = isIP(hostname) === 6 ? 'IPV6' : isIP(hostname) === 4 ? 'IPV4' : null;
   return (
+    (hostnameType &&
+      results.find(
+        (item) => item?.type === hostnameType && String(item?.observable || '') === hostname,
+      )) ||
     results.find((item) => String(item?.observable || '').includes(hostname)) ||
     results.find((item) => item?.type === 'URL') ||
     results[0]
@@ -209,12 +215,13 @@ const cyberbroHandler = async (url, request) => {
   if (!settings.enabled) return { skipped: 'Cyberbro integration is disabled' };
 
   const { hostname, href } = parseTarget(url);
+  const observableText = isIP(hostname) ? hostname : href;
 
   try {
     const analyzeRes = await httpPost(
       `${settings.baseUrl}/analyze`,
       {
-        text: href,
+        text: observableText,
         engines: settings.engines,
       },
       {

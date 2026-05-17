@@ -46,6 +46,7 @@ import { getCyberbroSettings } from '@/config/cyberbro';
 import type { JobSpec, JobContext, JobsState } from './types';
 
 const URL_ONLY = ['url'] as const;
+const URL_AND_IP = ['url', 'ipV4', 'ipV6'] as const;
 
 const fetchAndProcess =
   (path: string, process: (raw: any) => any = (r) => r) =>
@@ -274,7 +275,7 @@ export const jobs: JobSpec[] = [
   },
   {
     id: 'cyberbro',
-    expectedAddressTypes: [...URL_ONLY],
+    expectedAddressTypes: [...URL_AND_IP],
     cards: [
       card('cyberbro-overview', 'Cyberbro Threat Intel', ['security'], CyberbroOverviewCard),
       card('cyberbro-sources', 'Cyberbro Sources', ['security', 'meta'], CyberbroSourcesCard),
