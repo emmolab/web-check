@@ -2,6 +2,12 @@ import middleware from './_common/middleware.js';
 import { httpGet, httpPost } from './_common/http.js';
 import { parseTarget } from './_common/parse-target.js';
 import { upstreamError } from './_common/upstream.js';
+import {
+  cyberbroEngineMap,
+  formatCyberbroEngineCsv,
+  FREE_CYBERBRO_ENGINES,
+  resolveCyberbroEngines,
+} from '../src/config/cyberbro-engines.js';
 
 const CYBERBRO_ENABLED = process.env.CYBERBRO_ENABLED !== 'false';
 const CYBERBRO_BASE_URL_DEFAULT = (
@@ -12,11 +18,11 @@ const CYBERBRO_TIMEOUT_MS_DEFAULT = parseInt(
   process.env.CYBERBRO_TIMEOUT_MS || process.env.PUBLIC_API_TIMEOUT_LIMIT || '30000',
   10,
 );
-const CYBERBRO_THREAT_ENGINES_DEFAULT = (process.env.CYBERBRO_THREAT_ENGINES ||
-  'google_safe_browsing,virustotal,phishtank,threatfox,alienvault,urlscan')
-  .split(',')
-  .map((engine) => engine.trim())
-  .filter(Boolean);
+const CYBERBRO_ENGINE_MODE_DEFAULT = (process.env.CYBERBRO_ENGINE_MODE || 'free').toLowerCase();
+const CYBERBRO_THREAT_ENGINES_DEFAULT = resolveCyberbroEngines({
+  engineMode: CYBERBRO_ENGINE_MODE_DEFAULT,
+  engines: process.env.CYBERBRO_THREAT_ENGINES || formatCyberbroEngineCsv(FREE_CYBERBRO_ENGINES),
+});
 
 const engineCatalog = {
   google_safe_browsing: {
@@ -117,19 +123,21 @@ const getRuntimeSettings = (request) => {
   const enabledRaw = getQueryValue(request, 'enabled');
   const baseUrl = (getQueryValue(request, 'baseUrl') || CYBERBRO_BASE_URL_DEFAULT).replace(/\/$/, '');
   const timeoutRaw = getQueryValue(request, 'timeoutMs');
+  const engineModeRaw = getQueryValue(request, 'engineMode');
   const enginesRaw = getQueryValue(request, 'engines');
+  const engineMode = engineModeRaw ? String(engineModeRaw).toLowerCase() : CYBERBRO_ENGINE_MODE_DEFAULT;
+  const engines = resolveCyberbroEngines({
+    engineMode,
+    engines: enginesRaw || formatCyberbroEngineCsv(CYBERBRO_THREAT_ENGINES_DEFAULT),
+  });
 
   return {
     enabled:
       enabledRaw === undefined ? CYBERBRO_ENABLED : !['false', '0', 'off'].includes(String(enabledRaw).toLowerCase()),
     baseUrl,
     timeoutMs: timeoutRaw ? parseInt(String(timeoutRaw), 10) : CYBERBRO_TIMEOUT_MS_DEFAULT,
-    engines: enginesRaw
-      ? String(enginesRaw)
-          .split(',')
-          .map((engine) => engine.trim())
-          .filter(Boolean)
-      : CYBERBRO_THREAT_ENGINES_DEFAULT,
+    engineMode,
+    engines,
   };
 };
 
@@ -146,12 +154,32 @@ const buildEngineRows = (result, selectedEngines) => {
   const rows = [];
   for (const engineName of selectedEngines) {
     const config = engineCatalog[engineName];
-    if (!config) continue;
     const raw = result?.[engineName] ?? null;
-    const classified = config.classify(raw);
+    const genericClassified =
+      raw === null || raw === undefined
+        ? { status: 'no-data', hit: false, summary: 'No data returned', link: null }
+        : raw?.error
+          ? { status: 'no-data', hit: false, summary: String(raw.error), link: null }
+          : Array.isArray(raw)
+            ? {
+                status: raw.length > 0 ? 'intel' : 'clear',
+                hit: false,
+                summary: raw.length > 0 ? `${raw.length} result${raw.length === 1 ? '' : 's'} returned` : 'No results',
+                link: null,
+              }
+            : {
+                status: 'intel',
+                hit: false,
+                summary:
+                  raw?.detection_ratio ||
+                  raw?.summary ||
+                  `${Object.keys(raw || {}).length} field${Object.keys(raw || {}).length === 1 ? '' : 's'} returned`,
+                link: raw?.link || raw?.url || raw?.result_url || raw?.permalink || raw?.phish_detail_page || null,
+              };
+    const classified = config?.classify ? config.classify(raw) : genericClassified;
     rows.push({
       id: engineName,
-      label: config.label,
+      label: config?.label || cyberbroEngineMap[engineName]?.label || engineName,
       ...classified,
       raw,
     });
@@ -197,6 +225,7 @@ const cyberbroHandler = async (url, request) => {
 
     const analysisId = analyzeRes.data?.analysis_id;
     if (!analysisId) return { skipped: 'Cyberbro returned no analysis id' };
+    const cyberbroConsoleBase = settings.baseUrl.replace(/\/api\/?$/, '');
 
     const startedAt = Date.now();
     let complete = false;
@@ -245,6 +274,9 @@ const cyberbroHandler = async (url, request) => {
       engines,
       highlights,
       analysisId,
+      graphPath: '/cyberbro/graph/' + analysisId + '?baseUrl=' + encodeURIComponent(settings.baseUrl),
+      resultsPath: '/cyberbro/results/' + analysisId + '?baseUrl=' + encodeURIComponent(settings.baseUrl),
+      cyberbroConsoleBase,
       raw: primaryResult,
     };
   } catch (error) {

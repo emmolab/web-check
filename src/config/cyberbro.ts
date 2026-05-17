@@ -1,3 +1,8 @@
+import {
+  formatCyberbroEngineCsv,
+  FREE_CYBERBRO_ENGINES,
+  resolveCyberbroEngines,
+} from '@/config/cyberbro-engines.js';
 const env = import.meta.env as Record<string, string | undefined>;
 
 export const CYBERBRO_SETTINGS_STORAGE_KEY = 'web-check.cyberbro-settings';
@@ -17,10 +22,8 @@ export const defaultCyberbroSettings = {
   enabled: readBool('CYBERBRO_ENABLED', true),
   baseUrl: read('CYBERBRO_BASE_URL', 'http://cyberbro:5000/api'),
   timeoutMs: read('CYBERBRO_TIMEOUT_MS', '30000'),
-  engines: read(
-    'CYBERBRO_THREAT_ENGINES',
-    'google_safe_browsing,virustotal,phishtank,threatfox,alienvault,urlscan',
-  ),
+  engineMode: read('CYBERBRO_ENGINE_MODE', 'free'),
+  engines: read('CYBERBRO_THREAT_ENGINES', formatCyberbroEngineCsv(FREE_CYBERBRO_ENGINES)),
 };
 
 export const getCyberbroSettings = () => {
@@ -28,7 +31,11 @@ export const getCyberbroSettings = () => {
   try {
     const raw = window.localStorage.getItem(CYBERBRO_SETTINGS_STORAGE_KEY);
     if (!raw) return defaultCyberbroSettings;
-    return { ...defaultCyberbroSettings, ...JSON.parse(raw) };
+    const merged = { ...defaultCyberbroSettings, ...JSON.parse(raw) };
+    return {
+      ...merged,
+      engines: formatCyberbroEngineCsv(resolveCyberbroEngines(merged)),
+    };
   } catch {
     return defaultCyberbroSettings;
   }

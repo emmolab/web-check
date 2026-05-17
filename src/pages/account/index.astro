@@ -4,15 +4,39 @@ import NavBar from '@components/scafold/Nav.astro';
 import Footer from '@components/scafold/Footer.astro';
 import { branding } from '@/config/branding';
 import { CYBERBRO_SETTINGS_STORAGE_KEY, defaultCyberbroSettings } from '@/config/cyberbro';
+import {
+  ALL_CYBERBRO_ENGINES,
+  cyberbroEngineCatalog,
+  FREE_CYBERBRO_ENGINES,
+} from '@/config/cyberbro-engines.js';
 
 const runtime = `
 (() => {
   const CYBERBRO_STORAGE_KEY = ${JSON.stringify(CYBERBRO_SETTINGS_STORAGE_KEY)};
   const defaultsCyberbro = ${JSON.stringify(defaultCyberbroSettings)};
+  const FREE_ENGINES = ${JSON.stringify(FREE_CYBERBRO_ENGINES)};
+  const ALL_ENGINES = ${JSON.stringify(ALL_CYBERBRO_ENGINES)};
 
   const cyberbroForm = document.getElementById('cyberbro-form');
   const cyberbroStatus = document.getElementById('cyberbro-status');
   const resetCyberbroBtn = document.getElementById('reset-cyberbro');
+  const engineModeSelect = document.getElementById('cyberbro-engine-mode');
+  const enginesField = cyberbroForm?.querySelector('[name="engines"]');
+
+  const toCsv = (values) => values.join(',');
+
+  const syncEnginePreset = () => {
+    if (!engineModeSelect || !enginesField) return;
+    if (engineModeSelect.value === 'free') {
+      enginesField.value = toCsv(FREE_ENGINES);
+      enginesField.setAttribute('readonly', 'readonly');
+    } else if (engineModeSelect.value === 'all') {
+      enginesField.value = toCsv(ALL_ENGINES);
+      enginesField.setAttribute('readonly', 'readonly');
+    } else {
+      enginesField.removeAttribute('readonly');
+    }
+  };
 
   const setCyberbroStatus = (message) => {
     if (cyberbroStatus) cyberbroStatus.textContent = message;
@@ -42,6 +66,7 @@ const runtime = `
       enabled: fd.get('enabled') === 'on',
       baseUrl: fd.get('baseUrl'),
       timeoutMs: fd.get('timeoutMs'),
+      engineMode: fd.get('engineMode'),
       engines: fd.get('engines'),
     };
     window.localStorage.setItem(CYBERBRO_STORAGE_KEY, JSON.stringify(settings));
@@ -54,7 +79,9 @@ const runtime = `
     setCyberbroStatus('Cyberbro settings reset to env defaults.');
   });
 
+  engineModeSelect?.addEventListener('change', syncEnginePreset);
   populateCyberbro();
+  syncEnginePreset();
 })();
 `;
 ---
@@ -129,8 +156,16 @@ const runtime = `
           <label>Cyberbro API base URL<input name="baseUrl" placeholder="http://cyberbro:5000/api" /></label>
           <label>Timeout (ms)<input name="timeoutMs" inputmode="numeric" /></label>
           <label>
+            Engine preset
+            <select id="cyberbro-engine-mode" name="engineMode">
+              <option value="free">Free / no-key engines</option>
+              <option value="all">All known Cyberbro engines</option>
+              <option value="custom">Custom selection</option>
+            </select>
+          </label>
+          <label>
             Engines (comma-separated)
-            <textarea name="engines" rows="4" placeholder="google_safe_browsing,virustotal,phishtank,threatfox,alienvault,urlscan"></textarea>
+            <textarea name="engines" rows="6" placeholder="ipapi,reverse_dns,rdap_whois,google_dns,github,urlscan"></textarea>
           </label>
         </section>
 
@@ -145,6 +180,22 @@ const runtime = `
             <button type="button" id="reset-cyberbro">Reset to defaults</button>
           </div>
           <p id="cyberbro-status" class="status muted">No Cyberbro override status yet.</p>
+          <p class="muted small">Free preset uses engines tagged <code>free_no_key</code> in Cyberbro's own GUI metadata.</p>
+        </section>
+
+        <section class="card full-width">
+          <h2>Available engines</h2>
+          <p class="muted small">
+            Web Check now exposes the broader Cyberbro engine catalog. Choose a preset above or switch to custom and edit the CSV directly.
+          </p>
+          <ul>
+            {cyberbroEngineCatalog.map((engine) => (
+              <li>
+                <code>{engine.name}</code> - {engine.label} - {engine.description}
+                {engine.supports.includes('free_no_key') ? ' (free/no-key)' : ''}
+              </li>
+            ))}
+          </ul>
         </section>
       </form>
     </main>

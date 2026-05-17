@@ -36,6 +36,7 @@ import BlockListsCard from 'client/components/Results/BlockLists';
 import ThreatsCard from 'client/components/Results/Threats';
 import CyberbroOverviewCard from 'client/components/Results/CyberbroOverview';
 import CyberbroSourcesCard from 'client/components/Results/CyberbroSources';
+import CyberbroGraphCard from 'client/components/Results/CyberbroGraph';
 import TlsConnectionCard from 'client/components/Results/TlsConnection';
 import TlsSecurityAuditCard from 'client/components/Results/TlsSecurityAudit';
 import TlsClientCompatCard from 'client/components/Results/TlsClientCompat';
@@ -116,6 +117,7 @@ const fetchCyberbro = async (ctx: JobContext) => {
   params.set('enabled', String(settings.enabled));
   params.set('baseUrl', settings.baseUrl);
   params.set('timeoutMs', String(settings.timeoutMs));
+  params.set('engineMode', settings.engineMode || 'free');
   params.set('engines', settings.engines);
   const res = await fetch(`${ctx.api}/cyberbro?${params.toString()}`, { signal: ctx.signal });
   const raw = await parseJson(res);
@@ -276,6 +278,7 @@ export const jobs: JobSpec[] = [
     cards: [
       card('cyberbro-overview', 'Cyberbro Threat Intel', ['security'], CyberbroOverviewCard),
       card('cyberbro-sources', 'Cyberbro Sources', ['security', 'meta'], CyberbroSourcesCard),
+      card('cyberbro-graph', 'Cyberbro Graph', ['security', 'meta'], CyberbroGraphCard),
     ],
     fetcher: fetchCyberbro,
   },

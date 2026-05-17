@@ -70,6 +70,8 @@ const CyberbroSourcesCard = (props: { data: any; title: string; actionButtons: a
   const engines = props.data.engines || [];
   const analysisId = props.data.analysisId;
   const settings = props.data.settings || {};
+  const graphPath = props.data.graphPath;
+  const resultsPath = props.data.resultsPath;
 
   return (
     <Card heading={props.title} actionButtons={props.actionButtons}>
@@ -102,6 +104,9 @@ const CyberbroSourcesCard = (props: { data: any; title: string; actionButtons: a
           <Row key={engine.id} lbl={engine.label} val={status.label} />
         );
       })}
+      {graphPath && <Row lbl="Graph" val={graphPath} />}
+      {resultsPath && <Row lbl="Cyberbro Results" val={resultsPath} />}
+      {settings.engineMode && <Row lbl="Engine Mode" val={settings.engineMode} />}
       {settings.baseUrl && <Row lbl="Cyberbro API" val={settings.baseUrl} />}
       {analysisId && <Note>Cyberbro analysis id: {analysisId}</Note>}
     </Card>

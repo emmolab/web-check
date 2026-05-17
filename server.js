@@ -48,6 +48,19 @@ const errorFilePath = path.join(__dirname, 'public', 'error.html');
 const handlers = {}; // Will store list of API endpoints
 process.env.WC_SERVER = 'true'; // Tells middleware to return in non-lambda mode
 
+const getCyberbroConsoleBaseUrl = (req) =>
+  String(req?.query?.baseUrl || process.env.CYBERBRO_BASE_URL || 'http://cyberbro:5000/api')
+    .replace(/\/$/, '')
+    .replace(/\/api$/, '');
+
+const rewriteCyberbroHtml = (html) =>
+  html
+    .replaceAll('href="/static/', 'href="/cyberbro/static/')
+    .replaceAll('src="/static/', 'src="/cyberbro/static/')
+    .replaceAll("window.location.href='/results/", "window.location.href='/cyberbro/results/")
+    .replaceAll('href="/results/', 'href="/cyberbro/results/')
+    .replaceAll('href="/graph/', 'href="/cyberbro/graph/');
+
 // Enable CORS
 app.use(
   cors({
@@ -85,6 +98,39 @@ const limiters = limits.map((limit) =>
 if (process.env.API_ENABLE_RATE_LIMIT === 'true') {
   app.use(API_DIR, limiters);
 }
+
+app.get('/cyberbro/static/*', async (req, res) => {
+  try {
+    const assetPath = req.params[0];
+    const upstream = await fetch(`${getCyberbroConsoleBaseUrl(req)}/static/${assetPath}`);
+    const body = await upstream.arrayBuffer();
+    res.status(upstream.status);
+    const contentType = upstream.headers.get('content-type');
+    if (contentType) res.setHeader('content-type', contentType);
+    res.send(Buffer.from(body));
+  } catch (error) {
+    res.status(502).send(String(error?.message || error));
+  }
+});
+
+const proxyCyberbroHtml = async (req, res, pathName) => {
+  try {
+    const upstream = await fetch(`${getCyberbroConsoleBaseUrl(req)}${pathName}`);
+    const html = await upstream.text();
+    res.status(upstream.status).setHeader('content-type', 'text/html; charset=utf-8');
+    res.send(rewriteCyberbroHtml(html));
+  } catch (error) {
+    res.status(502).send(String(error?.message || error));
+  }
+};
+
+app.get('/cyberbro/results/:analysisId', async (req, res) => {
+  await proxyCyberbroHtml(req, res, `/results/${req.params.analysisId}`);
+});
+
+app.get('/cyberbro/graph/:analysisId', async (req, res) => {
+  await proxyCyberbroHtml(req, res, `/graph/${req.params.analysisId}`);
+});
 
 // Read and register each API function as an Express routes
 fs.readdirSync(dirPath, { withFileTypes: true })

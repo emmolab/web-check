@@ -23,7 +23,8 @@ Web Check can now run with a bundled Cyberbro sidecar and surface the results as
 ```env
 CYBERBRO_ENABLED='true'
 CYBERBRO_BASE_URL='http://cyberbro:5000/api'
-CYBERBRO_THREAT_ENGINES='google_safe_browsing,virustotal,phishtank,threatfox,alienvault,urlscan'
+CYBERBRO_ENGINE_MODE='free'
+CYBERBRO_THREAT_ENGINES='ipapi,reverse_dns,rdap_whois,google_dns,github,urlscan,phishtank,hudsonrock,crtsh,bad_asn,misp_feedback,abusix,ipquery'
 CYBERBRO_TIMEOUT_MS='30000'
 CYBERBRO_HOST_PORT='5000'
 ```
@@ -83,6 +84,7 @@ The `/account` page now includes a Cyberbro settings section where you can overr
 - Cyberbro base URL
 - timeout
 - selected engines
+- engine preset (`free`, `all`, or `custom`)
 
 In the main navigation, this page is exposed as **Settings**.
 
@@ -99,6 +101,7 @@ The Cyberbro integration currently shows:
 
 - an overview verdict card
 - per-source breakdowns and summaries
+- same-origin links into proxied Cyberbro graph/results pages
 - selected engine list
 - matched engine list
 - extracted highlights like threat types / malware families / adversaries when present
