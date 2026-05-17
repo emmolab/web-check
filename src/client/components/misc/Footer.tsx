@@ -9,6 +9,7 @@ const StyledFooter = styled.footer`
   text-align: center;
   padding: 0.5rem 0;
   background: ${colors.backgroundDarker};
+  border-top: 1px solid ${colors.primaryTransparent};
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -35,8 +36,8 @@ const ALink = styled.a`
   padding: 0.1rem;
   transition: all 0.2s ease-in-out;
   &:hover {
-    background: ${colors.primary};
-    color: ${colors.backgroundDarker};
+    background: ${colors.primaryTransparent};
+    color: ${colors.textColor};
     text-decoration: none;
   }
 `;
