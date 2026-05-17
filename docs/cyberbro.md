@@ -23,8 +23,8 @@ Web Check can now run with a bundled Cyberbro sidecar and surface the results as
 ```env
 CYBERBRO_ENABLED='true'
 CYBERBRO_BASE_URL='http://cyberbro:5000/api'
-CYBERBRO_ENGINE_MODE='free'
-CYBERBRO_THREAT_ENGINES='ipapi,reverse_dns,rdap_whois,google_dns,github,urlscan,phishtank,hudsonrock,crtsh,bad_asn,misp_feedback,abusix,ipquery'
+CYBERBRO_ENGINE_MODE='all'
+CYBERBRO_THREAT_ENGINES=''
 CYBERBRO_TIMEOUT_MS='30000'
 CYBERBRO_HOST_PORT='5000'
 ```
@@ -110,4 +110,4 @@ The Cyberbro integration currently shows:
 
 - Web Check build/typecheck are verified in this repo.
 - Docker compose syntax/runtime should still be validated on a Docker-capable host before release.
-- This first pass focuses on URL/domain-friendly threat sources rather than every Cyberbro engine.
+- The bundled defaults now expose all Cyberbro engines, while the GUI still lets users switch back to free-only or custom presets.

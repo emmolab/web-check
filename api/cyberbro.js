@@ -3,9 +3,9 @@ import { httpGet, httpPost } from './_common/http.js';
 import { parseTarget } from './_common/parse-target.js';
 import { upstreamError } from './_common/upstream.js';
 import {
+  ALL_CYBERBRO_ENGINES,
   cyberbroEngineMap,
   formatCyberbroEngineCsv,
-  FREE_CYBERBRO_ENGINES,
   resolveCyberbroEngines,
 } from '../src/config/cyberbro-engines.js';
 
@@ -18,10 +18,10 @@ const CYBERBRO_TIMEOUT_MS_DEFAULT = parseInt(
   process.env.CYBERBRO_TIMEOUT_MS || process.env.PUBLIC_API_TIMEOUT_LIMIT || '30000',
   10,
 );
-const CYBERBRO_ENGINE_MODE_DEFAULT = (process.env.CYBERBRO_ENGINE_MODE || 'free').toLowerCase();
+const CYBERBRO_ENGINE_MODE_DEFAULT = (process.env.CYBERBRO_ENGINE_MODE || 'all').toLowerCase();
 const CYBERBRO_THREAT_ENGINES_DEFAULT = resolveCyberbroEngines({
   engineMode: CYBERBRO_ENGINE_MODE_DEFAULT,
-  engines: process.env.CYBERBRO_THREAT_ENGINES || formatCyberbroEngineCsv(FREE_CYBERBRO_ENGINES),
+  engines: process.env.CYBERBRO_THREAT_ENGINES || formatCyberbroEngineCsv(ALL_CYBERBRO_ENGINES),
 });
 
 const engineCatalog = {

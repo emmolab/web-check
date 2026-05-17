@@ -11,7 +11,8 @@ services:
     environment:
       - CYBERBRO_ENABLED=${CYBERBRO_ENABLED:-true}
       - CYBERBRO_BASE_URL=${CYBERBRO_BASE_URL:-http://cyberbro:5000/api}
-      - CYBERBRO_THREAT_ENGINES=${CYBERBRO_THREAT_ENGINES:-google_safe_browsing,virustotal,phishtank,threatfox,alienvault,urlscan}
+      - CYBERBRO_ENGINE_MODE=${CYBERBRO_ENGINE_MODE:-all}
+      - CYBERBRO_THREAT_ENGINES=${CYBERBRO_THREAT_ENGINES:-}
       - CYBERBRO_TIMEOUT_MS=${CYBERBRO_TIMEOUT_MS:-30000}
       - BRANDING_ENV_FILE=${BRANDING_ENV_FILE:-}
       - BRANDING_ENV_URL=${BRANDING_ENV_URL:-}
@@ -53,7 +54,7 @@ services:
       - RANSOMWARE_LIVE_API_KEY=${RANSOMWARE_LIVE_API_KEY:-}
       - SHODAN=${SHODAN:-}
       - WEBSCOUT=${WEBSCOUT:-}
-      - GUI_ENABLED_ENGINES=${GUI_ENABLED_ENGINES:-google_safe_browsing,virustotal,phishtank,threatfox,alienvault,urlscan}
+      - GUI_ENABLED_ENGINES=${GUI_ENABLED_ENGINES:-}
     healthcheck:
       test:
         [

@@ -57,9 +57,15 @@ const rewriteCyberbroHtml = (html) =>
   html
     .replaceAll('href="/static/', 'href="/cyberbro/static/')
     .replaceAll('src="/static/', 'src="/cyberbro/static/')
+    .replaceAll('content="api"', 'content="cyberbro/api"')
+    .replaceAll('fetch(`/api/', 'fetch(`/cyberbro/api/')
+    .replaceAll('fetch("/api/', 'fetch("/cyberbro/api/')
+    .replaceAll("fetch('/api/", "fetch('/cyberbro/api/")
     .replaceAll("window.location.href='/results/", "window.location.href='/cyberbro/results/")
     .replaceAll('href="/results/', 'href="/cyberbro/results/')
-    .replaceAll('href="/graph/', 'href="/cyberbro/graph/');
+    .replaceAll('href="/graph/', 'href="/cyberbro/graph/')
+    .replaceAll("action=\"/export/", "action=\"/cyberbro/export/")
+    .replaceAll("location.href='/'", "location.href='/cyberbro/'");
 
 // Enable CORS
 app.use(
@@ -113,6 +119,20 @@ app.get(/^\/cyberbro\/static\/(.+)$/, async (req, res) => {
   }
 });
 
+app.get(/^\/cyberbro\/api\/(.+)$/, async (req, res) => {
+  try {
+    const upstreamPath = req.params[0];
+    const upstream = await fetch(`${getCyberbroConsoleBaseUrl(req)}/api/${upstreamPath}`);
+    const body = await upstream.arrayBuffer();
+    res.status(upstream.status);
+    const contentType = upstream.headers.get('content-type');
+    if (contentType) res.setHeader('content-type', contentType);
+    res.send(Buffer.from(body));
+  } catch (error) {
+    res.status(502).send(String(error?.message || error));
+  }
+});
+
 const proxyCyberbroHtml = async (req, res, pathName) => {
   try {
     const upstream = await fetch(`${getCyberbroConsoleBaseUrl(req)}${pathName}`);
@@ -130,6 +150,29 @@ app.get('/cyberbro/results/:analysisId', async (req, res) => {
 
 app.get('/cyberbro/graph/:analysisId', async (req, res) => {
   await proxyCyberbroHtml(req, res, `/graph/${req.params.analysisId}`);
+});
+
+app.get('/cyberbro/export/:analysisId', async (req, res) => {
+  try {
+    const upstreamUrl = new URL(
+      `${getCyberbroConsoleBaseUrl(req)}/export/${req.params.analysisId}`,
+    );
+    for (const [key, value] of Object.entries(req.query || {})) {
+      if (key === 'baseUrl') continue;
+      if (Array.isArray(value)) value.forEach((entry) => upstreamUrl.searchParams.append(key, String(entry)));
+      else if (value !== undefined) upstreamUrl.searchParams.set(key, String(value));
+    }
+    const upstream = await fetch(upstreamUrl);
+    const body = await upstream.arrayBuffer();
+    res.status(upstream.status);
+    for (const header of ['content-type', 'content-disposition']) {
+      const value = upstream.headers.get(header);
+      if (value) res.setHeader(header, value);
+    }
+    res.send(Buffer.from(body));
+  } catch (error) {
+    res.status(502).send(String(error?.message || error));
+  }
 });
 
 // Read and register each API function as an Express routes

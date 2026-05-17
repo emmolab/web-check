@@ -1,6 +1,6 @@
 import {
+  ALL_CYBERBRO_ENGINES,
   formatCyberbroEngineCsv,
-  FREE_CYBERBRO_ENGINES,
   resolveCyberbroEngines,
 } from '@/config/cyberbro-engines.js';
 const env = import.meta.env as Record<string, string | undefined>;
@@ -22,8 +22,8 @@ export const defaultCyberbroSettings = {
   enabled: readBool('CYBERBRO_ENABLED', true),
   baseUrl: read('CYBERBRO_BASE_URL', 'http://cyberbro:5000/api'),
   timeoutMs: read('CYBERBRO_TIMEOUT_MS', '30000'),
-  engineMode: read('CYBERBRO_ENGINE_MODE', 'free'),
-  engines: read('CYBERBRO_THREAT_ENGINES', formatCyberbroEngineCsv(FREE_CYBERBRO_ENGINES)),
+  engineMode: read('CYBERBRO_ENGINE_MODE', 'all'),
+  engines: read('CYBERBRO_THREAT_ENGINES', formatCyberbroEngineCsv(ALL_CYBERBRO_ENGINES)),
 };
 
 export const getCyberbroSettings = () => {
