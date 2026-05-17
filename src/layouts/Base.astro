@@ -1,7 +1,7 @@
 ---
 import { ClientRouter } from 'astro:transitions';
 import MetaTags from '@layouts/MetaTags.astro';
-import { BRANDING_STORAGE_KEY, brandThemeCss, defaultBranding } from '@/config/branding';
+import { brandThemeCss } from '@/config/branding';
 
 import '@styles/typography.scss';
 import '@styles/global.scss';
@@ -21,111 +21,6 @@ interface Props {
 }
 
 const { preloadBodyFont = true } = Astro.props;
-
-const brandingRuntime = `
-(() => {
-  const STORAGE_KEY = ${JSON.stringify(BRANDING_STORAGE_KEY)};
-  const defaults = ${JSON.stringify(defaultBranding)};
-  const themeMap = {
-    primary: '--primary',
-    primaryLighter: '--primary-lighter',
-    textColor: '--text-color',
-    textColorSecondary: '--text-color-secondary',
-    textColorThirdly: '--text-color-thirdly',
-    background: '--background',
-    backgroundDarker: '--background-darker',
-    backgroundLighter: '--background-lighter',
-    background50: '--background-50',
-    bgShadowColor: '--bg-shadow-color',
-    fgShadowColor: '--fg-shadow-color',
-    primaryTransparent: '--primary-transparent',
-    info: '--info',
-    success: '--success',
-    warning: '--warning',
-    error: '--error',
-    danger: '--danger',
-    neutral: '--neutral',
-  };
-
-  const mergeBranding = (base, overrides) => ({
-    ...base,
-    ...overrides,
-    theme: { ...base.theme, ...(overrides?.theme || {}) },
-  });
-
-  const getOverrides = () => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : {};
-    } catch {
-      return {};
-    }
-  };
-
-  const applyBranding = () => {
-    const branding = mergeBranding(defaults, getOverrides());
-    const root = document.documentElement;
-    Object.entries(themeMap).forEach(([key, cssVar]) => {
-      const value = branding.theme?.[key];
-      if (value) root.style.setProperty(cssVar, value);
-    });
-
-    document.querySelectorAll('[data-brand-text]').forEach((node) => {
-      const key = node.getAttribute('data-brand-text');
-      if (key && branding[key] !== undefined) node.textContent = String(branding[key]);
-    });
-
-    document.querySelectorAll('[data-brand-html]').forEach((node) => {
-      const key = node.getAttribute('data-brand-html');
-      if (key && branding[key] !== undefined) node.innerHTML = String(branding[key]);
-    });
-
-    document.querySelectorAll('[data-brand-href]').forEach((node) => {
-      const key = node.getAttribute('data-brand-href');
-      if (key && branding[key] !== undefined) node.setAttribute('href', String(branding[key]));
-    });
-
-    document.querySelectorAll('[data-brand-src]').forEach((node) => {
-      const key = node.getAttribute('data-brand-src');
-      if (key && branding[key] !== undefined) node.setAttribute('src', String(branding[key]));
-    });
-
-    document.querySelectorAll('[data-brand-alt]').forEach((node) => {
-      const key = node.getAttribute('data-brand-alt');
-      if (key && branding[key] !== undefined) node.setAttribute('alt', String(branding[key]));
-    });
-
-    document.querySelectorAll('[data-brand-content]').forEach((node) => {
-      const key = node.getAttribute('data-brand-content');
-      if (key && branding[key] !== undefined) node.setAttribute('content', String(branding[key]));
-    });
-
-    document.querySelectorAll('[data-brand-toggle="showSponsor"]').forEach((node) => {
-      node.style.display = branding.showSponsor ? '' : 'none';
-    });
-
-    if (branding.name) {
-      document.title = document.title.replace(defaults.name, branding.name);
-    }
-    if (branding.description) {
-      const desc = document.querySelector('meta[name="description"]');
-      if (desc) desc.setAttribute('content', branding.description);
-    }
-
-    window.__WEB_CHECK_BRANDING__ = branding;
-    window.dispatchEvent(new CustomEvent('web-check-branding-applied', { detail: branding }));
-  };
-
-  applyBranding();
-  document.addEventListener('DOMContentLoaded', applyBranding);
-  document.addEventListener('astro:page-load', applyBranding);
-  window.addEventListener('pageshow', applyBranding);
-  window.addEventListener('storage', (event) => {
-    if (event.key === STORAGE_KEY) applyBranding();
-  });
-  window.addEventListener('web-check-branding-refresh', applyBranding);
-})();
-`;
 ---
 
 <!doctype html>
@@ -135,7 +30,6 @@ const brandingRuntime = `
     <MetaTags {...Astro.props} />
     <slot name="head" />
     <style is:inline set:html={brandThemeCss}></style>
-    <script is:inline set:html={brandingRuntime}></script>
     {
       preloadBodyFont && (
         <link

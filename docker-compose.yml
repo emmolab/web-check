@@ -2,10 +2,8 @@ version: '3.9'
 services:
   web-check:
     container_name: web-check
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: ${WEB_CHECK_IMAGE:-web-check-local}
+    image: ${WEB_CHECK_IMAGE:-ghcr.io/emmolab/web-check:latest}
+    pull_policy: always
     ports:
       - 3000:3000
     environment:
@@ -13,8 +11,10 @@ services:
       - CYBERBRO_BASE_URL=${CYBERBRO_BASE_URL:-http://cyberbro:5000/api}
       - CYBERBRO_THREAT_ENGINES=${CYBERBRO_THREAT_ENGINES:-google_safe_browsing,virustotal,phishtank,threatfox,alienvault,urlscan}
       - CYBERBRO_TIMEOUT_MS=${CYBERBRO_TIMEOUT_MS:-30000}
+      - BRANDING_ENV_FILE=${BRANDING_ENV_FILE:-}
+      - BRANDING_ENV_URL=${BRANDING_ENV_URL:-}
       - PUBLIC_BRAND_NAME=${PUBLIC_BRAND_NAME:-Web Check}
-      - PUBLIC_BRAND_REPO_URL=${PUBLIC_BRAND_REPO_URL:-https://github.com/lissy93/web-check}
+      - PUBLIC_BRAND_REPO_URL=${PUBLIC_BRAND_REPO_URL:-https://github.com/emmolab/web-check}
     depends_on:
       cyberbro:
         condition: service_healthy
@@ -22,10 +22,8 @@ services:
 
   cyberbro:
     container_name: cyberbro
-    build:
-      context: ./vendor/cyberbro
-      dockerfile: Dockerfile
-    image: ${CYBERBRO_IMAGE:-cyberbro-bundled}
+    image: ${CYBERBRO_IMAGE:-ghcr.io/emmolab/web-check-cyberbro:latest}
+    pull_policy: always
     ports:
       - '${CYBERBRO_HOST_PORT:-5000}:5000'
     environment:

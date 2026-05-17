@@ -4,8 +4,8 @@ This repository is Emmolab's fork of [Lissy93/web-check](https://github.com/Liss
 
 ## What's different in this fork
 
-- **Whitelabel branding support** via environment variables
-- **GUI branding editor** on `/account` for browser-local overrides
+- **Whitelabel branding support** via environment variables or external env files
+- **Branding env ingestion** from either a mounted/uploaded file path or a remote URL
 - **Bundled Cyberbro integration** with extra threat-intel cards
 - **Docker / GHCR-first deployment path** for pull-based installs
 - **Removed unused repo automation** for external mirrors and release flows we aren't using
@@ -28,30 +28,42 @@ docker compose pull
 docker compose up -d
 ```
 
-If you want to build locally instead, leave those variables unset and Compose will use the included build definitions.
+The bundled `docker-compose.yml` now defaults to pulling the published GHCR images directly.
+If you want to build locally instead, run `docker build` manually or create a compose override for local builds.
 
 ## Key docs
 
 - [`docs/whitelabel.md`](docs/whitelabel.md) - branding and fork customisation
 - [`docs/cyberbro.md`](docs/cyberbro.md) - Cyberbro setup and configuration
 - [`.env.sample`](.env.sample) - environment variables
-- [`docker-compose.yml`](docker-compose.yml) - local build or GHCR pull deployment
+- [`docker-compose.yml`](docker-compose.yml) - GHCR pull deployment
 
 ## Branding
 
 This fork supports environment-driven branding, including values such as:
 
 - `PUBLIC_BRAND_NAME`
-- `PUBLIC_BRAND_TAGLINE`
+- `PUBLIC_BRAND_TITLE_LONG`
 - `PUBLIC_BRAND_DESCRIPTION`
-- `PUBLIC_BRAND_LOGO_URL`
 - `PUBLIC_BRAND_REPO_URL`
+- `PUBLIC_BRAND_DOCKER_IMAGE`
 
-There is also a local browser-side branding editor at `/account` for fast previews and demos.
+Branding is not editable from the GUI.
+Instead, users can either:
+
+- upload or mount an env file and set `BRANDING_ENV_FILE=/path/to/branding.env`
+- host an env file remotely and set `BRANDING_ENV_URL=https://example.com/branding.env`
+
+Example files are available at:
+
+- `/branding/branding.minimal.env`
+- `/branding/branding.full.env`
+
+After changing branding inputs, rebuild and restart the app so the generated frontend stays in sync.
 
 ## Cyberbro integration
 
-Cyberbro is shipped alongside Web-Check and exposed through additional result cards. Runtime settings can be controlled through environment variables or the `/account` settings UI.
+Cyberbro is shipped alongside Web-Check and exposed through additional result cards. Runtime settings can still be previewed through the `/account` settings UI.
 
 ## Development
 

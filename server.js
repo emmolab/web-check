@@ -4,9 +4,11 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
+import { loadExternalBrandingEnv } from './src/config/branding-env.js';
 
 // Load environment variables from .env file
 dotenv.config();
+await loadExternalBrandingEnv();
 
 // Create the Express app
 const app = express();

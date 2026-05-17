@@ -2,110 +2,20 @@
 import BaseLayout from '@layouts/Base.astro';
 import NavBar from '@components/scafold/Nav.astro';
 import Footer from '@components/scafold/Footer.astro';
-import { BRANDING_STORAGE_KEY, defaultBranding } from '@/config/branding';
 import { CYBERBRO_SETTINGS_STORAGE_KEY, defaultCyberbroSettings } from '@/config/cyberbro';
 
 const runtime = `
 (() => {
-  const STORAGE_KEY = ${JSON.stringify(BRANDING_STORAGE_KEY)};
-  const defaults = ${JSON.stringify(defaultBranding)};
   const CYBERBRO_STORAGE_KEY = ${JSON.stringify(CYBERBRO_SETTINGS_STORAGE_KEY)};
   const defaultsCyberbro = ${JSON.stringify(defaultCyberbroSettings)};
 
-  const form = document.getElementById('branding-form');
-  const status = document.getElementById('branding-status');
-  const resetBtn = document.getElementById('reset-branding');
   const cyberbroForm = document.getElementById('cyberbro-form');
   const cyberbroStatus = document.getElementById('cyberbro-status');
   const resetCyberbroBtn = document.getElementById('reset-cyberbro');
 
-  const mergeBranding = (base, overrides) => ({
-    ...base,
-    ...overrides,
-    theme: { ...base.theme, ...(overrides?.theme || {}) },
-  });
-
-  const getOverrides = () => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : {};
-    } catch {
-      return {};
-    }
-  };
-
-  const setStatus = (message) => {
-    if (status) status.textContent = message;
-  };
-
   const setCyberbroStatus = (message) => {
     if (cyberbroStatus) cyberbroStatus.textContent = message;
   };
-
-  const populate = () => {
-    if (!form) return;
-    const branding = mergeBranding(defaults, getOverrides());
-    form.querySelectorAll('[name]').forEach((field) => {
-      const key = field.getAttribute('name');
-      if (!key) return;
-      const value = key.startsWith('theme.') ? branding.theme?.[key.split('.')[1]] : branding[key];
-      if (field.type === 'checkbox') {
-        field.checked = Boolean(value);
-      } else if (value !== undefined && value !== null) {
-        field.value = String(value);
-      }
-    });
-  };
-
-  form?.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const fd = new FormData(form);
-    const overrides = {
-      name: fd.get('name'),
-      titleLong: fd.get('titleLong'),
-      description: fd.get('description'),
-      heroTitle: fd.get('heroTitle'),
-      heroSubtitle: fd.get('heroSubtitle'),
-      heroInputLabel: fd.get('heroInputLabel'),
-      sourceLabel: fd.get('sourceLabel'),
-      deployLabel: fd.get('deployLabel'),
-      apiLabel: fd.get('apiLabel'),
-      sponsorLabel: fd.get('sponsorLabel'),
-      repoUrl: fd.get('repoUrl'),
-      apiSourceUrl: fd.get('apiSourceUrl'),
-      dockerImage: fd.get('dockerImage'),
-      companyName: fd.get('companyName'),
-      companyUrl: fd.get('companyUrl'),
-      logoPath: fd.get('logoPath'),
-      appIconPath: fd.get('appIconPath'),
-      ogImagePath: fd.get('ogImagePath'),
-      appleTouchIconPath: fd.get('appleTouchIconPath'),
-      faviconSvgPath: fd.get('faviconSvgPath'),
-      faviconPngPath: fd.get('faviconPngPath'),
-      showSponsor: fd.get('showSponsor') === 'on',
-      theme: {
-        primary: fd.get('theme.primary'),
-        primaryLighter: fd.get('theme.primaryLighter'),
-        textColor: fd.get('theme.textColor'),
-        textColorSecondary: fd.get('theme.textColorSecondary'),
-        background: fd.get('theme.background'),
-        backgroundDarker: fd.get('theme.backgroundDarker'),
-        backgroundLighter: fd.get('theme.backgroundLighter'),
-        primaryTransparent: fd.get('theme.primaryTransparent'),
-      },
-    };
-
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
-    window.dispatchEvent(new Event('web-check-branding-refresh'));
-    setStatus('Saved. Branding changes apply immediately in this browser.');
-  });
-
-  resetBtn?.addEventListener('click', () => {
-    window.localStorage.removeItem(STORAGE_KEY);
-    populate();
-    window.dispatchEvent(new Event('web-check-branding-refresh'));
-    setStatus('Branding reset to env defaults.');
-  });
 
   const populateCyberbro = () => {
     if (!cyberbroForm) return;
@@ -134,7 +44,6 @@ const runtime = `
       engines: fd.get('engines'),
     };
     window.localStorage.setItem(CYBERBRO_STORAGE_KEY, JSON.stringify(settings));
-    window.dispatchEvent(new Event('web-check-branding-refresh'));
     setCyberbroStatus('Saved. Cyberbro settings will be used on the next results fetch.');
   });
 
@@ -144,96 +53,71 @@ const runtime = `
     setCyberbroStatus('Cyberbro settings reset to env defaults.');
   });
 
-  populate();
   populateCyberbro();
 })();
 `;
 ---
 
 <BaseLayout
-  title="Branding Studio | Web Check"
-  description="Edit the Web Check whitelabel branding from a GUI and preview changes instantly."
+  title="Settings | Web Check"
+  description="Configure Web Check branding sources and Cyberbro runtime settings."
 >
   <div class="web-check-page">
     <NavBar />
     <main>
       <div class="intro card">
-        <h1>Branding Studio</h1>
+        <h1>Settings</h1>
         <p>
-          Edit the whitelabel settings from the GUI. Changes are stored in this browser via
-          localStorage, so this is perfect for fast prototyping and demos.
-        </p>
-        <p class="muted">
-          For shared or production branding, keep using <code>PUBLIC_BRAND_*</code> env vars.
+          Branding is now env-driven only. It is not editable from the GUI.
         </p>
       </div>
 
-      <form id="branding-form" class="editor-grid">
+      <div class="editor-grid">
         <section class="card">
-          <h2>Core branding</h2>
-          <label>Name<input name="name" /></label>
-          <label>Long title<input name="titleLong" /></label>
-          <label>Description<textarea name="description" rows="4"></textarea></label>
-          <label>Company name<input name="companyName" /></label>
-          <label>Company URL<input name="companyUrl" /></label>
-          <label>Repo URL<input name="repoUrl" /></label>
-          <label>API source URL<input name="apiSourceUrl" /></label>
-          <label>Docker image<input name="dockerImage" /></label>
-        </section>
-
-        <section class="card">
-          <h2>Homepage copy</h2>
-          <label>Hero title<textarea name="heroTitle" rows="3"></textarea></label>
-          <label>Hero subtitle<textarea name="heroSubtitle" rows="3"></textarea></label>
-          <label>Input label<input name="heroInputLabel" /></label>
-          <label>Source button label<input name="sourceLabel" /></label>
-          <label>Deploy button label<input name="deployLabel" /></label>
-          <label>API button label<input name="apiLabel" /></label>
-          <label>Sponsor label<input name="sponsorLabel" /></label>
-          <label class="checkbox"><input type="checkbox" name="showSponsor" /> Show sponsor section</label>
-        </section>
-
-        <section class="card">
-          <h2>Assets</h2>
-          <label>Logo path<input name="logoPath" /></label>
-          <label>App icon path<input name="appIconPath" /></label>
-          <label>OG image path<input name="ogImagePath" /></label>
-          <label>Apple touch icon path<input name="appleTouchIconPath" /></label>
-          <label>Favicon SVG path<input name="faviconSvgPath" /></label>
-          <label>Favicon PNG path<input name="faviconPngPath" /></label>
-        </section>
-
-        <section class="card">
-          <h2>Theme</h2>
-          <div class="color-grid">
-            <label>Primary<input type="color" name="theme.primary" /></label>
-            <label>Primary lighter<input type="color" name="theme.primaryLighter" /></label>
-            <label>Text<input type="color" name="theme.textColor" /></label>
-            <label>Text secondary<input name="theme.textColorSecondary" placeholder="#ffffffb6" /></label>
-            <label>Background<input type="color" name="theme.background" /></label>
-            <label>Background darker<input type="color" name="theme.backgroundDarker" /></label>
-            <label>Background lighter<input type="color" name="theme.backgroundLighter" /></label>
-            <label>Primary transparent<input name="theme.primaryTransparent" placeholder="#d6fb4130" /></label>
-          </div>
+          <h2>Branding via uploaded file</h2>
+          <p>
+            Upload or mount a branding env file onto the host/container, then set
+            <code>BRANDING_ENV_FILE</code> to that path.
+          </p>
+          <pre>BRANDING_ENV_FILE=/branding/branding.full.env</pre>
           <p class="muted small">
-            Alpha-based values like text secondary and primary transparent accept text-style hex values.
+            This is the right option when the user can place files on disk or attach them to the container.
           </p>
         </section>
 
-        <section class="card actions full-width">
-          <div class="button-row">
-            <button type="submit" class="primary">Save branding</button>
-            <button type="button" id="reset-branding">Reset to defaults</button>
-          </div>
-          <p id="branding-status" class="status muted">No unsaved status yet.</p>
+        <section class="card">
+          <h2>Branding via URL</h2>
+          <p>
+            Host a plain-text env file somewhere reachable, then set <code>BRANDING_ENV_URL</code>.
+          </p>
+          <pre>BRANDING_ENV_URL=https://example.com/branding/full.env</pre>
+          <p class="muted small">
+            Useful when branding is managed centrally and multiple deployments should share one source.
+          </p>
         </section>
-      </form>
+
+        <section class="card full-width">
+          <h2>Example env files</h2>
+          <p>
+            Start from one of these templates, then upload it or host it somewhere accessible.
+          </p>
+          <ul>
+            <li><a href="/branding/branding.minimal.env" target="_blank" rel="noreferrer">branding.minimal.env</a></li>
+            <li><a href="/branding/branding.full.env" target="_blank" rel="noreferrer">branding.full.env</a></li>
+          </ul>
+          <p class="muted small">
+            Load order: local <code>.env</code> first, then <code>BRANDING_ENV_URL</code>, then <code>BRANDING_ENV_FILE</code>.
+          </p>
+          <p class="muted small">
+            After changing branding inputs, rebuild and restart the app so generated pages and metadata stay aligned.
+          </p>
+        </section>
+      </div>
 
       <div class="intro card cyberbro-intro">
         <h1>Cyberbro Integration</h1>
         <p>
-          Tune the bundled Cyberbro integration from the GUI. These overrides are also stored in this browser,
-          so they’re ideal for testing alternate backends, engine mixes, and timeouts without editing env vars.
+          Cyberbro runtime testing still supports browser-local overrides here, because those do not rebrand the app.
         </p>
       </div>
 
@@ -327,11 +211,11 @@ const runtime = `
     font-weight: 600;
   }
 
-  input, textarea, button {
+  input, textarea, button, code, pre {
     font: inherit;
   }
 
-  input, textarea {
+  input, textarea, pre {
     background: var(--background-lighter);
     color: var(--text-color);
     border: 1px solid var(--primary-transparent);
@@ -339,9 +223,9 @@ const runtime = `
     padding: 0.75rem;
   }
 
-  input[type='color'] {
-    padding: 0.2rem;
-    min-height: 3rem;
+  pre {
+    overflow-x: auto;
+    white-space: pre-wrap;
   }
 
   .checkbox {
@@ -353,15 +237,6 @@ const runtime = `
   .checkbox input {
     width: auto;
     margin: 0;
-  }
-
-  .color-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem;
-    @include mobile-down {
-      grid-template-columns: 1fr;
-    }
   }
 
   .button-row {

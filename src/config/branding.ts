@@ -1,14 +1,20 @@
-const env = import.meta.env as Record<string, string | undefined>;
+if (import.meta.env.SSR) {
+  const { loadExternalBrandingEnv } = await import('./branding-env.js');
+  await loadExternalBrandingEnv();
+}
 
-export const BRANDING_STORAGE_KEY = 'web-check.branding-overrides';
+const env = import.meta.env as Record<string, string | undefined>;
+const processEnv = process.env as Record<string, string | undefined>;
+
+const getEnvValue = (key: string) => env[key] ?? processEnv[key];
 
 const read = (key: string, fallback: string) => {
-  const value = env[key]?.trim();
+  const value = getEnvValue(key)?.trim();
   return value ? value : fallback;
 };
 
 const readBool = (key: string, fallback: boolean) => {
-  const value = env[key]?.trim().toLowerCase();
+  const value = getEnvValue(key)?.trim().toLowerCase();
   if (!value) return fallback;
   return ['1', 'true', 'yes', 'on'].includes(value);
 };

@@ -39,27 +39,14 @@ ALIENVAULT=''
 
 ## Docker
 
-### Local build path
+### GHCR pull path
 
-From the `web-check` repo:
-
-```bash
-docker compose up --build
-```
-
-This starts:
-
-- `web-check` on port `3000`
-- `cyberbro` on port `5000` by default
-
-### Future GHCR pull path
-
-Once images are published, the same compose file can pull them instead of building locally.
-Set these in `.env` or your shell:
+The bundled compose file now pulls the published GHCR images by default.
+Optional overrides can still be set in `.env` or your shell:
 
 ```env
-WEB_CHECK_IMAGE='ghcr.io/<owner>/web-check:latest'
-CYBERBRO_IMAGE='ghcr.io/<owner>/web-check-cyberbro:latest'
+WEB_CHECK_IMAGE='ghcr.io/emmolab/web-check:latest'
+CYBERBRO_IMAGE='ghcr.io/emmolab/web-check-cyberbro:latest'
 ```
 
 Then run:
@@ -71,15 +58,15 @@ docker compose up -d
 
 ## GitHub Container Registry release path
 
-The Docker workflow now prepares both images for GHCR publishing:
+The Docker workflow publishes both images to GHCR:
 
-- `ghcr.io/<owner>/web-check`
-- `ghcr.io/<owner>/web-check-cyberbro`
+- `ghcr.io/emmolab/web-check`
+- `ghcr.io/emmolab/web-check-cyberbro`
 
 On `master`, the workflow publishes `:latest` tags.
 On git tags, it publishes matching version tags.
 
-That means once the product pass is finished, publishing the images to GitHub can be a clean release step instead of a manual one-off.
+That keeps deployments pull-based and avoids any AWS/ECR publishing dependency in this repo.
 
 ## Recommended release order
 
@@ -90,12 +77,14 @@ That means once the product pass is finished, publishing the images to GitHub ca
 
 ## GUI overrides
 
-The `/account` page now includes a Cyberbro section where you can override:
+The `/account` page now includes a Cyberbro settings section where you can override:
 
 - enabled/disabled state
 - Cyberbro base URL
 - timeout
 - selected engines
+
+In the main navigation, this page is exposed as **Settings**.
 
 These GUI overrides:
 
