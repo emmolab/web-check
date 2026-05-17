@@ -6,6 +6,8 @@ const normalizeUrl = (url) => {
 };
 
 const TIMEOUT = parseInt(process.env.PUBLIC_API_TIMEOUT_LIMIT || '40000', 10);
+const BRAND_NAME = process.env.PUBLIC_BRAND_NAME || 'Web Check';
+const REPO_URL = process.env.PUBLIC_BRAND_REPO_URL || 'https://github.com/emmolab/web-check';
 
 // If present, set CORS allowed origins for responses
 const ALLOWED_ORIGINS = process.env.API_CORS_ORIGIN || '*';
@@ -32,20 +34,20 @@ const headers = {
 
 const timeoutErrorMsg =
   'You can re-trigger this request, by clicking "Retry"\n' +
-  "If you're running your own instance of Web Check, then you can " +
+  `If you're running your own instance of ${BRAND_NAME}, then you can ` +
   'resolve this issue, by increasing the timeout limit in the ' +
   '`PUBLIC_API_TIMEOUT_LIMIT` environmental variable to a higher value (in milliseconds), ' +
   "or if you're hosting on Vercel increase the maxDuration in vercel.json.\n\n" +
   `The public instance currently has a lower timeout of ${TIMEOUT}ms ` +
-  'in order to keep running costs affordable, so that Web Check can ' +
+  `in order to keep running costs affordable, so that ${BRAND_NAME} can ` +
   'remain freely available for everyone.';
 
 const disabledMsg =
-  'WebCheck is temporarily disabled.\n\n' +
-  'Due to the increased cost of running Web Check, the public instance has been ' +
+  `${BRAND_NAME} is temporarily disabled.\n\n` +
+  `Due to the increased cost of running ${BRAND_NAME}, the public instance has been ` +
   'paused while we look for affordable ways to keep it free for everyone.\n' +
   'Since the code is free and open source, you can run your own instance by ' +
-  'following the instructions in the GitHub repo.';
+  `following the instructions in the GitHub repo: ${REPO_URL}.`;
 
 // A middleware function used by all API routes on all platforms
 const commonMiddleware = (handler) => {

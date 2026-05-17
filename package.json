@@ -2,7 +2,7 @@
   "name": "web-check",
   "type": "module",
   "version": "2.1.5",
-  "homepage": "https://web-check.xyz",
+  "homepage": "https://github.com/emmolab/web-check",
   "engines": {
     "node": ">=22"
   },

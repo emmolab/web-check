@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, type ReactNode } from 'react';
 import styled from '@emotion/styled';
 import colors from 'client/styles/colors';
+import { branding } from '@/config/branding';
 import Card from 'client/components/Form/Card';
 import Heading from 'client/components/Form/Heading';
 import { allCardIds } from 'client/jobs/registry';
@@ -502,7 +503,7 @@ const ProgressLoader = ({ loadStatus, showModal, showJobDocs }: ProgressLoaderPr
                 </p>
               )}
               <AboutPageLink href="/check/about" target="_blank" rel="noreferrer">
-                Learn More about Web-Check
+                Learn More about {branding.name}
               </AboutPageLink>
             </Details>
             <DismissButton type="button" onClick={() => setHideLoader(true)}>

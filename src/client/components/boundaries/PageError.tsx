@@ -8,6 +8,7 @@ import Nav from 'client/components/Form/Nav';
 import Button from 'client/components/Form/Button';
 import { StyledCard } from 'client/components/Form/Card';
 import { Link } from 'react-router-dom';
+import { branding } from '@/config/branding';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -99,8 +100,8 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
               <Link to="/">
                 <Button>Go back Home</Button>
               </Link>
-              <a target="_blank" rel="noreferrer" href="https://github.com/lissy93/web-check">
-                <Button>View on GitHub</Button>
+              <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
+                <Button>{branding.sourceLabel}</Button>
               </a>
             </HeaderLinkContainer>
           </Nav>
@@ -129,7 +130,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
               )}
             </ErrorDetails>
             <Button onClick={() => window.location.reload()}>Reload Page</Button>
-            <a target="_blank" rel="noreferrer" href="github.com/lissy93/web-check/issues/choose">
+            <a target="_blank" rel="noreferrer" href={`${branding.repoUrl}/issues/new/choose`}>
               Report Issue
             </a>
           </ErrorInner>

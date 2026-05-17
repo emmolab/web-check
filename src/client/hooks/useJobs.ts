@@ -1,4 +1,5 @@
 import { useReducer, useEffect, useRef, useCallback, useState } from 'react';
+import { branding } from '@/config/branding';
 import { logJobOutcome } from 'client/utils/logger';
 import keys from 'client/utils/get-keys';
 import type { AddressType } from 'client/utils/address-type-checker';
@@ -149,7 +150,7 @@ const useJobs = (address: string, addressType: AddressType, jobs: JobSpec[]) => 
   // Initial fan-out: fire non-IP jobs immediately, mark unsupported as skipped
   useEffect(() => {
     if (keys.disableEverything) {
-      const reason = 'Web-Check has been temporarily disabled on this instance';
+      const reason = `${branding.name} has been temporarily disabled on this instance`;
       jobs.forEach((j) => skipJob(j, reason));
       return;
     }

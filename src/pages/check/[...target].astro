@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@layouts/Base.astro';
+import { branding } from '@/config/branding';
 import Main from '../../client/main.tsx';
 import '../../client/styles/index.css';
 import { normalizeAddress } from '../../client/utils/address-type-checker';
@@ -16,7 +17,7 @@ if (searchUrl) {
 }
 
 const { target } = Astro.params;
-const pageTitle = target ? `${target} | Web Check` : 'Web Check';
+const pageTitle = target ? `${target} | ${branding.name}` : branding.name;
 ---
 
 <BaseLayout preloadBodyFont={false} title={pageTitle}>

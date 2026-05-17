@@ -30,11 +30,21 @@ const __dirname = path.dirname(__filename);
 
 const port = process.env.PORT || 3000; // The port to run the server on
 const brandName = process.env.PUBLIC_BRAND_NAME || 'Web-Check';
-const repoUrl = process.env.PUBLIC_BRAND_REPO_URL || 'https://github.com/lissy93/web-check';
+const repoUrl = process.env.PUBLIC_BRAND_REPO_URL || 'https://github.com/emmolab/web-check';
+const repoLabel = repoUrl.replace(/^https?:\/\//, '');
+const logoPath =
+  process.env.PUBLIC_BRAND_LOGO_PATH ||
+  process.env.PUBLIC_BRAND_APP_ICON_PATH ||
+  'https://cdn.as93.net/logo/web-check/w256';
+const primaryColor = process.env.PUBLIC_BRAND_PRIMARY_COLOR || '#d6fb41';
+const backgroundColor = process.env.PUBLIC_BRAND_BACKGROUND_COLOR || '#111211';
+const backgroundLighterColor = process.env.PUBLIC_BRAND_BACKGROUND_LIGHTER_COLOR || '#3a3b3a';
+const backgroundShadowColor = process.env.PUBLIC_BRAND_BG_SHADOW_COLOR || '#0f1620';
 const API_DIR = '/api'; // Name of the dir containing the lambda functions
 const dirPath = path.join(__dirname, API_DIR); // Path to the lambda functions dir
 const guiPath = path.join(__dirname, 'dist', 'client');
 const placeholderFilePath = path.join(__dirname, 'public', 'placeholder.html');
+const errorFilePath = path.join(__dirname, 'public', 'error.html');
 const handlers = {}; // Will store list of API endpoints
 process.env.WC_SERVER = 'true'; // Tells middleware to return in non-lambda mode
 
@@ -56,7 +66,7 @@ const limits = [
 const makeLimiterResponseMsg = (retryAfter) => {
   const why =
     'This keeps the service running smoothly for everyone. ' +
-    'You can get around these limits by running your own instance of Web Check.';
+    `You can get around these limits by running your own instance of ${brandName}.`;
   return `You've been rate-limited, please try again in ${retryAfter} seconds.\n${why}`;
 };
 
@@ -97,6 +107,26 @@ fs.readdirSync(dirPath, { withFileTypes: true })
     });
   });
 
+const renderTemplate = async (res, filePath, statusCode, contentHtml) => {
+  const replacements = {
+    BRAND_NAME: brandName,
+    REPO_URL: repoUrl,
+    REPO_LABEL: repoLabel,
+    LOGO_PATH: logoPath,
+    PRIMARY_COLOR: primaryColor,
+    BACKGROUND_COLOR: backgroundColor,
+    BACKGROUND_LIGHTER_COLOR: backgroundLighterColor,
+    BACKGROUND_SHADOW_COLOR: backgroundShadowColor,
+    CONTENT: contentHtml,
+  };
+  const template = await fs.promises.readFile(filePath, 'utf-8');
+  const html = Object.entries(replacements).reduce(
+    (acc, [key, value]) => acc.replaceAll(`{{${key}}}`, value),
+    template,
+  );
+  res.status(statusCode).send(html);
+};
+
 const renderPlaceholderPage = async (res, msgId, logs) => {
   const errorMessages = {
     notCompiled:
@@ -106,14 +136,16 @@ const renderPlaceholderPage = async (res, msgId, logs) => {
       'Server-side rendering failed to initiate, as SSR handler not found.<br />' +
       'This can be fixed by running <code>yarn build</code>, then restarting the server.<br />',
     disabledGui:
-      'Web-Check API is up and running!<br />Access the endpoints at ' +
+      `${brandName} API is up and running!<br />Access the endpoints at ` +
       `<a href="${API_DIR}"><code>${API_DIR}</code></a>`,
   };
   const logOutput = logs ? `<div class="logs"><code>${logs}</code></div>` : '';
   const errorMessage = (errorMessages[msgId] || 'An mystery error occurred.') + logOutput;
-  const placeholderContent = await fs.promises.readFile(placeholderFilePath, 'utf-8');
-  const htmlContent = placeholderContent.replace('<!-- CONTENT -->', errorMessage);
-  res.status(500).send(htmlContent);
+  await renderTemplate(res, placeholderFilePath, 500, errorMessage);
+};
+
+const renderNotFoundPage = async (res) => {
+  await renderTemplate(res, errorFilePath, 404, 'There was an error finding this route.');
 };
 
 // Create a single API endpoint to execute all lambda functions
@@ -201,7 +233,7 @@ if (process.env.DISABLE_GUI && process.env.DISABLE_GUI !== 'false') {
 // Anything left unhandled (which isn't an API endpoint), return a 404
 app.use((req, res, next) => {
   if (!req.path.startsWith(`${API_DIR}/`)) {
-    res.status(404).sendFile(path.join(__dirname, 'public', 'error.html'));
+    return void renderNotFoundPage(res);
   } else {
     next();
   }
@@ -218,8 +250,7 @@ const printMessage = () => {
       `\x1b[0m\n`,
     `\x1b[1m\x1b[32m🚀 ${brandName} is up and running at http://localhost:${port} \x1b[0m\n\n`,
     `\x1b[2m\x1b[36m🛟 For documentation and support, visit: ${repoUrl} \n`,
-    `💖 Found Web-Check useful? Consider sponsoring us on GitHub ` +
-      `to help fund maintenance & development.\x1b[0m`,
+    `💖 Found ${brandName} useful? Review or adapt the source from ${repoUrl}.\x1b[0m`,
   );
 };
 

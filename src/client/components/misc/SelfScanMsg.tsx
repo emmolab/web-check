@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { branding } from '@/config/branding';
 import colors from 'client/styles/colors';
 import { StyledCard } from 'client/components/Form/Card';
 
@@ -44,13 +45,13 @@ const SelfScanMsg = () => {
       <br />
       <span>
         But if you want to see how this site is built, why not check out the{' '}
-        <a target="_blank" rel="noreferrer" href="https://github.com/lissy93/web-check">
+        <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
           source code
         </a>
         ?
       </span>
       <br />
-      <i>Do me a favour, and drop the repo a Star while you're there</i> 😉
+      <i>Do me a favour, and drop the repo a star while you're there</i> 😉
     </StyledSelfScanMsg>
   );
 };

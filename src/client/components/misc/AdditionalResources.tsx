@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import colors from 'client/styles/colors';
+import { branding } from '@/config/branding';
 import { Card } from 'client/components/Form/Card';
 
 const ResourceListOuter = styled.ul`
@@ -313,12 +314,12 @@ const AdditionalResources = (props: { url?: string }): JSX.Element => {
         })}
       </ResourceListOuter>
       <Note>
-        These tools are not affiliated with Web-Check. Please use them at your own risk.
+        These tools are not affiliated with {branding.name}. Please use them at your own risk.
         <br />
         At the time of listing, all of the above were available and free to use - if this changes,
         please report it via GitHub (
-        <a target="_blank" rel="noreferrer" href="https://github.com/lissy93/web-check">
-          lissy93/web-check
+        <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
+          {branding.repoUrl.replace(/^https?:\/\//, '')}
         </a>
         ).
       </Note>

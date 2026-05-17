@@ -12,6 +12,7 @@ import FancyBackground from 'client/components/misc/FancyBackground';
 import docs from 'client/utils/docs';
 import colors from 'client/styles/colors';
 import { determineAddressType, normalizeAddress } from 'client/utils/address-type-checker';
+import { branding } from '@/config/branding';
 
 const HomeContainer = styled.section`
   display: flex;
@@ -186,8 +187,8 @@ const Home = (): JSX.Element => {
       <UserInputMain onSubmit={formSubmitEvent}>
         <a href="/">
           <Heading as="h1" size="xLarge" align="center" color={colors.primary}>
-            <img width="64" src="/web-check.png" alt="Web Check Icon" />
-            Web Check
+            <img width="64" src={branding.appIconPath} alt={`${branding.name} icon`} />
+            {branding.name}
           </Heading>
         </a>
         <Input
@@ -208,19 +209,21 @@ const Home = (): JSX.Element => {
           Analyze!
         </Button>
       </UserInputMain>
-      <SponsorCard>
-        <Heading as="h2" size="small" color={colors.primary}>
-          Enjoying Web Check?
-        </Heading>
-        <p>
-          It's free, open source, and funded by the community. If it's been useful, you can keep it
-          going (and ad-free) by{' '}
-          <a target="_blank" rel="noreferrer" href="https://github.com/sponsors/Lissy93">
-            sponsoring me on GitHub
-          </a>
-          . Every bit genuinely helps, thank you
-        </p>
-      </SponsorCard>
+      {branding.showSponsor && (
+        <SponsorCard>
+          <Heading as="h2" size="small" color={colors.primary}>
+            Enjoying {branding.name}?
+          </Heading>
+          <p>
+            The project is free and open source. If it has been useful, you can support the
+            maintainers, review the code, or self-host your own deployment from{' '}
+            <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
+              the GitHub repository
+            </a>
+            .
+          </p>
+        </SponsorCard>
+      )}
       <SiteFeaturesWrapper>
         <div className="features">
           <Heading as="h2" size="small" color={colors.primary}>
@@ -243,10 +246,10 @@ const Home = (): JSX.Element => {
           <a
             target="_blank"
             rel="noreferrer"
-            href="https://github.com/emmolab/web-check"
+            href={branding.repoUrl}
             title="Check out the source code and documentation on GitHub, and get support or contribute"
           >
-            <Button>View on GitHub</Button>
+            <Button>{branding.sourceLabel}</Button>
           </a>
           <Link
             to="/self-hosted-setup"
@@ -256,7 +259,7 @@ const Home = (): JSX.Element => {
           </Link>
           <Link
             to="/check/about#api-documentation"
-            title="View the API documentation, to use Web-Check programmatically"
+            title={`View the API documentation, to use ${branding.name} programmatically`}
           >
             <Button>API Docs</Button>
           </Link>

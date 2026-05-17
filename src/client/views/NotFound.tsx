@@ -6,6 +6,7 @@ import Footer from 'client/components/misc/Footer';
 import Nav from 'client/components/Form/Nav';
 import Button from 'client/components/Form/Button';
 import { StyledCard } from 'client/components/Form/Card';
+import { branding } from '@/config/branding';
 
 const AboutContainer = styled.div`
   width: 95vw;
@@ -63,7 +64,7 @@ const NotFound = (): JSX.Element => {
               <Button>Back to Homepage</Button>
             </a>
           </HeaderLinkContainer>
-          <a target="_blank" rel="noreferrer" href="https://github.com/lissy93/web-check">
+          <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
             Report Issue
           </a>
         </NotFoundInner>

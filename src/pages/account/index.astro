@@ -2,6 +2,7 @@
 import BaseLayout from '@layouts/Base.astro';
 import NavBar from '@components/scafold/Nav.astro';
 import Footer from '@components/scafold/Footer.astro';
+import { branding } from '@/config/branding';
 import { CYBERBRO_SETTINGS_STORAGE_KEY, defaultCyberbroSettings } from '@/config/cyberbro';
 
 const runtime = `
@@ -59,8 +60,8 @@ const runtime = `
 ---
 
 <BaseLayout
-  title="Settings | Web Check"
-  description="Configure Web Check branding sources and Cyberbro runtime settings."
+  title={`Settings | ${branding.name}`}
+  description={`Configure ${branding.name} branding sources and Cyberbro runtime settings.`}
 >
   <div class="web-check-page">
     <NavBar />
@@ -136,7 +137,7 @@ const runtime = `
         <section class="card actions">
           <h2>Notes</h2>
           <p class="muted">
-            These values affect the Web Check Cyberbro threat cards on future fetches. They do not rewrite the
+            These values affect the {branding.name} Cyberbro threat cards on future fetches. They do not rewrite the
             server env, and they do not reconfigure the Cyberbro container itself.
           </p>
           <div class="button-row">

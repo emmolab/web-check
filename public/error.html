@@ -3,28 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Web-Check</title>
+    <title>{{BRAND_NAME}}</title>
   </head>
   <body>
     <section>
       <a class="t" href="/"
-        ><h1><img src="https://cdn.as93.net/logo/web-check/w256" width="48" />Web-Check</h1></a
+        ><h1><img src="{{LOGO_PATH}}" width="48" />{{BRAND_NAME}}</h1></a
       >
       <p class="moji">😪</p>
-      <p>There was an error finding this route.</p>
+      <p>{{CONTENT}}</p>
       <span
         >Docs and Source:
-        <a href="https://github.com/lissy93/web-check">github.com/lissy93/web-check</a></span
+        <a href="{{REPO_URL}}">{{REPO_LABEL}}</a></span
       >
     </section>
     <style>
       body {
-        background: #141d2b;
+        background: {{BACKGROUND_COLOR}};
         color: #fff;
       }
       h1 {
-        color: #9fef00;
-        text-shadow: #0f1620 2px 2px 0px;
+        color: {{PRIMARY_COLOR}};
+        text-shadow: {{BACKGROUND_SHADOW_COLOR}} 2px 2px 0px;
         font-size: 3rem;
         margin: 1rem auto;
         flex-wrap: wrap;
@@ -38,8 +38,8 @@
         align-items: center;
         margin: 1rem;
         gap: 0.5rem;
-        background: #1a2332;
-        box-shadow: #0f1620 4px 4px 0px;
+        background: {{BACKGROUND_LIGHTER_COLOR}};
+        box-shadow: {{BACKGROUND_SHADOW_COLOR}} 4px 4px 0px;
         border-radius: 8px;
         padding: 1rem;
         max-width: 800px;
@@ -49,7 +49,7 @@
         font-size: 1.2rem;
       }
       a {
-        color: #9fef00;
+        color: {{PRIMARY_COLOR}};
         font-family: monospace;
       }
       a.t {
@@ -76,7 +76,7 @@
         font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
       }
       code {
-        color: #9fef00cc;
+        color: {{PRIMARY_COLOR}};
       }
       .moji {
         font-size: 8rem;

@@ -27,6 +27,8 @@ PUBLIC_BRAND_NAME='PortalWatch'
 PUBLIC_BRAND_REPO_URL='https://github.com/your-org/portalwatch'
 PUBLIC_BRAND_COMPANY_NAME='Example Co'
 PUBLIC_BRAND_COMPANY_URL='https://example.com'
+SITE_URL='https://portalwatch.example.com'
+PUBLIC_SITE_URL='https://portalwatch.example.com'
 PUBLIC_BRAND_SHOW_SPONSOR='false'
 ```
 
@@ -48,6 +50,9 @@ PUBLIC_BRAND_API_SOURCE_URL='https://github.com/your-org/your-api-repo'
 PUBLIC_BRAND_DOCKER_IMAGE='ghcr.io/your-org/portalwatch'
 PUBLIC_BRAND_COMPANY_NAME='Example Co'
 PUBLIC_BRAND_COMPANY_URL='https://example.com'
+SITE_URL='https://portalwatch.example.com'
+PUBLIC_SITE_URL='https://portalwatch.example.com'
+PUBLIC_BRAND_TWITTER='@portalwatch'
 PUBLIC_BRAND_COPYRIGHT_LABEL='MIT'
 PUBLIC_BRAND_LOGO_PATH='/your-logo.svg'
 PUBLIC_BRAND_APP_ICON_PATH='/your-icon.png'
@@ -109,6 +114,7 @@ These are also available through the GUI at `/branding/branding.minimal.env` and
 ## Notes
 
 - Only branding-related keys are loaded from `BRANDING_ENV_FILE` and `BRANDING_ENV_URL`.
+- `SITE_URL` / `PUBLIC_SITE_URL` should point at the branded deployment URL so manifest, OpenAPI docs, canonical links, and previews stay in sync.
 - Cyberbro browser-local overrides remain available on `/account` because they do not rebrand the app or affect other users.
 - Production/shared branding should come from env vars or these external env files, not browser storage.
 - In Docker deployments, use `docker compose down && docker compose up -d` after branding changes so the container re-runs its startup build with the updated env.

@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
+import { branding } from '@/config/branding';
 import colors from 'client/styles/colors';
 
 const StyledFooter = styled.footer`
@@ -41,17 +42,19 @@ const ALink = styled.a`
 `;
 
 const Footer = (props: { isFixed?: boolean }): JSX.Element => {
-  const licenseUrl = 'https://github.com/lissy93/web-check/blob/master/LICENSE';
-  const authorUrl = 'https://aliciasykes.com';
-  const githubUrl = 'https://github.com/lissy93/web-check';
+  const licenseUrl = `${branding.repoUrl}/blob/master/LICENSE`;
+  const authorUrl = branding.companyUrl;
+  const githubUrl = branding.repoUrl;
+  const githubLabel = githubUrl.replace(/^https?:\/\//, '');
   return (
     <StyledFooter style={props.isFixed ? { position: 'fixed' } : {}}>
       <span>
-        View source at <ALink href={githubUrl}>github.com/lissy93/web-check</ALink>
+        View source at <ALink href={githubUrl}>{githubLabel}</ALink>
       </span>
       <span>
-        <Link to="/about">Web-Check</Link> is licensed under <ALink href={licenseUrl}>MIT</ALink> -
-        © <ALink href={authorUrl}>Alicia Sykes</ALink> 2026
+        <Link to="/about">{branding.name}</Link> is licensed under{' '}
+        <ALink href={licenseUrl}>{branding.copyrightLabel}</ALink> - ©{' '}
+        <ALink href={authorUrl}>{branding.companyName}</ALink> {new Date().getFullYear()}
       </span>
     </StyledFooter>
   );

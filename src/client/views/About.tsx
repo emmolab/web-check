@@ -9,7 +9,8 @@ import Nav from 'client/components/Form/Nav';
 import Button from 'client/components/Form/Button';
 import AdditionalResources from 'client/components/misc/AdditionalResources';
 import { StyledCard } from 'client/components/Form/Card';
-import docs, { about, featureIntro, license, fairUse, supportUs } from 'client/utils/docs';
+import docs, { about, featureIntro, license, fairUse } from 'client/utils/docs';
+import { branding } from '@/config/branding';
 
 const AboutContainer = styled.div`
 width: 95vw;
@@ -127,6 +128,8 @@ const makeAnchor = (title: string): string =>
     .replace(/[^\w\s]|_/g, '')
     .replace(/\s+/g, '-');
 
+const licenseUrl = `${branding.repoUrl}/blob/master/LICENSE`;
+
 const About = (): JSX.Element => {
   const location = useLocation();
 
@@ -148,8 +151,8 @@ const About = (): JSX.Element => {
       <AboutContainer>
         <Nav>
           <HeaderLinkContainer>
-            <a target="_blank" rel="noreferrer" href="https://github.com/lissy93/web-check">
-              <Button>View on GitHub</Button>
+            <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
+              <Button>{branding.sourceLabel}</Button>
             </a>
           </HeaderLinkContainer>
         </Nav>
@@ -162,67 +165,42 @@ const About = (): JSX.Element => {
             <p key={index}>{para}</p>
           ))}
           <hr />
-          <SponsorshipContainer>
-            <p>
-              Web-Check is kindly sponsored by{' '}
-              <a
-                target="_blank"
-                rel="noreferrer"
-                href="https://terminaltrove.com/?utm_campaign=github&utm_medium=referral&utm_content=web-check&utm_source=wcgh"
-              >
-                Terminal Trove
+          {branding.showSponsor && (
+            <SponsorshipContainer>
+              <p>
+                {branding.name} is open source and designed for self-hosted deployments.
+                <br />
+                <small>
+                  Review the code, deploy your own instance, or adapt it to your environment from{' '}
+                  <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
+                    {branding.repoUrl.replace(/^https?:\/\//, '')}
+                  </a>
+                  .
+                </small>
+              </p>
+              <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
+                <Button>{branding.sourceLabel}</Button>
               </a>
-              <br />
-              The $HOME of all things in the terminal.
-              <br />
-              <small>
-                <a
-                  target="_blank"
-                  rel="noreferrer"
-                  href="https://terminaltrove.com/newsletter?utm_campaign=github&utm_medium=referral&utm_content=web-check&utm_source=wcgh"
-                >
-                  Find your next CLI / TUI tool, and get updates to your inbox
-                </a>
-              </small>
-            </p>
-            <a
-              target="_blank"
-              rel="noreferrer"
-              href="https://terminaltrove.com/?utm_campaign=github&utm_medium=referral&utm_content=web-check&utm_source=wcgh"
-            >
-              <img
-                width="300"
-                alt="Terminal Trove"
-                src="https://i.ibb.co/T1KzVmR/terminal-trove-green.png"
-              />
-            </a>
-          </SponsorshipContainer>
+            </SponsorshipContainer>
+          )}
           <hr />
           <p>
-            Web-Check is developed and maintained by{' '}
-            <a target="_blank" rel="noreferrer" href="https://aliciasykes.com">
-              Alicia Sykes
+            {branding.name} is developed and maintained by{' '}
+            <a target="_blank" rel="noreferrer" href={branding.companyUrl}>
+              {branding.companyName}
             </a>
             . It's licensed under the{' '}
-            <a
-              target="_blank"
-              rel="noreferrer"
-              href="https://github.com/Lissy93/web-check/blob/master/LICENSE"
-            >
-              MIT license
+            <a target="_blank" rel="noreferrer" href={licenseUrl}>
+              {branding.copyrightLabel} license
             </a>
             , and is completely free to use, modify and distribute in both personal and commercial
             settings.
             <br />
             Source code and self-hosting docs are available on{' '}
-            <a target="_blank" rel="noreferrer" href="https://github.com/lissy93/web-check">
+            <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
               GitHub
             </a>
-            . If you've found this service useful, consider{' '}
-            <a target="_blank" rel="noreferrer" href="https://github.com/sponsors/Lissy93">
-              sponsoring me
-            </a>{' '}
-            from $1/month, to help with the ongoing hosting and development costs.
+            .
           </p>
         </Section>
 
@@ -314,7 +292,7 @@ const About = (): JSX.Element => {
           Deploy your own Instance
         </Heading>
         <Section>
-          <p>Web-Check is designed to be easily self-hosted.</p>
+          <p>{branding.name} is designed to be easily self-hosted.</p>
           <Heading as="h3" size="small" color={colors.primary}>
             Option #1 - Docker / GHCR
           </Heading>
@@ -364,7 +342,8 @@ const About = (): JSX.Element => {
           </Heading>
           <p>
             There are some optional environmental variables you can specify to give you access to
-            some additional Web-Checks. See the README for full list of options.
+            some additional {branding.name} capabilities. See the README for the full list of
+            options.
           </p>
 
           <ul>
@@ -412,9 +391,18 @@ const About = (): JSX.Element => {
           Support Us
         </Heading>
         <Section>
-          {supportUs.map((para) => (
-            <p dangerouslySetInnerHTML={{ __html: para }} />
-          ))}
+          <p>{branding.name} is free to use without restriction.</p>
+          <p>
+            All the code is open source, so you are also free to deploy your own instance, fork
+            it, and adapt it for private or commercial use.
+          </p>
+          <p>
+            If you find it useful, the best place to start is the repository:{' '}
+            <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
+              {branding.repoUrl.replace(/^https?:\/\//, '')}
+            </a>
+            .
+          </p>
         </Section>
 
         <Heading as="h2" size="medium" color={colors.primary}>
@@ -425,12 +413,12 @@ const About = (): JSX.Element => {
             License
           </Heading>
           <b>
-            <a target="_blank" rel="noreferrer" href="https://github.com/lissy93/web-check">
-              Web-Check
+            <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
+              {branding.name}
             </a>{' '}
-            is distributed under the MIT license, ©{' '}
-            <a target="_blank" rel="noreferrer" href="https://aliciasykes.com">
-              Alicia Sykes
+            is distributed under the {branding.copyrightLabel} license, ©{' '}
+            <a target="_blank" rel="noreferrer" href={branding.companyUrl}>
+              {branding.companyName}
             </a>{' '}
             {new Date().getFullYear()}
           </b>
@@ -456,9 +444,9 @@ const About = (): JSX.Element => {
             Privacy
           </Heading>
           <p>
-            Analytics are used on the demo instance (via a self-hosted Plausible instance), this
-            only records the URL you visited but no personal data. There's also some basic error
-            logging (via a self-hosted GlitchTip instance), this is only used to help me fix bugs.
+            Analytics are only enabled when configured for this deployment. If enabled, they should
+            record service usage rather than personal data. Basic error logging may also be enabled
+            by the operator to help diagnose bugs.
             <br />
             <br />
             Neither your IP address, browser/OS/hardware info, nor any other data will ever be
