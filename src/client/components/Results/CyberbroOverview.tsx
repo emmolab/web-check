@@ -11,16 +11,16 @@ const Verdict = styled.div<{ tone: 'danger' | 'success' | 'neutral' }>`
   border: 1px solid
     ${(props) =>
       props.tone === 'danger'
-        ? '#ff8f8f66'
+        ? 'var(--danger-border)'
         : props.tone === 'success'
-          ? '#7dffb266'
+          ? 'var(--success-border)'
           : colors.primaryTransparent};
   background:
     ${(props) =>
       props.tone === 'danger'
-        ? 'rgba(255, 80, 80, 0.12)'
+        ? 'var(--danger-soft)'
         : props.tone === 'success'
-          ? 'rgba(46, 204, 113, 0.12)'
+          ? 'var(--success-soft)'
           : colors.primaryTransparent};
 `;
 
@@ -47,20 +47,20 @@ const Badge = styled.span<{ tone: 'danger' | 'info' | 'success' | 'muted' }>`
   background:
     ${(props) =>
       props.tone === 'danger'
-        ? 'rgba(255, 80, 80, 0.16)'
+        ? 'var(--danger-soft)'
         : props.tone === 'info'
-          ? 'rgba(52, 152, 219, 0.16)'
+          ? 'var(--info-soft)'
           : props.tone === 'success'
-            ? 'rgba(46, 204, 113, 0.16)'
+            ? 'var(--success-soft)'
             : colors.primaryTransparent};
   border: 1px solid
     ${(props) =>
       props.tone === 'danger'
-        ? '#ff8f8f66'
+        ? 'var(--danger-border)'
         : props.tone === 'info'
-          ? '#7cc8ff66'
+          ? 'var(--info-border)'
           : props.tone === 'success'
-            ? '#7dffb266'
+            ? 'var(--success-border)'
             : colors.primaryTransparent};
 `;
 

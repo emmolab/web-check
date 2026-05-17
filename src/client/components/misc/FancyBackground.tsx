@@ -28,11 +28,13 @@ const FancyBackground = (): JSX.Element => {
   const App: any = useMemo(() => [], []);
 
   App.setup = function () {
+    const theme = getComputedStyle(document.documentElement);
     this.lifespan = 1000;
     this.popPerBirth = 1;
     this.maxPop = 300;
     this.birthFreq = 2;
-    this.bgColor = '#141d2b';
+    this.bgColor = theme.getPropertyValue('--background').trim() || '#141d2b';
+    this.accentColor = theme.getPropertyValue('--meteor-color').trim() || theme.getPropertyValue('--primary').trim() || '#9fef00';
 
     var canvas = document.createElement('canvas');
     canvas.width = window.innerWidth;
@@ -274,8 +276,8 @@ const FancyBackground = (): JSX.Element => {
         oldAttracXY = this.dataXYtoCanvasXY(oldAttracSpot.x, oldAttracSpot.y);
 
       this.ctx.beginPath();
-      this.ctx.strokeStyle = '#9fef00';
-      this.ctx.fillStyle = '#9fef00';
+      this.ctx.strokeStyle = this.accentColor;
+      this.ctx.fillStyle = this.accentColor;
 
       // Particle trail
       this.ctx.moveTo(last.x, last.y);
@@ -292,8 +294,8 @@ const FancyBackground = (): JSX.Element => {
       this.ctx.lineTo(attracXY.x, attracXY.y);
       this.ctx.arc(attracXY.x, attracXY.y, 1.5 * this.dataToImageRatio, 0, 2 * Math.PI, false);
 
-      this.ctx.strokeStyle = '#9fef00';
-      this.ctx.fillStyle = '#9fef00';
+      this.ctx.strokeStyle = this.accentColor;
+      this.ctx.fillStyle = this.accentColor;
 
       this.ctx.stroke();
       this.ctx.fill();

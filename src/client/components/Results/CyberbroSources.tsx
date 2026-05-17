@@ -25,20 +25,20 @@ const Badge = styled.span<{ tone: 'hit' | 'intel' | 'clear' | 'no-data' }>`
   background:
     ${(props) =>
       props.tone === 'hit'
-        ? 'rgba(255, 80, 80, 0.16)'
+        ? 'var(--danger-soft)'
         : props.tone === 'intel'
-          ? 'rgba(52, 152, 219, 0.16)'
+          ? 'var(--info-soft)'
           : props.tone === 'clear'
-            ? 'rgba(46, 204, 113, 0.16)'
+            ? 'var(--success-soft)'
             : colors.primaryTransparent};
   border: 1px solid
     ${(props) =>
       props.tone === 'hit'
-        ? '#ff8f8f66'
+        ? 'var(--danger-border)'
         : props.tone === 'intel'
-          ? '#7cc8ff66'
+          ? 'var(--info-border)'
           : props.tone === 'clear'
-            ? '#7dffb266'
+            ? 'var(--success-border)'
             : colors.primaryTransparent};
 `;
 

@@ -44,8 +44,8 @@ function Chart(chartData: { date: string; uv: number }[], data: any) {
       <AreaChart width={400} height={100} data={chartData}>
         <defs>
           <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="20%" stopColor="#0f1620" stopOpacity={0.8} />
-            <stop offset="80%" stopColor="#0f1620" stopOpacity={0} />
+            <stop offset="20%" stopColor={colors.bgShadowColor} stopOpacity={0.8} />
+            <stop offset="80%" stopColor={colors.bgShadowColor} stopOpacity={0} />
           </linearGradient>
         </defs>
         <CartesianGrid
@@ -61,7 +61,7 @@ function Chart(chartData: { date: string; uv: number }[], data: any) {
         <Area
           type="monotone"
           dataKey="uv"
-          stroke="#9fef00"
+          stroke={colors.primary}
           fillOpacity={1}
           name="Rank"
           fill={`${colors.backgroundDarker}a1`}

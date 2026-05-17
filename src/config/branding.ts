@@ -76,6 +76,8 @@ export const branding = defaultBranding;
 export const brandThemeCss = `:root {
   --primary: ${branding.theme.primary};
   --primary-lighter: ${branding.theme.primaryLighter};
+  --primary-light: color-mix(in srgb, ${branding.theme.primaryLighter} 60%, transparent);
+  --primary-dark: color-mix(in srgb, ${branding.theme.primary} 45%, ${branding.theme.background});
   --text-color: ${branding.theme.textColor};
   --text-color-secondary: ${branding.theme.textColorSecondary};
   --text-color-thirdly: ${branding.theme.textColorThirdly};
@@ -92,4 +94,19 @@ export const brandThemeCss = `:root {
   --error: ${branding.theme.error};
   --danger: ${branding.theme.danger};
   --neutral: ${branding.theme.neutral};
+  --pattern-dot: color-mix(in srgb, ${branding.theme.textColor} 24%, transparent);
+  --meteor-color: ${branding.theme.primary};
+  --surface-contrast: ${branding.theme.textColor};
+  --surface-contrast-strong: color-mix(in srgb, ${branding.theme.textColor} 92%, ${branding.theme.background});
+  --danger-soft: color-mix(in srgb, ${branding.theme.danger} 16%, transparent);
+  --danger-border: color-mix(in srgb, ${branding.theme.danger} 36%, transparent);
+  --info-soft: color-mix(in srgb, ${branding.theme.info} 16%, transparent);
+  --info-border: color-mix(in srgb, ${branding.theme.info} 36%, transparent);
+  --success-soft: color-mix(in srgb, ${branding.theme.success} 16%, transparent);
+  --success-border: color-mix(in srgb, ${branding.theme.success} 36%, transparent);
+  --brand-gradient-0: color-mix(in srgb, ${branding.theme.primaryLighter} 45%, white);
+  --brand-gradient-1: ${branding.theme.primaryLighter};
+  --brand-gradient-2: ${branding.theme.primary};
+  --brand-gradient-3: color-mix(in srgb, ${branding.theme.primary} 72%, ${branding.theme.background});
+  --brand-gradient-4: color-mix(in srgb, ${branding.theme.primary} 40%, ${branding.theme.backgroundDarker});
 }`;

@@ -7,8 +7,8 @@ body {
   font-family: var(--font-mono);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #141517;
-  color: #fff;
+  background: var(--background, #141517);
+  color: var(--text-color, #fff);
 }
 
 code {
@@ -24,16 +24,16 @@ code {
 }
 
 svg.rsm-svg {
-  background: #141517;
+  background: var(--background, #141517);
   border-radius: 6px;
 }
 
 :root {
-  --toastify-color-dark: #111927 !important;
-  --toastify-color-info: #04e4f4 !important;
-  --toastify-color-success: #20e253 !important;
-  --toastify-color-warning: #f6f000 !important;
-  --toastify-color-error: #f80363 !important;
+  --toastify-color-dark: var(--background-darker, #111927) !important;
+  --toastify-color-info: var(--info, #04e4f4) !important;
+  --toastify-color-success: var(--success, #20e253) !important;
+  --toastify-color-warning: var(--warning, #f6f000) !important;
+  --toastify-color-error: var(--danger, #f80363) !important;
 }
 
 #fancy-background {
