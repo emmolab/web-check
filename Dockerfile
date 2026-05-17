@@ -10,14 +10,16 @@ FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS build
 # Set the container's default shell to Bash and enable some options
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 
-# Install Chromium browser and Download and verify Google Chrome’s signing key
-RUN apt-get update -qq --fix-missing && \
-    apt-get -qqy install --allow-unauthenticated gnupg wget && \
-    wget --quiet --output-document=- https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/google-archive.gpg && \
-    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list && \
-    apt-get update -qq && \
-    apt-get -qqy --no-install-recommends install chromium traceroute python make g++ && \
-    rm -rf /var/lib/apt/lists/* 
+# Install Chromium and build tooling using distro packages only.
+# This keeps multi-arch builds consistent and avoids amd64-only Chrome repo setup.
+RUN apt-get -o Acquire::Retries=5 update -qq && \
+    apt-get -o Acquire::Retries=5 -qqy --fix-missing --no-install-recommends install \
+      chromium \
+      traceroute \
+      python-is-python3 \
+      make \
+      g++ && \
+    rm -rf /var/lib/apt/lists/*
 
 # Run the Chromium browser's version command and redirect its output to the /etc/chromium-version file
 RUN /usr/bin/chromium --no-sandbox --version > /etc/chromium-version
@@ -48,8 +50,8 @@ COPY package.json yarn.lock ./
 COPY --from=build /app .
 COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends chromium traceroute && \
+RUN apt-get -o Acquire::Retries=5 update && \
+    apt-get -o Acquire::Retries=5 install -y --no-install-recommends chromium traceroute && \
     chmod 755 /usr/bin/chromium && \
     rm -rf /var/lib/apt/lists/* /app/node_modules/.cache
 
