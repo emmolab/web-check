@@ -26,8 +26,9 @@ import { determineAddressType, type AddressType } from 'client/utils/address-typ
 import { hasData } from 'client/utils/result-processor';
 import keys from 'client/utils/get-keys';
 import useJobs from 'client/hooks/useJobs';
-import { jobs, allCards, allCardIds } from 'client/jobs/registry';
+import { jobs, filterJobsByIds, getCardIdsForJobs, getCardsForJobs } from 'client/jobs/registry';
 import { runAnalysis } from 'client/analysis/registry';
+import { getScanSettings } from '@/config/scan-settings';
 
 const ResultsOuter = styled.div`
   display: flex;
@@ -84,12 +85,20 @@ const Results = (props: { address?: string }): JSX.Element => {
     if (addressType === 'empt') setAddressType(determineAddressType(address));
   }, [address, addressType]);
 
-  const { state: jobsState, retry, ipLookupError } = useJobs(address, addressType, jobs);
+  const scanSettings = getScanSettings();
+  const activeJobs = useMemo(
+    () => filterJobsByIds(jobs, scanSettings.jobIds || []),
+    [scanSettings.preset],
+  );
+  const activeCardIds = useMemo(() => getCardIdsForJobs(activeJobs), [activeJobs]);
+  const activeCards = useMemo(() => getCardsForJobs(activeJobs), [activeJobs]);
+
+  const { state: jobsState, retry, ipLookupError } = useJobs(address, addressType, activeJobs);
 
   // Shape useJobs state for the existing ProgressBar contract
   const loadingJobs: LoadingJob[] = useMemo(
     () =>
-      allCardIds.map((id) => {
+      activeCardIds.map((id) => {
         const e = jobsState[id] || { state: 'loading' as LoadingState };
         return {
           name: id,
@@ -99,7 +108,7 @@ const Results = (props: { address?: string }): JSX.Element => {
           retry: () => retry(id),
         };
       }),
-    [jobsState, retry],
+    [activeCardIds, jobsState, retry],
   );
 
   // Expose successful job results on window.webCheck for debugging,
@@ -128,7 +137,7 @@ const Results = (props: { address?: string }): JSX.Element => {
   };
 
   // Resolve each card's data, applying picker and falling back when needed
-  const renderable = allCards.map(({ jobId, card }) => {
+  const renderable = activeCards.map(({ jobId, card }) => {
     const entry = jobsState[card.id];
     const raw = entry?.raw;
     let data = raw && card.pick ? card.pick(raw) : raw;
@@ -138,7 +147,7 @@ const Results = (props: { address?: string }): JSX.Element => {
 
   const cardsToShow = renderable.filter(({ data, entry }) => hasData(data) && !entry?.error);
 
-  const findings = useMemo(() => runAnalysis(jobsState), [jobsState]);
+  const findings = useMemo(() => runAnalysis(jobsState, activeCards), [activeCards, jobsState]);
 
   // Detect a catastrophic API outage when the bulk of settled jobs error or time out
   const apiUnreachable = useMemo(() => {

@@ -375,8 +375,20 @@ export const jobs: JobSpec[] = [
   },
 ];
 
-export const allCardIds: string[] = jobs.flatMap((j) => j.cards.map((c) => c.id));
+export const filterJobsByIds = (jobList: JobSpec[], includedJobIds: string[]) => {
+  const allowed = new Set(includedJobIds);
+  return jobList.filter((job) => allowed.has(job.id));
+};
 
-export const allCards: Array<{ jobId: string; card: JobSpec['cards'][number] }> = jobs.flatMap(
-  (j) => j.cards.map((card) => ({ jobId: j.id, card })),
-);
+export const getCardIdsForJobs = (jobList: JobSpec[]): string[] =>
+  jobList.flatMap((job) => job.cards.map((card) => card.id));
+
+export const getCardsForJobs = (
+  jobList: JobSpec[],
+): Array<{ jobId: string; card: JobSpec['cards'][number] }> =>
+  jobList.flatMap((job) => job.cards.map((card) => ({ jobId: job.id, card })));
+
+export const allCardIds: string[] = getCardIdsForJobs(jobs);
+
+export const allCards: Array<{ jobId: string; card: JobSpec['cards'][number] }> =
+  getCardsForJobs(jobs);

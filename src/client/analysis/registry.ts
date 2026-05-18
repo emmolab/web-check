@@ -54,8 +54,8 @@ export const analyzers: Record<string, Analyzer> = {
 };
 
 /* Run each analyzer against successful job state with valid object payload */
-export const runAnalysis = (state: JobsState): Finding[] =>
-  allCards.flatMap(({ card }) => {
+export const runAnalysis = (state: JobsState, cards = allCards): Finding[] =>
+  cards.flatMap(({ card }) => {
     const fn = analyzers[card.id];
     const entry = state[card.id];
     if (!fn || entry?.state !== 'success') return [];

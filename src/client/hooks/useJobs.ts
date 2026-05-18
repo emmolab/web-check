@@ -5,9 +5,9 @@ import keys from 'client/utils/get-keys';
 import type { AddressType } from 'client/utils/address-type-checker';
 import type { LoadingState } from 'client/components/misc/ProgressBar';
 import type { JobSpec, JobContext, JobsState } from 'client/jobs/types';
-import { allCardIds } from 'client/jobs/registry';
 
 type Action =
+  | { type: 'reset'; state: JobsState }
   | { type: 'start'; cardIds: string[] }
   | { type: 'success'; cardIds: string[]; raw: any; timeTaken: number }
   | {
@@ -20,15 +20,18 @@ type Action =
   | { type: 'skipped'; cardIds: string[]; reason?: string }
   | { type: 'force'; cardId: string; state: LoadingState };
 
-const initialState: JobsState = Object.fromEntries(
-  allCardIds.map((id) => [id, { state: 'loading' as LoadingState }]),
-);
+const makeInitialState = (jobs: JobSpec[]): JobsState =>
+  Object.fromEntries(
+    jobs.flatMap((job) => job.cards.map((card) => [card.id, { state: 'loading' as LoadingState }])),
+  );
 
 const setMany = (s: JobsState, ids: string[], patch: Partial<JobsState[string]>) =>
   ids.reduce((acc, id) => ({ ...acc, [id]: { ...acc[id], ...patch } }), s);
 
 const reducer = (s: JobsState, a: Action): JobsState => {
   switch (a.type) {
+    case 'reset':
+      return a.state;
     case 'start':
       return setMany(s, a.cardIds, { state: 'loading', error: undefined });
     case 'success':
@@ -57,7 +60,7 @@ const apiBase = (import.meta.env.PUBLIC_API_ENDPOINT || '/api') as string;
 
 // Drives every job's lifecycle: fetch, retry, abort, fallback promotion
 const useJobs = (address: string, addressType: AddressType, jobs: JobSpec[]) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, jobs, makeInitialState);
   const [ipAddress, setIpAddress] = useState<string | undefined>();
   const [ipLookupError, setIpLookupError] = useState<string | undefined>();
   const startTime = useRef(Date.now()).current;
@@ -150,12 +153,14 @@ const useJobs = (address: string, addressType: AddressType, jobs: JobSpec[]) => 
   // Initial fan-out: fire non-IP jobs immediately, mark unsupported as skipped
   useEffect(() => {
     if (keys.disableEverything) {
+      dispatch({ type: 'reset', state: makeInitialState(jobs) });
       const reason = `${branding.name} has been temporarily disabled on this instance`;
       jobs.forEach((j) => skipJob(j, reason));
       return;
     }
     if (!address || addressType === 'empt' || addressType === 'err') return;
 
+    dispatch({ type: 'reset', state: makeInitialState(jobs) });
     fired.current.clear();
     setIpLookupError(undefined);
     if (addressType === 'ipV4' || addressType === 'ipV6') setIpAddress(address);

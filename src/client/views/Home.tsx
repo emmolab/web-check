@@ -18,11 +18,9 @@ import {
   defaultCyberbroSettings,
   getCyberbroSettings,
 } from '@/config/cyberbro';
-import {
-  CYBERBRO_LOOKUP_PRESETS,
-  formatCyberbroEngineCsv,
-  resolveCyberbroSelection,
-} from '@/config/cyberbro-engines.js';
+import { formatCyberbroEngineCsv, resolveCyberbroSelection } from '@/config/cyberbro-engines.js';
+import { defaultScanSettings, getScanSettings, saveScanSettings } from '@/config/scan-settings';
+import { WEB_CHECK_SCAN_PRESETS, getScanPreset } from '@/config/scan-presets';
 
 const HomeContainer = styled.section`
   display: flex;
@@ -329,9 +327,7 @@ const Home = (): JSX.Element => {
   const [errorMsg, setErrMsg] = useState('');
   const [placeholder] = useState(defaultPlaceholder);
   const [inputDisabled] = useState(false);
-  const [selectedPreset, setSelectedPreset] = useState(
-    defaultCyberbroSettings.preset || 'cyber_intel',
-  );
+  const [selectedPreset, setSelectedPreset] = useState(defaultScanSettings.preset || 'web');
   const [freeOnly, setFreeOnly] = useState(Boolean(defaultCyberbroSettings.freeOnly));
   const navigate = useNavigate();
   const location = useLocation();
@@ -346,9 +342,10 @@ const Home = (): JSX.Element => {
   }, [navigate, location.search]);
 
   useEffect(() => {
-    const settings = getCyberbroSettings();
-    setSelectedPreset(settings.preset || 'cyber_intel');
-    setFreeOnly(Boolean(settings.freeOnly));
+    const scanSettings = getScanSettings();
+    const cyberbroSettings = getCyberbroSettings();
+    setSelectedPreset(scanSettings.preset || 'web');
+    setFreeOnly(Boolean(cyberbroSettings.freeOnly));
   }, []);
 
   const submit = () => {
@@ -360,7 +357,8 @@ const Home = (): JSX.Element => {
     } else if (addressType === 'err') {
       setErrMsg('Must be a valid URL, domain, IPv4, or IPv6 address');
     } else {
-      persistCyberbroProfile(selectedPreset, freeOnly);
+      const scanSettings = saveScanSettings({ preset: selectedPreset });
+      persistCyberbroProfile(scanSettings?.cyberbroPreset || selectedPreset, freeOnly);
       const resultRouteParams: NavigateOptions = { state: { address, addressType } };
       navigate(`/check/${address}`, resultRouteParams);
     }
@@ -384,9 +382,10 @@ const Home = (): JSX.Element => {
     submit();
   };
 
+  const activePreset = getScanPreset(selectedPreset);
   const resolvedEngines = resolveCyberbroSelection({
     ...defaultCyberbroSettings,
-    preset: selectedPreset,
+    preset: activePreset.cyberbroPreset,
     freeOnly,
   });
 
@@ -424,9 +423,9 @@ const Home = (): JSX.Element => {
                 Launch Analysis
               </Button>
               <StatusNote>
-                Current Cyberbro mode:{' '}
-                {selectedPreset === 'web' ? 'Web Preset' : 'Cyber Intel Preset'} with{' '}
-                {resolvedEngines.length} engine{resolvedEngines.length === 1 ? '' : 's'}
+                Active preset: {activePreset.label} with {activePreset.jobIds.length} Web Check job
+                {activePreset.jobIds.length === 1 ? '' : 's'} and {resolvedEngines.length} Cyberbro
+                engine{resolvedEngines.length === 1 ? '' : 's'}
                 {freeOnly ? ' using free/no-key sources only.' : '.'}
               </StatusNote>
             </SearchActions>
@@ -445,10 +444,10 @@ const Home = (): JSX.Element => {
                 </HelperBody>
               </HelperCard>
               <HelperCard>
-                <HelperTitle>Less Noise</HelperTitle>
+                <HelperTitle>Preset Control</HelperTitle>
                 <HelperBody>
-                  Use the free-only switch when you want signal fast without calling every paid or
-                  keyed backend.
+                  Presets now trim both Cyberbro and Web Check. Use full surface only when you
+                  actually want the whole sweep.
                 </HelperBody>
               </HelperCard>
             </HelperRow>
@@ -457,7 +456,7 @@ const Home = (): JSX.Element => {
           <ModePanel>
             <ModeLabel>Lookup Mode</ModeLabel>
             <ModeButtons>
-              {CYBERBRO_LOOKUP_PRESETS.map((preset) => (
+              {WEB_CHECK_SCAN_PRESETS.map((preset) => (
                 <ModeButton
                   key={preset.id}
                   type="button"
@@ -475,7 +474,7 @@ const Home = (): JSX.Element => {
                 checked={freeOnly}
                 onChange={(event) => setFreeOnly(event.target.checked)}
               />
-              Use only free / no-key Cyberbro engines
+              Use only free / no-key Cyberbro engines where possible
             </ToggleRow>
             <StatusNote>
               Need to override the backend or hand-pick engines? Use the account settings page for
