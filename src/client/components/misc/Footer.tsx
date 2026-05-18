@@ -4,28 +4,34 @@ import { branding } from '@/config/branding';
 import colors from 'client/styles/colors';
 
 const StyledFooter = styled.footer`
-  bottom: 0;
   width: 100%;
   text-align: center;
-  padding: 0.5rem 0;
-  background: ${colors.backgroundDarker};
-  border-top: 1px solid ${colors.primaryTransparent};
+  padding: 1rem 1.1rem;
+  background: color-mix(in srgb, ${colors.surfaceAccent} 84%, transparent);
+  border: 1px solid ${colors.borderSubtle};
+  border-radius: 18px;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
-  align-content: center;
   flex-wrap: wrap;
-  opacity: 0.75;
+  gap: 0.85rem 1.25rem;
+  opacity: 0.88;
   transition: all 0.2s ease-in-out;
-  @media (min-width: 1024px) {
-    justify-content: space-between;
+  @media (max-width: 720px) {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
   }
   &:hover {
     opacity: 1;
   }
   span {
-    margin: 0 0.5rem;
-    text-align: center;
+    margin: 0;
+    text-align: inherit;
+    min-width: 0;
+    line-height: 1.5;
+    color: ${colors.textColorSecondary};
+    overflow-wrap: anywhere;
   }
 `;
 
@@ -48,12 +54,12 @@ const Footer = (props: { isFixed?: boolean }): JSX.Element => {
   const githubUrl = branding.repoUrl;
   const githubLabel = githubUrl.replace(/^https?:\/\//, '');
   return (
-    <StyledFooter style={props.isFixed ? { position: 'fixed' } : {}}>
+    <StyledFooter style={props.isFixed ? { position: 'sticky', bottom: '1rem' } : {}}>
       <span>
         View source at <ALink href={githubUrl}>{githubLabel}</ALink>
       </span>
       <span>
-        <Link to="/about">{branding.name}</Link> is licensed under{' '}
+        <Link to="/check/about">{branding.name}</Link> is licensed under{' '}
         <ALink href={licenseUrl}>{branding.copyrightLabel}</ALink> - ©{' '}
         <ALink href={authorUrl}>{branding.companyName}</ALink> {new Date().getFullYear()}
       </span>

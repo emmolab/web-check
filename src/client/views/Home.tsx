@@ -24,181 +24,217 @@ import { defaultScanSettings, getScanSettings, saveScanSettings } from '@/config
 import { WEB_CHECK_SCAN_PRESETS, getScanPreset } from '@/config/scan-presets';
 
 const HomeContainer = styled.section`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100%;
-  font-family: var(--font-mono);
-  padding: 1.5rem 1rem 4rem 1rem;
-  footer {
-    z-index: 1;
-  }
-`;
-
-const HeroCard = styled.form`
   position: relative;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at top right, rgba(214, 251, 65, 0.18), transparent 32%),
-    linear-gradient(160deg, rgba(17, 18, 17, 0.96), rgba(32, 36, 30, 0.94));
-  box-shadow:
-    0 22px 60px rgba(0, 0, 0, 0.32),
-    6px 6px 0px ${colors.bgShadowColor};
-  border: 1px solid ${colors.primaryTransparent};
-  border-radius: 18px;
-  padding: 1.4rem;
-  margin: 1rem;
-  width: calc(100% - 2rem);
-  max-width: 68rem;
-  z-index: 2;
-  &:before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(120deg, rgba(214, 251, 65, 0.08), transparent 28%),
-      linear-gradient(0deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.02));
-    pointer-events: none;
-  }
+  min-height: 100%;
+  padding: 1.5rem 1rem 3rem;
+  font-family: var(--font-mono);
 `;
 
-const HeroTop = styled.div`
+const Shell = styled.div`
   position: relative;
   z-index: 1;
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const HeroGrid = styled.div`
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(18rem, 0.9fr);
-  gap: 1.25rem;
-  @media (max-width: 860px) {
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.82fr);
+  gap: 1rem;
+  @media (max-width: 960px) {
     grid-template-columns: 1fr;
   }
 `;
 
-const SearchColumn = styled.div`
+const HeroCard = styled(StyledCard)`
+  padding: 1.3rem;
+  gap: 1rem;
+`;
+
+const BrandRow = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
   gap: 0.85rem;
   a {
     text-decoration: none;
   }
 `;
 
-const Headline = styled.p`
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.65;
-  max-width: 42rem;
-  color: ${colors.textColor};
-  opacity: 0.92;
-`;
-
-const HelperRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin-top: 0.2rem;
-  @media (max-width: 720px) {
-    grid-template-columns: 1fr;
+const BrandBlock = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-width: 0;
+  img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 16px;
+    border: 1px solid ${colors.borderSubtle};
+    background: ${colors.surfaceAccent};
   }
 `;
 
-const HelperCard = styled.div`
-  border-radius: 14px;
-  padding: 0.9rem 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid ${colors.primaryTransparent};
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-`;
-
-const HelperTitle = styled.div`
-  color: ${colors.primary};
-  font-size: 0.9rem;
+const BrandKicker = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: fit-content;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.35rem;
+  letter-spacing: 0.09em;
+  color: ${colors.primary};
+  background: color-mix(in srgb, ${colors.surfaceAccent} 78%, ${colors.primaryTransparent});
+  border: 1px solid ${colors.borderStrong};
 `;
 
-const HelperBody = styled.p`
+const HeroTitleBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  h1 {
+    margin: 0;
+  }
+  a {
+    color: ${colors.textColor};
+  }
+`;
+
+const Headline = styled.p`
   margin: 0;
-  opacity: 0.86;
-  line-height: 1.5;
-  font-size: 0.95rem;
+  max-width: 44rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: ${colors.textColorSecondary};
 `;
 
-const ModePanel = styled.div`
+const CompactMeta = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+`;
+
+const MetaPill = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  color: ${colors.textColorSecondary};
+  background: ${colors.surfaceAccent};
+  border: 1px solid ${colors.borderSubtle};
+`;
+
+const SearchForm = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
-  padding: 1rem;
-  border-radius: 16px;
-  background: rgba(10, 12, 10, 0.58);
-  border: 1px solid rgba(214, 251, 65, 0.18);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  gap: 0.9rem;
 `;
 
-const ModeLabel = styled.div`
-  font-size: 0.8rem;
+const LaunchRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const LaunchGroup = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+`;
+
+const SummaryLine = styled.p`
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: ${colors.textColorSecondary};
+`;
+
+const ErrorMessage = styled.p`
+  margin: 0;
+  color: ${colors.danger};
+`;
+
+const PanelCard = styled(StyledCard)`
+  padding: 1.1rem;
+  gap: 0.9rem;
+`;
+
+const SectionLabel = styled.span`
+  font-size: 0.78rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   color: ${colors.primary};
 `;
 
-const ModeButtons = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
+const PresetList = styled.div`
+  display: grid;
+  gap: 0.65rem;
 `;
 
-const ModeButton = styled.button<{ active: boolean }>`
+const PresetButton = styled.button<{ active: boolean }>`
+  width: 100%;
   text-align: left;
   cursor: pointer;
-  border-radius: 14px;
-  padding: 0.9rem 1rem;
-  border: 1px solid ${(props) => (props.active ? colors.primary : colors.primaryTransparent)};
+  border-radius: 16px;
+  padding: 0.95rem 1rem;
+  border: 1px solid ${(props) => (props.active ? colors.borderStrong : colors.borderSubtle)};
   background: ${(props) =>
-    props.active ? 'rgba(214, 251, 65, 0.14)' : 'rgba(255, 255, 255, 0.025)'};
+    props.active
+      ? 'color-mix(in srgb, var(--surface-accent) 76%, var(--primary-transparent))'
+      : 'var(--surface-accent)'};
   color: ${colors.textColor};
   transition:
-    transform 0.18s ease,
     border-color 0.18s ease,
+    transform 0.18s ease,
     background 0.18s ease;
   &:hover {
     transform: translateY(-1px);
-    border-color: ${colors.primary};
+    border-color: ${colors.borderStrong};
   }
 `;
 
-const ModeTitle = styled.div`
-  font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: 0.2rem;
-`;
-
-const ModeDescription = styled.div`
-  font-size: 0.92rem;
-  line-height: 1.5;
-  opacity: 0.82;
-`;
-
-const ToggleRow = styled.label`
+const PresetTitle = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  font-size: 0.95rem;
-  cursor: pointer;
-  opacity: 0.9;
-  input {
-    accent-color: ${colors.primary};
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.3rem;
+  strong {
+    font-size: 0.98rem;
   }
+  span {
+    font-size: 0.8rem;
+    color: ${colors.primary};
+  }
+`;
+
+const PresetDescription = styled.p`
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: ${colors.textColorSecondary};
 `;
 
 const CustomBuilder = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-  padding: 0.95rem;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid ${colors.primaryTransparent};
+  padding: 1rem;
+  border-radius: 16px;
+  background: ${colors.surfaceAccent};
+  border: 1px solid ${colors.borderSubtle};
 `;
 
 const CustomToolbar = styled.div`
@@ -207,24 +243,35 @@ const CustomToolbar = styled.div`
   gap: 0.5rem;
 `;
 
-const ToolbarButton = styled.button`
+const ToolbarButton = styled.button<{ active?: boolean }>`
   cursor: pointer;
   border-radius: 999px;
-  padding: 0.35rem 0.75rem;
-  border: 1px solid ${colors.primaryTransparent};
-  background: ${colors.background};
-  color: ${colors.textColor};
+  padding: 0.45rem 0.8rem;
+  border: 1px solid ${(props) => (props.active ? colors.borderStrong : colors.borderSubtle)};
+  background: ${(props) =>
+    props.active
+      ? 'color-mix(in srgb, var(--surface) 68%, var(--primary-transparent))'
+      : 'var(--surface)'};
+  color: ${props => props.active ? colors.primary : colors.textColor};
   font-family: var(--font-mono);
+  font-size: 0.83rem;
   &:hover {
-    border-color: ${colors.primary};
+    border-color: ${colors.borderStrong};
     color: ${colors.primary};
   }
+`;
+
+const BuilderNote = styled.p`
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: ${colors.textColorSecondary};
 `;
 
 const CustomGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.45rem;
+  gap: 0.55rem;
   @media (max-width: 720px) {
     grid-template-columns: 1fr;
   }
@@ -232,13 +279,15 @@ const CustomGrid = styled.div`
 
 const CustomOption = styled.label<{ active: boolean }>`
   display: flex;
-  gap: 0.65rem;
+  gap: 0.7rem;
   align-items: flex-start;
-  padding: 0.7rem 0.8rem;
-  border-radius: 12px;
+  padding: 0.75rem 0.8rem;
+  border-radius: 14px;
+  border: 1px solid ${(props) => (props.active ? colors.borderStrong : colors.borderSubtle)};
   background: ${(props) =>
-    props.active ? 'rgba(214, 251, 65, 0.12)' : 'rgba(255, 255, 255, 0.02)'};
-  border: 1px solid ${(props) => (props.active ? colors.primary : colors.primaryTransparent)};
+    props.active
+      ? 'color-mix(in srgb, var(--surface) 70%, var(--primary-transparent))'
+      : 'var(--surface)'};
   cursor: pointer;
   input {
     margin-top: 0.15rem;
@@ -249,114 +298,80 @@ const CustomOption = styled.label<{ active: boolean }>`
 const OptionMeta = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.18rem;
   min-width: 0;
   strong {
-    font-size: 0.95rem;
+    font-size: 0.92rem;
   }
   span {
-    opacity: 0.72;
-    font-size: 0.82rem;
-    line-height: 1.4;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: ${colors.textColorSecondary};
+    overflow-wrap: anywhere;
   }
 `;
 
-const SectionCaption = styled.div`
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: ${colors.primary};
-`;
-
-const MicroNote = styled.p`
-  margin: 0;
-  opacity: 0.72;
-  font-size: 0.84rem;
+const ToggleRow = styled.label`
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  font-size: 0.92rem;
   line-height: 1.5;
+  color: ${colors.textColorSecondary};
+  cursor: pointer;
+  input {
+    margin-top: 0.2rem;
+    accent-color: ${colors.primary};
+  }
 `;
 
-const SearchActions = styled.div`
+const LowerGrid = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+  gap: 1rem;
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const CheckList = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.55rem;
+`;
+
+const CheckChip = styled(Link)`
+  display: inline-flex;
   align-items: center;
-`;
-
-const StatusNote = styled.p`
-  margin: 0;
-  opacity: 0.76;
-  font-size: 0.92rem;
-  line-height: 1.55;
-`;
-
-const ErrorMessage = styled.p`
-  color: ${colors.danger};
-  margin: 0.1rem 0 0 0;
-`;
-
-const SponsorCard = styled.div`
-  background: ${colors.backgroundLighter};
-  box-shadow: 4px 4px 0px ${colors.bgShadowColor};
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1rem;
-  width: calc(100% - 2rem);
-  max-width: 68rem;
-  z-index: 2;
-  p {
-    margin: 0.25rem 0;
-  }
-  a {
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  text-decoration: none;
+  color: ${colors.textColorSecondary};
+  background: ${colors.surfaceAccent};
+  border: 1px solid ${colors.borderSubtle};
+  font-size: 0.83rem;
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease;
+  &:hover {
     color: ${colors.primary};
+    border-color: ${colors.borderStrong};
   }
 `;
 
-const SiteFeaturesWrapper = styled(StyledCard)`
-  margin: 1rem;
-  width: calc(100% - 2rem);
-  max-width: 68rem;
-  z-index: 2;
-  .links {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    a {
-      width: 100%;
-      button {
-        width: calc(100% - 2rem);
-      }
-    }
-    @media (max-width: 600px) {
-      flex-wrap: wrap;
-    }
+const LinkStack = styled.div`
+  display: grid;
+  gap: 0.65rem;
+  a {
+    text-decoration: none;
   }
-  ul {
-    -webkit-column-width: 180px;
-    -moz-column-width: 180px;
-    column-width: 180px;
-    list-style: none;
-    padding: 0 1rem;
-    font-size: 0.95rem;
-    color: ${colors.textColor};
-    li {
-      position: relative;
-      margin: 0.18rem 0;
-      padding-left: 1.2rem;
-      break-inside: avoid-column;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    li:before {
-      content: '✓';
-      color: ${colors.primary};
-      position: absolute;
-      left: 0;
-    }
-    li:not(:last-child) a {
-      color: inherit;
-      text-decoration: none;
-    }
-  }
+`;
+
+const SupportNote = styled.p`
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: ${colors.textColorSecondary};
   a {
     color: ${colors.primary};
   }
@@ -418,7 +433,7 @@ const persistCyberbroProfile = (preset: string, freeOnly: boolean) => {
 
 const Home = (): JSX.Element => {
   const defaultPlaceholder =
-    'e.g. https://evilginx.bad, suspicious-domain.tld, 8.8.8.8, 2606:4700:4700::1111';
+    'e.g. suspicious-domain.tld, https://example.test, 8.8.8.8, 2606:4700:4700::1111';
   const [userInput, setUserInput] = useState('');
   const [errorMsg, setErrMsg] = useState('');
   const [placeholder] = useState(defaultPlaceholder);
@@ -525,85 +540,85 @@ const Home = (): JSX.Element => {
   return (
     <HomeContainer>
       <FancyBackground />
-      <HeroCard onSubmit={formSubmitEvent}>
-        <HeroTop>
-          <SearchColumn>
-            <a href="/">
-              <Heading as="h1" size="xLarge" color={colors.primary}>
-                <img width="64" src={branding.appIconPath} alt={branding.name + ' icon'} />
-                {branding.name}
-              </Heading>
-            </a>
-            <Headline>
-              Run fast website triage or deeper threat-intel lookups from the same entry point. URL,
-              domain, IPv4, and IPv6 targets all work here now.
-            </Headline>
-            <Input
-              id="user-input"
-              value={userInput}
-              label="Target URL, domain, IPv4, or IPv6"
-              size="large"
-              orientation="vertical"
-              name="url"
-              placeholder={placeholder}
-              disabled={inputDisabled}
-              handleChange={inputChange}
-              handleKeyDown={handleKeyPress}
-            />
-            {errorMsg && <ErrorMessage>{errorMsg}</ErrorMessage>}
-            <SearchActions>
-              <Button type="submit" styles="width: min(22rem, 100%);" size="large" onClick={submit}>
-                Launch Analysis
-              </Button>
-              <StatusNote>
-                Active preset: {activePreset.label} with {activePreset.jobIds.length} Web Check job
-                {activePreset.jobIds.length === 1 ? '' : 's'} and {resolvedEngines.length} Cyberbro
-                engine{resolvedEngines.length === 1 ? '' : 's'}
-                {freeOnly ? ' using free/no-key sources only.' : '.'}
-              </StatusNote>
-            </SearchActions>
-            <HelperRow>
-              <HelperCard>
-                <HelperTitle>Web Preset</HelperTitle>
-                <HelperBody>
-                  Cleaner website triage with reputation, DNS, certificate, and scan-history checks.
-                </HelperBody>
-              </HelperCard>
-              <HelperCard>
-                <HelperTitle>Cyber Intel</HelperTitle>
-                <HelperBody>
-                  Broader maliciousness coverage for suspicious domains, URLs, IPv4, and IPv6
-                  observables.
-                </HelperBody>
-              </HelperCard>
-              <HelperCard>
-                <HelperTitle>Preset Control</HelperTitle>
-                <HelperBody>
-                  Presets now trim both Cyberbro and Web Check. Use full surface only when you
-                  actually want the whole sweep.
-                </HelperBody>
-              </HelperCard>
-            </HelperRow>
-          </SearchColumn>
+      <Shell>
+        <HeroGrid>
+          <HeroCard>
+            <BrandRow>
+              <BrandBlock>
+                <img width="56" src={branding.appIconPath} alt={branding.name + ' icon'} />
+                <HeroTitleBlock>
+                  <BrandKicker>Investigation Workspace</BrandKicker>
+                  <Heading as="h1" size="xLarge" color={colors.textColor}>
+                    <a href="/check">{branding.name}</a>
+                  </Heading>
+                </HeroTitleBlock>
+              </BrandBlock>
+            </BrandRow>
 
-          <ModePanel>
-            <ModeLabel>Lookup Mode</ModeLabel>
-            <ModeButtons>
+            <Headline>{branding.heroSubtitle}</Headline>
+            <CompactMeta>
+              <MetaPill>Preset-driven scans</MetaPill>
+              <MetaPill>URL, domain, IPv4, and IPv6</MetaPill>
+              <MetaPill>Whitelabel-ready theme</MetaPill>
+            </CompactMeta>
+
+            <SearchForm onSubmit={formSubmitEvent}>
+              <Input
+                id="user-input"
+                value={userInput}
+                label="Target URL, domain, IPv4, or IPv6"
+                size="large"
+                orientation="vertical"
+                name="url"
+                placeholder={placeholder}
+                disabled={inputDisabled}
+                handleChange={inputChange}
+                handleKeyDown={handleKeyPress}
+              />
+              {errorMsg && <ErrorMessage>{errorMsg}</ErrorMessage>}
+              <LaunchRow>
+                <LaunchGroup>
+                  <Button
+                    type="submit"
+                    size="large"
+                    onClick={submit}
+                    styles="width: auto; min-width: 15rem; padding-inline: 1.1rem;"
+                  >
+                    Launch Analysis
+                  </Button>
+                </LaunchGroup>
+                <SummaryLine>
+                  <strong>{activePreset.label}</strong> runs {activePreset.jobIds.length} Web Check
+                  job{activePreset.jobIds.length === 1 ? '' : 's'} and {resolvedEngines.length}{' '}
+                  Cyberbro engine{resolvedEngines.length === 1 ? '' : 's'}
+                  {freeOnly ? ' with free/no-key sources only.' : '.'}
+                </SummaryLine>
+              </LaunchRow>
+            </SearchForm>
+          </HeroCard>
+
+          <PanelCard>
+            <SectionLabel>Lookup Mode</SectionLabel>
+            <PresetList>
               {WEB_CHECK_SCAN_PRESETS.map((preset) => (
-                <ModeButton
+                <PresetButton
                   key={preset.id}
                   type="button"
                   active={selectedPreset === preset.id}
                   onClick={() => setSelectedPreset(preset.id)}
                 >
-                  <ModeTitle>{preset.label}</ModeTitle>
-                  <ModeDescription>{preset.description}</ModeDescription>
-                </ModeButton>
+                  <PresetTitle>
+                    <strong>{preset.label}</strong>
+                    <span>{preset.jobIds.length} jobs</span>
+                  </PresetTitle>
+                  <PresetDescription>{preset.description}</PresetDescription>
+                </PresetButton>
               ))}
-            </ModeButtons>
+            </PresetList>
+
             {selectedPreset === 'custom' && (
               <CustomBuilder>
-                <SectionCaption>Custom Check Builder</SectionCaption>
+                <SectionLabel>Custom Builder</SectionLabel>
                 <CustomToolbar>
                   <ToolbarButton type="button" onClick={() => applyCustomPreset('web')}>
                     Load Web
@@ -618,10 +633,10 @@ const Home = (): JSX.Element => {
                     Clear
                   </ToolbarButton>
                 </CustomToolbar>
-                <MicroNote>
-                  Pick exactly which checks should run. If you leave Cyberbro enabled below, its
-                  engine profile is controlled separately.
-                </MicroNote>
+                <BuilderNote>
+                  Pick the exact Web Check jobs to run. If Cyberbro stays enabled below, you can
+                  still choose which Cyberbro profile backs the custom run.
+                </BuilderNote>
                 <CustomGrid>
                   {scanJobOptions.map((job) => (
                     <CustomOption key={job.id} active={customJobSet.has(job.id)}>
@@ -642,15 +657,15 @@ const Home = (): JSX.Element => {
                 </CustomGrid>
                 {customJobSet.has('cyberbro') && (
                   <>
-                    <SectionCaption>Cyberbro Profile</SectionCaption>
+                    <SectionLabel>Cyberbro Profile</SectionLabel>
                     <CustomToolbar>
                       {cyberbroModeOptions.map((option) => (
                         <ToolbarButton
                           key={option.id}
                           type="button"
+                          active={customCyberbroPreset === option.id}
                           onClick={() => setCustomCyberbroPreset(option.id)}
                         >
-                          {customCyberbroPreset === option.id ? '● ' : ''}
                           {option.label}
                         </ToolbarButton>
                       ))}
@@ -659,77 +674,68 @@ const Home = (): JSX.Element => {
                 )}
               </CustomBuilder>
             )}
+
             <ToggleRow>
               <input
                 type="checkbox"
                 checked={freeOnly}
                 onChange={(event) => setFreeOnly(event.target.checked)}
               />
-              Use only free / no-key Cyberbro engines where possible
+              <span>Use only free or no-key Cyberbro engines where possible.</span>
             </ToggleRow>
-            <StatusNote>
+            <BuilderNote>
               Need to override the backend or hand-pick engines? Use the account settings page for
               the advanced controls.
-            </StatusNote>
-          </ModePanel>
-        </HeroTop>
-      </HeroCard>
+            </BuilderNote>
+          </PanelCard>
+        </HeroGrid>
 
-      {branding.showSponsor && (
-        <SponsorCard>
-          <Heading as="h2" size="small" color={colors.primary}>
-            Enjoying {branding.name}?
-          </Heading>
-          <p>
-            The project is free and open source. If it has been useful, you can support the
-            maintainers, review the code, or self-host your own deployment from{' '}
-            <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
-              the GitHub repository
-            </a>
-            .
-          </p>
-        </SponsorCard>
-      )}
-
-      <SiteFeaturesWrapper>
-        <div className="features">
-          <Heading as="h2" size="small" color={colors.primary}>
-            Supported Checks
-          </Heading>
-          <ul>
-            {docs.map((doc, index) => (
-              <li key={index}>
-                <Link to={`/check/about#${makeAnchor(doc.title)}`} title={doc.title}>
+        <LowerGrid>
+          <PanelCard>
+            <SectionLabel>Supported Checks</SectionLabel>
+            <Heading as="h2" size="small" align="left" color={colors.textColor}>
+              Keep the scan set tight, not noisy
+            </Heading>
+            <CheckList>
+              {docs.map((doc, index) => (
+                <CheckChip key={index} to={`/check/about#${makeAnchor(doc.title)}`} title={doc.title}>
                   {doc.title}
-                </Link>
-              </li>
-            ))}
-            <li>
-              <Link to="/check/about">+ more!</Link>
-            </li>
-          </ul>
-        </div>
-        <div className="links">
-          <a
-            target="_blank"
-            rel="noreferrer"
-            href={branding.repoUrl}
-            title="Check out the source code and documentation on GitHub, and get support or contribute"
-          >
-            <Button>{branding.sourceLabel}</Button>
-          </a>
-          <Link
-            to="/self-hosted-setup"
-            title="See self-hosting instructions for Docker and source deployments"
-          >
-            <Button>Self-host</Button>
-          </Link>
-          <Link to="/check/about#api-documentation" title="View the API documentation">
-            <Button>API Docs</Button>
-          </Link>
-        </div>
-      </SiteFeaturesWrapper>
-      <Footer isFixed={true} />
+                </CheckChip>
+              ))}
+              <CheckChip to="/check/about">Full documentation</CheckChip>
+            </CheckList>
+          </PanelCard>
+
+          <PanelCard>
+            <SectionLabel>Platform</SectionLabel>
+            <Heading as="h2" size="small" align="left" color={colors.textColor}>
+              Source, API, and self-hosting
+            </Heading>
+            <LinkStack>
+              <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
+                <Button styles="width: 100%;">{branding.sourceLabel}</Button>
+              </a>
+              <Link to="/self-hosted-setup">
+                <Button styles="width: 100%;">Self-host</Button>
+              </Link>
+              <Link to="/check/about#api-documentation">
+                <Button styles="width: 100%;">API Docs</Button>
+              </Link>
+            </LinkStack>
+            {branding.showSponsor && (
+              <SupportNote>
+                If this deployment is useful, support the maintainers or adapt it from{' '}
+                <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
+                  the source repository
+                </a>
+                .
+              </SupportNote>
+            )}
+          </PanelCard>
+        </LowerGrid>
+
+        <Footer />
+      </Shell>
     </HomeContainer>
   );
 };

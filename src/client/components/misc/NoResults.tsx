@@ -6,7 +6,7 @@ import Heading from 'client/components/Form/Heading';
 
 const Wrapper = styled(StyledCard)`
   margin: 0 auto;
-  width: 95vw;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;

@@ -6,27 +6,31 @@ import Heading from 'client/components/Form/Heading';
 import colors from 'client/styles/colors';
 
 export const StyledCard = styled.section<{ styles?: string }>`
-  background: ${colors.backgroundLighter};
+  background:
+    linear-gradient(180deg, color-mix(in srgb, ${colors.surfaceElevated} 92%, transparent), ${colors.surface});
   color: ${colors.textColor};
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24);
-  border: 1px solid ${colors.primaryTransparent};
-  border-radius: 14px;
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.22);
+  border: 1px solid ${colors.borderSubtle};
+  border-radius: 18px;
   padding: 1rem 1rem 1.1rem 1rem;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
+  overflow: hidden;
   ${(props) => props.styles}
 `;
 
 const CardHeader = styled.div`
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
   align-items: flex-start;
   gap: 0.75rem;
   .inner-heading {
     margin: 0;
-    flex: 1;
+    flex: 1 1 14rem;
+    min-width: 0;
   }
 `;
 

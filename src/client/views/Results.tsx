@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo, type ReactNode } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { ToastContainer } from 'react-toastify';
 
 import colors from 'client/styles/colors';
 import Heading from 'client/components/Form/Heading';
+import Button from 'client/components/Form/Button';
 import Modal from 'client/components/Form/Modal';
 import { StyledCard } from 'client/components/Form/Card';
 import Footer from 'client/components/misc/Footer';
@@ -33,43 +34,99 @@ import { getScanSettings } from '@/config/scan-settings';
 import { getScanPreset } from '@/config/scan-presets';
 
 const ResultsOuter = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding-top: 1rem;
+  padding: 1rem 1rem 3rem;
 `;
 
 const ResultsFrame = styled.div`
-  width: min(96vw, 1600px);
+  width: min(1180px, 100%);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 1rem;
 `;
 
-const ResultsContent = styled.section`
-  width: 100%;
+const Masthead = styled(StyledCard)`
+  gap: 1rem;
+  padding: 1.15rem 1.2rem;
+`;
+
+const MastheadTop = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.9rem;
+  align-items: flex-start;
+`;
+
+const TargetBlock = styled.div`
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+  min-width: 0;
+  img {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    border: 1px solid ${colors.borderSubtle};
+    background: ${colors.surfaceAccent};
+    flex-shrink: 0;
+  }
+`;
+
+const TargetMeta = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+  h1, h2 {
+    margin: 0;
+    min-width: 0;
+  }
+  a {
+    color: ${colors.textColor};
+  }
+`;
+
+const Eyebrow = styled.span`
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, ${colors.surfaceAccent} 78%, ${colors.primaryTransparent});
+  border: 1px solid ${colors.borderStrong};
+  color: ${colors.primary};
+  font-size: 0.76rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+`;
+
+const SubtleText = styled.p`
   margin: 0;
-  @keyframes cardFlash {
-    0%,
-    30% {
-      outline: 2px solid ${colors.primary};
-      outline-offset: 4px;
-    }
-    100% {
-      outline: 2px solid transparent;
-      outline-offset: 4px;
-    }
-  }
-  .flash > section {
-    animation: cardFlash 1.2s ease-out;
-    border-radius: 8px;
-  }
+  color: ${colors.textColorSecondary};
+  line-height: 1.55;
+  font-size: 0.93rem;
+`;
+
+const StatusStrip = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+`;
+
+const StatusPill = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  color: ${colors.textColorSecondary};
+  background: ${colors.surfaceAccent};
+  border: 1px solid ${colors.borderSubtle};
 `;
 
 const SummaryGrid = styled.section`
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
+  grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
   gap: 1rem;
   @media (max-width: 960px) {
     grid-template-columns: 1fr;
@@ -83,44 +140,84 @@ const SummaryCard = styled(StyledCard)`
 const MetricGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 0.7rem;
   @media (max-width: 720px) {
     grid-template-columns: 1fr;
   }
 `;
 
 const Metric = styled.div`
-  padding: 0.85rem 0.9rem;
-  border-radius: 12px;
-  background: ${colors.background};
-  border: 1px solid ${colors.primaryTransparent};
+  padding: 0.9rem;
+  border-radius: 14px;
+  background: ${colors.surfaceAccent};
+  border: 1px solid ${colors.borderSubtle};
   strong {
     display: block;
-    color: ${colors.primary};
-    font-size: 1.35rem;
+    color: ${colors.textColor};
+    font-size: 1.25rem;
+    margin-bottom: 0.2rem;
   }
   span {
-    opacity: 0.74;
-    font-size: 0.88rem;
+    color: ${colors.textColorSecondary};
+    font-size: 0.84rem;
+    line-height: 1.45;
   }
 `;
 
-const PresetBadge = styled.span`
-  display: inline-flex;
-  width: fit-content;
-  padding: 0.35rem 0.8rem;
-  border-radius: 999px;
-  background: ${colors.primaryTransparent};
-  border: 1px solid ${colors.primaryTransparent};
+const SectionLabel = styled.span`
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   color: ${colors.primary};
-  font-size: 0.9rem;
-  font-weight: 700;
 `;
 
-const SoftText = styled.p`
-  margin: 0;
-  opacity: 0.8;
-  line-height: 1.55;
+const NotesList = styled.div`
+  display: grid;
+  gap: 0.65rem;
+`;
+
+const Note = styled.div`
+  padding: 0.85rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid ${colors.borderSubtle};
+  background: ${colors.surfaceAccent};
+  strong {
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+  span {
+    color: ${colors.textColorSecondary};
+    line-height: 1.5;
+    font-size: 0.9rem;
+  }
+`;
+
+const ResultsContent = styled.section`
+  width: 100%;
+  @keyframes cardFlash {
+    0%,
+    30% {
+      outline: 2px solid ${colors.primary};
+      outline-offset: 4px;
+    }
+    100% {
+      outline: 2px solid transparent;
+      outline-offset: 4px;
+    }
+  }
+  .flash > section {
+    animation: cardFlash 1.2s ease-out;
+    border-radius: 18px;
+  }
+`;
+
+const EmptyStateActions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  a {
+    text-decoration: none;
+  }
 `;
 
 const makeSiteName = (address: string): string => {
@@ -132,14 +229,13 @@ const makeSiteName = (address: string): string => {
   }
 };
 
-const makeActionButtons = (title: string, refresh: () => void, showInfo: () => void): ReactNode => (
-  <ActionButtons
-    actions={[
-      { label: `Info about ${title}`, onClick: showInfo, icon: 'ⓘ' },
-      { label: `Re-fetch ${title} data`, onClick: refresh, icon: '↻' },
-    ]}
-  />
-);
+const makeSiteHref = (address: string): string => {
+  if (/^https?:\/\//i.test(address)) return address;
+  if (determineAddressType(address) === 'url') {
+    return `https://${address}`;
+  }
+  return `https://${address}`;
+};
 
 const Results = (props: { address?: string }): JSX.Element => {
   const address = props.address || useParams().urlToScan || '';
@@ -168,7 +264,6 @@ const Results = (props: { address?: string }): JSX.Element => {
 
   const { state: jobsState, retry, ipLookupError } = useJobs(address, addressType, activeJobs);
 
-  // Shape useJobs state for the existing ProgressBar contract
   const loadingJobs: LoadingJob[] = useMemo(
     () =>
       activeCardIds.map((id) => {
@@ -184,11 +279,10 @@ const Results = (props: { address?: string }): JSX.Element => {
     [activeCardIds, jobsState, retry],
   );
 
-  // Expose successful job results on window.webCheck for debugging,
-  // resetting on new input so prior scans cannot accumulate
   useEffect(() => {
     (window as any).webCheck = {};
   }, [address]);
+
   useEffect(() => {
     const w = (window as any).webCheck;
     if (!w) return;
@@ -209,7 +303,6 @@ const Results = (props: { address?: string }): JSX.Element => {
     setModalOpen(true);
   };
 
-  // Resolve each card's data, applying picker and falling back when needed
   const renderable = activeCards.map(({ jobId, card }) => {
     const entry = jobsState[card.id];
     const raw = entry?.raw;
@@ -222,7 +315,6 @@ const Results = (props: { address?: string }): JSX.Element => {
 
   const findings = useMemo(() => runAnalysis(jobsState, activeCards), [activeCards, jobsState]);
 
-  // Detect a catastrophic API outage when the bulk of settled jobs error or time out
   const apiUnreachable = useMemo(() => {
     const entries = Object.values(jobsState);
     const settled = entries.filter((e) => e?.state !== 'loading');
@@ -230,7 +322,6 @@ const Results = (props: { address?: string }): JSX.Element => {
     return settled.length >= entries.length / 2 && dead.length / settled.length >= 0.9;
   }, [jobsState]);
 
-  // Pick the highest-priority error state, if any
   let errorKind: 'invalid' | 'unreachable' | 'api-down' | 'disabled' | null = null;
   if (keys.disableEverything) {
     errorKind = 'disabled';
@@ -252,71 +343,126 @@ const Results = (props: { address?: string }): JSX.Element => {
     window.setTimeout(() => el.classList.remove('flash'), 1300);
   };
 
+  const failedJobs = loadingJobs.filter((job) => job.state === 'error' || job.state === 'timed-out');
+  const settledJobs = loadingJobs.filter((job) => job.state !== 'loading');
+
+  const rerunFailed = () => {
+    failedJobs.forEach((job) => job.retry?.());
+  };
+
   return (
     <ResultsOuter>
       <ResultsFrame>
-        <Nav>
-          {address && (
-            <Heading color={colors.textColor} size="medium">
+        <Nav />
+
+        <Masthead>
+          <MastheadTop>
+            <TargetBlock>
               {addressType === 'url' && (
-                <a
-                  target="_blank"
-                  rel="noreferrer"
-                  href={/^https?:\/\//i.test(address) ? address : `https://${address}`}
-                >
-                  <img
-                    width="32px"
-                    alt=""
-                    src={`https://icon.horse/icon/${makeSiteName(address)}`}
-                  />
+                <a target="_blank" rel="noreferrer" href={makeSiteHref(address)}>
+                  <img width="52" alt="" src={`https://icon.horse/icon/${makeSiteName(address)}`} />
                 </a>
               )}
-              {makeSiteName(address)}
-            </Heading>
-          )}
-        </Nav>
+              <TargetMeta>
+                <Eyebrow>{presetMeta.label}</Eyebrow>
+                <Heading as="h1" align="left" color={colors.textColor}>
+                  {makeSiteName(address)}
+                </Heading>
+                <SubtleText>{presetMeta.description}</SubtleText>
+              </TargetMeta>
+            </TargetBlock>
+
+            <ActionButtons
+              actions={[
+                { label: 'New Scan', shortLabel: 'New Scan', icon: '←', onClick: () => (window.location.href = '/check') },
+                ...(failedJobs.length
+                  ? [{ label: 'Retry Failed Checks', shortLabel: 'Retry Failed', icon: '↻', onClick: rerunFailed }]
+                  : []),
+                ...(address
+                  ? [{ label: 'Open Target', shortLabel: 'Open Target', icon: '↗', onClick: () => window.open(makeSiteHref(address), '_blank', 'noopener,noreferrer') }]
+                  : []),
+              ]}
+            />
+          </MastheadTop>
+
+          <StatusStrip>
+            <StatusPill>{activeJobs.length} jobs selected</StatusPill>
+            <StatusPill>{cardsToShow.length} cards rendered</StatusPill>
+            <StatusPill>{settledJobs.length} jobs settled</StatusPill>
+            <StatusPill>Cyberbro: {scanSettings.cyberbroPreset || 'web'}</StatusPill>
+          </StatusStrip>
+        </Masthead>
+
         <SummaryGrid>
           <SummaryCard>
-            <PresetBadge>{presetMeta.label}</PresetBadge>
-            <Heading as="h2" align="left" color={colors.primary}>
-              Scan Summary
+            <SectionLabel>Run Summary</SectionLabel>
+            <Heading as="h2" align="left" color={colors.textColor}>
+              Cleaner scan state and easier recovery
             </Heading>
-            <SoftText>{presetMeta.description}</SoftText>
+            <SubtleText>
+              The selected preset controls the actual jobs that run, not just which cards stay
+              visible afterwards. Failed checks can be retried from here or from each card.
+            </SubtleText>
             <MetricGrid>
               <Metric>
                 <strong>{activeJobs.length}</strong>
-                <span>Web Check jobs selected</span>
+                <span>Configured jobs in this run</span>
               </Metric>
               <Metric>
-                <strong>{cardsToShow.length}</strong>
-                <span>Cards with usable data</span>
+                <strong>{failedJobs.length}</strong>
+                <span>Checks currently failed or timed out</span>
               </Metric>
               <Metric>
-                <strong>{scanSettings.cyberbroPreset || 'web'}</strong>
-                <span>Cyberbro profile</span>
+                <strong>{findings.length}</strong>
+                <span>Analysis findings surfaced</span>
               </Metric>
             </MetricGrid>
           </SummaryCard>
+
           <SummaryCard>
-            <Heading as="h2" align="left" color={colors.primary}>
-              What This Run Does
+            <SectionLabel>Operator Notes</SectionLabel>
+            <Heading as="h2" align="left" color={colors.textColor}>
+              Control the noise without losing the work
             </Heading>
-            <SoftText>
-              The selected preset decides which checks fire before any requests go out. That keeps
-              lighter runs genuinely light instead of hiding unwanted cards after the fact.
-            </SoftText>
-            <SoftText>
-              If a card still looks noisy, switch presets or use the custom builder on the home page
-              to narrow the run further.
-            </SoftText>
+            <NotesList>
+              <Note>
+                <strong>Retry path</strong>
+                <span>Failed checks stay reachable through the top action bar and each card header.</span>
+              </Note>
+              <Note>
+                <strong>Preset logic</strong>
+                <span>Switch back to a lighter preset or use custom mode if a full sweep is overkill.</span>
+              </Note>
+              <Note>
+                <strong>Raw access</strong>
+                <span>Debug output and raw results are still available below when deeper review is needed.</span>
+              </Note>
+            </NotesList>
           </SummaryCard>
         </SummaryGrid>
-        {errorKind && <NoResults kind={errorKind} address={address} error={ipLookupError} />}
+
+        {errorKind && (
+          <>
+            <NoResults kind={errorKind} address={address} error={ipLookupError} />
+            <EmptyStateActions>
+              <Link to="/check">
+                <Button styles="width: auto; padding-inline: 1rem;">Start Another Scan</Button>
+              </Link>
+              {!!failedJobs.length && (
+                <Button styles="width: auto; padding-inline: 1rem;" onClick={rerunFailed}>
+                  Retry Failed Checks
+                </Button>
+              )}
+            </EmptyStateActions>
+          </>
+        )}
+
         <ProgressBar loadStatus={loadingJobs} showModal={showErrorModal} showJobDocs={showInfo} />
         <Loader show={loadingJobs.filter((j) => j.state !== 'loading').length < 5} />
         <AdvisoryPanel findings={findings} onJumpTo={jumpToCard} />
+
         <ResultsContent>
-          <ResultsMasonryGrid minColWidth={380} gap={20}>
+          <ResultsMasonryGrid minColWidth={320} gap={18}>
             {cardsToShow.map(({ card, data }) => (
               <div id={`card-${card.id}`} key={`eb-${card.id}`}>
                 <ErrorBoundary title={card.title}>
@@ -324,17 +470,31 @@ const Results = (props: { address?: string }): JSX.Element => {
                     key={card.id}
                     data={data}
                     title={card.title}
-                    actionButtons={makeActionButtons(
-                      card.title,
-                      () => retry(card.id),
-                      () => showInfo(card.id),
-                    )}
+                    actionButtons={
+                      <ActionButtons
+                        actions={[
+                          {
+                            label: `About ${card.title}`,
+                            shortLabel: 'Docs',
+                            icon: 'ⓘ',
+                            onClick: () => showInfo(card.id),
+                          },
+                          {
+                            label: `Retry ${card.title}`,
+                            shortLabel: 'Retry',
+                            icon: '↻',
+                            onClick: () => retry(card.id),
+                          },
+                        ]}
+                      />
+                    }
                   />
                 </ErrorBoundary>
               </div>
             ))}
           </ResultsMasonryGrid>
         </ResultsContent>
+
         <ViewRaw
           everything={renderable.map((r) => ({
             id: r.card.id,

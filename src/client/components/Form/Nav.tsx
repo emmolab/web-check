@@ -10,11 +10,11 @@ const Header = styled(StyledCard)`
   margin: 0 auto;
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
   justify-content: space-between;
-  padding: 0.5rem 1rem;
   align-items: center;
-  width: 95vw;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  width: 100%;
 `;
 
 const Nav = (props: { children?: ReactNode }) => {
@@ -28,7 +28,7 @@ const Nav = (props: { children?: ReactNode }) => {
           data-brand-src="appIconPath"
           data-brand-alt="name"
         />
-        <a href="/" target="_self" data-brand-text="name">
+        <a href="/check" target="_self" data-brand-text="name">
           {branding.name}
         </a>
       </Heading>

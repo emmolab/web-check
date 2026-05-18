@@ -59,6 +59,9 @@ export const defaultBranding = {
     backgroundDarker: read('PUBLIC_BRAND_BACKGROUND_DARKER_COLOR', '#111927'),
     backgroundLighter: read('PUBLIC_BRAND_BACKGROUND_LIGHTER_COLOR', '#3a3b3a'),
     background50: read('PUBLIC_BRAND_BACKGROUND_50_COLOR', '#11121180'),
+    surface: read('PUBLIC_BRAND_SURFACE_COLOR', '#171b18'),
+    surfaceElevated: read('PUBLIC_BRAND_SURFACE_ELEVATED_COLOR', '#202623'),
+    surfaceAccent: read('PUBLIC_BRAND_SURFACE_ACCENT_COLOR', '#0f1412'),
     bgShadowColor: read('PUBLIC_BRAND_BG_SHADOW_COLOR', '#0f1620'),
     fgShadowColor: read('PUBLIC_BRAND_FG_SHADOW_COLOR', '#456602'),
     primaryTransparent: read('PUBLIC_BRAND_PRIMARY_TRANSPARENT_COLOR', '#d6fb4130'),
@@ -85,6 +88,9 @@ export const brandThemeCss = `:root {
   --background-darker: ${branding.theme.backgroundDarker};
   --background-lighter: ${branding.theme.backgroundLighter};
   --background-50: ${branding.theme.background50};
+  --surface: ${branding.theme.surface};
+  --surface-elevated: ${branding.theme.surfaceElevated};
+  --surface-accent: ${branding.theme.surfaceAccent};
   --bg-shadow-color: ${branding.theme.bgShadowColor};
   --fg-shadow-color: ${branding.theme.fgShadowColor};
   --primary-transparent: ${branding.theme.primaryTransparent};
@@ -109,4 +115,6 @@ export const brandThemeCss = `:root {
   --brand-gradient-2: ${branding.theme.primary};
   --brand-gradient-3: color-mix(in srgb, ${branding.theme.primary} 72%, ${branding.theme.background});
   --brand-gradient-4: color-mix(in srgb, ${branding.theme.primary} 40%, ${branding.theme.backgroundDarker});
+  --border-subtle: color-mix(in srgb, ${branding.theme.textColor} 10%, transparent);
+  --border-strong: color-mix(in srgb, ${branding.theme.primary} 28%, transparent);
 }`;

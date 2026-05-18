@@ -17,26 +17,31 @@ export interface RowProps {
 
 export const StyledRow = styled.div`
   display: grid;
-  grid-template-columns: minmax(8rem, 12rem) minmax(0, 1fr);
-  gap: 0.35rem 0.85rem;
+  grid-template-columns: minmax(8rem, 11rem) minmax(0, 1fr);
+  gap: 0.45rem 0.9rem;
   align-items: start;
-  padding: 0.45rem 0.2rem;
+  padding: 0.65rem 0;
   &li {
     border-bottom: 1px dashed ${colors.primaryTransparent} !important;
   }
   &:not(:last-child) {
-    border-bottom: 1px solid ${colors.primaryTransparent};
+    border-bottom: 1px solid ${colors.borderSubtle};
   }
   span.lbl {
-    font-weight: bold;
+    font-weight: 700;
     min-width: 0;
+    color: ${colors.textColorSecondary};
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.78rem;
   }
   span.val {
     min-width: 0;
-    justify-self: end;
-    text-align: right;
+    justify-self: start;
+    text-align: left;
     white-space: normal;
     overflow-wrap: anywhere;
+    line-height: 1.55;
     a {
       color: ${colors.primary};
     }
@@ -70,18 +75,18 @@ export const Details = styled.details`
 
 const SubRowList = styled.ul`
   margin: 0;
-  padding: 0.35rem 0.5rem;
-  background: ${colors.primaryTransparent};
+  padding: 0.35rem 0.75rem;
+  background: color-mix(in srgb, ${colors.surfaceAccent} 80%, ${colors.primaryTransparent});
   border-radius: 12px;
 `;
 
 const PlainText = styled.pre`
-  background: ${colors.background};
+  background: ${colors.surfaceAccent};
   grid-column: 1 / -1;
   white-space: pre-wrap;
   word-wrap: break-word;
-  border-radius: 8px;
-  padding: 0.5rem 0.65rem;
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
 `;
 
 const List = styled.ul`

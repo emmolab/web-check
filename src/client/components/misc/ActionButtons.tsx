@@ -3,54 +3,68 @@ import Button from 'client/components/Form/Button';
 import colors from 'client/styles/colors';
 
 const ActionButtonContainer = styled.div`
-  opacity: 0.75;
   display: flex;
-  gap: 0.25rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
   align-items: center;
   flex-shrink: 0;
+  max-width: 100%;
+  @media (max-width: 640px) {
+    width: 100%;
+    justify-content: flex-start;
+  }
 `;
 
 interface Action {
   label: string;
-  icon: string;
+  shortLabel?: string;
+  icon?: string;
   onClick: () => void;
 }
 
 const actionButtonStyles = `
-  padding: 0 0.25rem;
-  font-size: 1.25rem;
+  min-width: 0;
+  width: auto;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.83rem;
+  line-height: 1;
   text-align: center;
-  width: 1.5rem;
-  height: 1.5rem;
   color: ${colors.textColor};
-  background: ${colors.background};
+  background: ${colors.surfaceAccent};
   box-shadow: none;
   border-radius: 999px;
-  border: 1px solid ${colors.primaryTransparent};
-  transition: all 0.2s ease-in-out;
+  border: 1px solid ${colors.borderSubtle};
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
   margin: 0;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  gap: 0.45rem;
   &:hover {
     color: ${colors.primary};
-    background: ${colors.backgroundDarker};
+    background: color-mix(in srgb, ${colors.surfaceAccent} 70%, ${colors.primaryTransparent});
+    border-color: ${colors.borderStrong};
     box-shadow: none;
   }
 `;
 
-const ActionButtons = (props: { actions: any }): JSX.Element => {
+const ActionButtons = (props: { actions: Action[] | undefined }): JSX.Element => {
   const actions = props.actions;
-  if (!actions) return <></>;
+  if (!actions?.length) return <></>;
   return (
     <ActionButtonContainer>
-      {actions.map((action: Action, index: number) => (
+      {actions.map((action, index) => (
         <Button
           key={`action-${index}`}
           styles={actionButtonStyles}
           onClick={action.onClick}
           title={action.label}
         >
-          {action.icon}
+          {action.icon && <span aria-hidden="true">{action.icon}</span>}
+          <span>{action.shortLabel || action.label}</span>
         </Button>
       ))}
     </ActionButtonContainer>

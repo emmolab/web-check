@@ -1,5 +1,5 @@
-import { Children, useEffect, useRef, useState, type ReactNode } from 'react';
 import styled from '@emotion/styled';
+import type { ReactNode } from 'react';
 
 interface Props {
   minColWidth: number;
@@ -8,49 +8,22 @@ interface Props {
   children: ReactNode;
 }
 
-const Grid = styled.div<{ gap: number }>`
-  display: flex;
+const Grid = styled.div<{ gap: number; minColWidth: number }>`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, ${(props) => props.minColWidth}px), 1fr));
   gap: ${(props) => props.gap}px;
+  align-items: start;
 `;
 
-const Column = styled.div<{ gap: number }>`
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: ${(props) => props.gap}px;
-`;
-
-// Round-robin distribution so we keep each item's column position stable as new items append
-const ResultsMasonryGrid = ({ minColWidth, gap = 16, className, children }: Props): JSX.Element => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [columnCount, setColumnCount] = useState(1);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const updateColumnCount = () => {
-      const width = container.clientWidth;
-      if (!width) return;
-      setColumnCount(Math.max(1, Math.floor((width + gap) / (minColWidth + gap))));
-    };
-    updateColumnCount();
-    const observer = new ResizeObserver(updateColumnCount);
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, [minColWidth, gap]);
-
-  const items = Children.toArray(children);
-  const columns: ReactNode[][] = Array.from({ length: columnCount }, () => []);
-  items.forEach((item, index) => columns[index % columnCount].push(item));
-
+const ResultsMasonryGrid = ({
+  minColWidth,
+  gap = 16,
+  className,
+  children,
+}: Props): JSX.Element => {
   return (
-    <Grid ref={containerRef} className={className} gap={gap}>
-      {columns.map((column, index) => (
-        <Column key={index} gap={gap}>
-          {column}
-        </Column>
-      ))}
+    <Grid className={className} gap={gap} minColWidth={minColWidth}>
+      {children}
     </Grid>
   );
 };

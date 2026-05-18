@@ -47,7 +47,7 @@ const stateToPercent = (jobs: LoadingJob[]): Record<LoadingState, number> => {
 
 const LoadCard = styled(Card)`
   margin: 0 auto;
-  width: 95vw;
+  width: 100%;
   max-height: 100%;
   position: relative;
 `;
@@ -117,10 +117,16 @@ const Details = styled.details`
   }
   ul {
     list-style: none;
-    padding: 0.25rem;
+    padding: 0.25rem 0;
     border-radius: 4px;
-    width: fit-content;
+    width: 100%;
+    margin: 0;
     li {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.5rem;
+      align-items: center;
+      padding: 0.35rem 0;
       button.docs {
         background: none;
         border: none;
@@ -154,6 +160,8 @@ const AboutPageLink = styled.a`
 const SummaryContainer = styled.div`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.75rem;
   margin: 0.5rem 0;
   &.error-info {
     color: ${colors.danger};
@@ -186,15 +194,21 @@ const SummaryContainer = styled.div`
     color: ${colors.textColorSecondary};
     margin-left: auto;
   }
+  @media (max-width: 720px) {
+    .elapsed {
+      margin-left: 0;
+    }
+  }
 `;
 
 const ReShowRow = styled.div`
   margin: 0 auto;
-  width: 95vw;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
   .summary {
     color: ${colors.textColorSecondary};
     font-size: 0.9rem;
@@ -239,16 +253,14 @@ const ShowLoadStateButton = styled.button`
 
 const DismissButton = styled.button`
   width: fit-content;
-  position: absolute;
-  right: 1rem;
-  bottom: 1rem;
   background: ${colors.background};
   color: ${colors.textColorSecondary};
-  border: none;
+  border: 1px solid ${colors.borderSubtle};
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-family: var(--font-mono);
   cursor: pointer;
+  align-self: flex-end;
   &:hover {
     color: ${colors.primary};
   }
