@@ -107,6 +107,13 @@ export const WEB_CHECK_SCAN_PRESETS = [
       'carbon',
     ],
   },
+  {
+    id: 'custom',
+    label: 'Custom',
+    description: 'Choose exactly which Web Check jobs and Cyberbro profile should run.',
+    cyberbroPreset: 'web',
+    jobIds: [],
+  },
 ];
 
 export const webCheckScanPresetMap = Object.fromEntries(

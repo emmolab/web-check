@@ -8,13 +8,26 @@ import colors from 'client/styles/colors';
 export const StyledCard = styled.section<{ styles?: string }>`
   background: ${colors.backgroundLighter};
   color: ${colors.textColor};
-  box-shadow: 4px 4px 0px ${colors.bgShadowColor};
-  border-radius: 8px;
-  padding: 1rem;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24);
+  border: 1px solid ${colors.primaryTransparent};
+  border-radius: 14px;
+  padding: 1rem 1rem 1.1rem 1rem;
   position: relative;
-  max-height: 54rem;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
   ${(props) => props.styles}
+`;
+
+const CardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  .inner-heading {
+    margin: 0;
+    flex: 1;
+  }
 `;
 
 interface CardProps {
@@ -29,11 +42,15 @@ export const Card = (props: CardProps): JSX.Element => {
   return (
     <ErrorBoundary title={heading}>
       <StyledCard styles={styles}>
-        {actionButtons && actionButtons}
-        {heading && (
-          <Heading className="inner-heading" as="h3" align="left" color={colors.primary}>
-            {heading}
-          </Heading>
+        {(heading || actionButtons) && (
+          <CardHeader>
+            {heading && (
+              <Heading className="inner-heading" as="h3" align="left" color={colors.primary}>
+                {heading}
+              </Heading>
+            )}
+            {actionButtons}
+          </CardHeader>
         )}
         {children}
       </StyledCard>

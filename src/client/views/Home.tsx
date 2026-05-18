@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { type ChangeEvent, type SyntheticEvent, useEffect, useState } from 'react';
+import { type ChangeEvent, type SyntheticEvent, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate, type NavigateOptions } from 'react-router-dom';
 
 import Heading from 'client/components/Form/Heading';
@@ -13,6 +13,7 @@ import docs from 'client/utils/docs';
 import colors from 'client/styles/colors';
 import { determineAddressType, normalizeAddress } from 'client/utils/address-type-checker';
 import { branding } from '@/config/branding';
+import { jobs as scanJobs } from 'client/jobs/registry';
 import {
   CYBERBRO_SETTINGS_STORAGE_KEY,
   defaultCyberbroSettings,
@@ -190,6 +191,90 @@ const ToggleRow = styled.label`
   }
 `;
 
+const CustomBuilder = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 0.95rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid ${colors.primaryTransparent};
+`;
+
+const CustomToolbar = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+`;
+
+const ToolbarButton = styled.button`
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid ${colors.primaryTransparent};
+  background: ${colors.background};
+  color: ${colors.textColor};
+  font-family: var(--font-mono);
+  &:hover {
+    border-color: ${colors.primary};
+    color: ${colors.primary};
+  }
+`;
+
+const CustomGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const CustomOption = styled.label<{ active: boolean }>`
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  padding: 0.7rem 0.8rem;
+  border-radius: 12px;
+  background: ${(props) =>
+    props.active ? 'rgba(214, 251, 65, 0.12)' : 'rgba(255, 255, 255, 0.02)'};
+  border: 1px solid ${(props) => (props.active ? colors.primary : colors.primaryTransparent)};
+  cursor: pointer;
+  input {
+    margin-top: 0.15rem;
+    accent-color: ${colors.primary};
+  }
+`;
+
+const OptionMeta = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  strong {
+    font-size: 0.95rem;
+  }
+  span {
+    opacity: 0.72;
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+`;
+
+const SectionCaption = styled.div`
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: ${colors.primary};
+`;
+
+const MicroNote = styled.p`
+  margin: 0;
+  opacity: 0.72;
+  font-size: 0.84rem;
+  line-height: 1.5;
+`;
+
 const SearchActions = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -283,6 +368,17 @@ const makeAnchor = (title: string): string =>
     .replace(/[^\w\s]|_/g, '')
     .replace(/\s+/g, '-');
 
+const cyberbroModeOptions = [
+  { id: 'web', label: 'Web Cyberbro' },
+  { id: 'cyber_intel', label: 'Intel Cyberbro' },
+];
+
+const scanJobOptions = scanJobs.map((job) => ({
+  id: job.id,
+  title: job.cards[0]?.title || job.id,
+  tags: job.cards[0]?.tags || [],
+}));
+
 const persistCyberbroProfile = (preset: string, freeOnly: boolean) => {
   if (typeof window === 'undefined') return;
   try {
@@ -329,6 +425,12 @@ const Home = (): JSX.Element => {
   const [inputDisabled] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState(defaultScanSettings.preset || 'web');
   const [freeOnly, setFreeOnly] = useState(Boolean(defaultCyberbroSettings.freeOnly));
+  const [customJobIds, setCustomJobIds] = useState<string[]>(
+    defaultScanSettings.customJobIds || [],
+  );
+  const [customCyberbroPreset, setCustomCyberbroPreset] = useState(
+    defaultScanSettings.customCyberbroPreset || 'web',
+  );
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -345,8 +447,24 @@ const Home = (): JSX.Element => {
     const scanSettings = getScanSettings();
     const cyberbroSettings = getCyberbroSettings();
     setSelectedPreset(scanSettings.preset || 'web');
+    setCustomJobIds(scanSettings.customJobIds || []);
+    setCustomCyberbroPreset(scanSettings.customCyberbroPreset || 'web');
     setFreeOnly(Boolean(cyberbroSettings.freeOnly));
   }, []);
+
+  const customJobSet = useMemo(() => new Set(customJobIds), [customJobIds]);
+
+  const toggleCustomJob = (jobId: string) => {
+    setCustomJobIds((current) =>
+      current.includes(jobId) ? current.filter((id) => id !== jobId) : [...current, jobId],
+    );
+  };
+
+  const applyCustomPreset = (presetId: string) => {
+    const preset = getScanPreset(presetId);
+    setCustomJobIds(preset.jobIds);
+    setCustomCyberbroPreset(preset.cyberbroPreset);
+  };
 
   const submit = () => {
     const address = normalizeAddress(userInput);
@@ -356,8 +474,14 @@ const Home = (): JSX.Element => {
       setErrMsg('Field must not be empty');
     } else if (addressType === 'err') {
       setErrMsg('Must be a valid URL, domain, IPv4, or IPv6 address');
+    } else if (selectedPreset === 'custom' && customJobIds.length === 0) {
+      setErrMsg('Select at least one check for a custom run');
     } else {
-      const scanSettings = saveScanSettings({ preset: selectedPreset });
+      const scanSettings = saveScanSettings({
+        preset: selectedPreset,
+        customJobIds,
+        customCyberbroPreset,
+      });
       persistCyberbroProfile(scanSettings?.cyberbroPreset || selectedPreset, freeOnly);
       const resultRouteParams: NavigateOptions = { state: { address, addressType } };
       navigate(`/check/${address}`, resultRouteParams);
@@ -382,7 +506,16 @@ const Home = (): JSX.Element => {
     submit();
   };
 
-  const activePreset = getScanPreset(selectedPreset);
+  const presetConfig = getScanPreset(selectedPreset);
+  const activePreset =
+    selectedPreset === 'custom'
+      ? {
+          ...presetConfig,
+          label: 'Custom',
+          jobIds: customJobIds,
+          cyberbroPreset: customCyberbroPreset,
+        }
+      : presetConfig;
   const resolvedEngines = resolveCyberbroSelection({
     ...defaultCyberbroSettings,
     preset: activePreset.cyberbroPreset,
@@ -468,6 +601,64 @@ const Home = (): JSX.Element => {
                 </ModeButton>
               ))}
             </ModeButtons>
+            {selectedPreset === 'custom' && (
+              <CustomBuilder>
+                <SectionCaption>Custom Check Builder</SectionCaption>
+                <CustomToolbar>
+                  <ToolbarButton type="button" onClick={() => applyCustomPreset('web')}>
+                    Load Web
+                  </ToolbarButton>
+                  <ToolbarButton type="button" onClick={() => applyCustomPreset('cyber_intel')}>
+                    Load Intel
+                  </ToolbarButton>
+                  <ToolbarButton type="button" onClick={() => applyCustomPreset('full_surface')}>
+                    Load Full
+                  </ToolbarButton>
+                  <ToolbarButton type="button" onClick={() => setCustomJobIds([])}>
+                    Clear
+                  </ToolbarButton>
+                </CustomToolbar>
+                <MicroNote>
+                  Pick exactly which checks should run. If you leave Cyberbro enabled below, its
+                  engine profile is controlled separately.
+                </MicroNote>
+                <CustomGrid>
+                  {scanJobOptions.map((job) => (
+                    <CustomOption key={job.id} active={customJobSet.has(job.id)}>
+                      <input
+                        type="checkbox"
+                        checked={customJobSet.has(job.id)}
+                        onChange={() => toggleCustomJob(job.id)}
+                      />
+                      <OptionMeta>
+                        <strong>{job.title}</strong>
+                        <span>
+                          {job.id}
+                          {job.tags.length ? ` • ${job.tags.join(', ')}` : ''}
+                        </span>
+                      </OptionMeta>
+                    </CustomOption>
+                  ))}
+                </CustomGrid>
+                {customJobSet.has('cyberbro') && (
+                  <>
+                    <SectionCaption>Cyberbro Profile</SectionCaption>
+                    <CustomToolbar>
+                      {cyberbroModeOptions.map((option) => (
+                        <ToolbarButton
+                          key={option.id}
+                          type="button"
+                          onClick={() => setCustomCyberbroPreset(option.id)}
+                        >
+                          {customCyberbroPreset === option.id ? '● ' : ''}
+                          {option.label}
+                        </ToolbarButton>
+                      ))}
+                    </CustomToolbar>
+                  </>
+                )}
+              </CustomBuilder>
+            )}
             <ToggleRow>
               <input
                 type="checkbox"

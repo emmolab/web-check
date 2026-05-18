@@ -6,6 +6,7 @@ import { ToastContainer } from 'react-toastify';
 import colors from 'client/styles/colors';
 import Heading from 'client/components/Form/Heading';
 import Modal from 'client/components/Form/Modal';
+import { StyledCard } from 'client/components/Form/Card';
 import Footer from 'client/components/misc/Footer';
 import Nav from 'client/components/Form/Nav';
 import Loader from 'client/components/misc/Loader';
@@ -29,6 +30,7 @@ import useJobs from 'client/hooks/useJobs';
 import { jobs, filterJobsByIds, getCardIdsForJobs, getCardsForJobs } from 'client/jobs/registry';
 import { runAnalysis } from 'client/analysis/registry';
 import { getScanSettings } from '@/config/scan-settings';
+import { getScanPreset } from '@/config/scan-presets';
 
 const ResultsOuter = styled.div`
   display: flex;
@@ -37,9 +39,17 @@ const ResultsOuter = styled.div`
   padding-top: 1rem;
 `;
 
-const ResultsContent = styled.section`
-  width: 95vw;
+const ResultsFrame = styled.div`
+  width: min(96vw, 1600px);
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const ResultsContent = styled.section`
+  width: 100%;
+  margin: 0;
   @keyframes cardFlash {
     0%,
     30% {
@@ -55,6 +65,62 @@ const ResultsContent = styled.section`
     animation: cardFlash 1.2s ease-out;
     border-radius: 8px;
   }
+`;
+
+const SummaryGrid = styled.section`
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
+  gap: 1rem;
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const SummaryCard = styled(StyledCard)`
+  min-height: 100%;
+`;
+
+const MetricGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const Metric = styled.div`
+  padding: 0.85rem 0.9rem;
+  border-radius: 12px;
+  background: ${colors.background};
+  border: 1px solid ${colors.primaryTransparent};
+  strong {
+    display: block;
+    color: ${colors.primary};
+    font-size: 1.35rem;
+  }
+  span {
+    opacity: 0.74;
+    font-size: 0.88rem;
+  }
+`;
+
+const PresetBadge = styled.span`
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  background: ${colors.primaryTransparent};
+  border: 1px solid ${colors.primaryTransparent};
+  color: ${colors.primary};
+  font-size: 0.9rem;
+  font-weight: 700;
+`;
+
+const SoftText = styled.p`
+  margin: 0;
+  opacity: 0.8;
+  line-height: 1.55;
 `;
 
 const makeSiteName = (address: string): string => {
@@ -86,9 +152,16 @@ const Results = (props: { address?: string }): JSX.Element => {
   }, [address, addressType]);
 
   const scanSettings = getScanSettings();
+  const presetMeta =
+    scanSettings.preset === 'custom'
+      ? {
+          label: 'Custom',
+          description: 'Only the selected Web Check jobs and chosen Cyberbro profile run.',
+        }
+      : getScanPreset(scanSettings.preset);
   const activeJobs = useMemo(
     () => filterJobsByIds(jobs, scanSettings.jobIds || []),
-    [scanSettings.preset],
+    [scanSettings.preset, (scanSettings.jobIds || []).join(',')],
   );
   const activeCardIds = useMemo(() => getCardIdsForJobs(activeJobs), [activeJobs]);
   const activeCards = useMemo(() => getCardsForJobs(activeJobs), [activeJobs]);
@@ -181,66 +254,108 @@ const Results = (props: { address?: string }): JSX.Element => {
 
   return (
     <ResultsOuter>
-      <Nav>
-        {address && (
-          <Heading color={colors.textColor} size="medium">
-            {addressType === 'url' && (
-              <a
-                target="_blank"
-                rel="noreferrer"
-                href={/^https?:\/\//i.test(address) ? address : `https://${address}`}
-              >
-                <img width="32px" alt="" src={`https://icon.horse/icon/${makeSiteName(address)}`} />
-              </a>
-            )}
-            {makeSiteName(address)}
-          </Heading>
-        )}
-      </Nav>
-      {errorKind && <NoResults kind={errorKind} address={address} error={ipLookupError} />}
-      <ProgressBar loadStatus={loadingJobs} showModal={showErrorModal} showJobDocs={showInfo} />
-      <Loader show={loadingJobs.filter((j) => j.state !== 'loading').length < 5} />
-      <AdvisoryPanel findings={findings} onJumpTo={jumpToCard} />
-      <ResultsContent>
-        <ResultsMasonryGrid minColWidth={336}>
-          {cardsToShow.map(({ card, data }) => (
-            <div id={`card-${card.id}`} key={`eb-${card.id}`}>
-              <ErrorBoundary title={card.title}>
-                <card.Component
-                  key={card.id}
-                  data={data}
-                  title={card.title}
-                  actionButtons={makeActionButtons(
-                    card.title,
-                    () => retry(card.id),
-                    () => showInfo(card.id),
-                  )}
-                />
-              </ErrorBoundary>
-            </div>
-          ))}
-        </ResultsMasonryGrid>
-      </ResultsContent>
-      <ViewRaw
-        everything={renderable.map((r) => ({
-          id: r.card.id,
-          title: r.card.title,
-          result: r.data,
-        }))}
-      />
-      <AdditionalResources url={address} />
+      <ResultsFrame>
+        <Nav>
+          {address && (
+            <Heading color={colors.textColor} size="medium">
+              {addressType === 'url' && (
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href={/^https?:\/\//i.test(address) ? address : `https://${address}`}
+                >
+                  <img
+                    width="32px"
+                    alt=""
+                    src={`https://icon.horse/icon/${makeSiteName(address)}`}
+                  />
+                </a>
+              )}
+              {makeSiteName(address)}
+            </Heading>
+          )}
+        </Nav>
+        <SummaryGrid>
+          <SummaryCard>
+            <PresetBadge>{presetMeta.label}</PresetBadge>
+            <Heading as="h2" align="left" color={colors.primary}>
+              Scan Summary
+            </Heading>
+            <SoftText>{presetMeta.description}</SoftText>
+            <MetricGrid>
+              <Metric>
+                <strong>{activeJobs.length}</strong>
+                <span>Web Check jobs selected</span>
+              </Metric>
+              <Metric>
+                <strong>{cardsToShow.length}</strong>
+                <span>Cards with usable data</span>
+              </Metric>
+              <Metric>
+                <strong>{scanSettings.cyberbroPreset || 'web'}</strong>
+                <span>Cyberbro profile</span>
+              </Metric>
+            </MetricGrid>
+          </SummaryCard>
+          <SummaryCard>
+            <Heading as="h2" align="left" color={colors.primary}>
+              What This Run Does
+            </Heading>
+            <SoftText>
+              The selected preset decides which checks fire before any requests go out. That keeps
+              lighter runs genuinely light instead of hiding unwanted cards after the fact.
+            </SoftText>
+            <SoftText>
+              If a card still looks noisy, switch presets or use the custom builder on the home page
+              to narrow the run further.
+            </SoftText>
+          </SummaryCard>
+        </SummaryGrid>
+        {errorKind && <NoResults kind={errorKind} address={address} error={ipLookupError} />}
+        <ProgressBar loadStatus={loadingJobs} showModal={showErrorModal} showJobDocs={showInfo} />
+        <Loader show={loadingJobs.filter((j) => j.state !== 'loading').length < 5} />
+        <AdvisoryPanel findings={findings} onJumpTo={jumpToCard} />
+        <ResultsContent>
+          <ResultsMasonryGrid minColWidth={380} gap={20}>
+            {cardsToShow.map(({ card, data }) => (
+              <div id={`card-${card.id}`} key={`eb-${card.id}`}>
+                <ErrorBoundary title={card.title}>
+                  <card.Component
+                    key={card.id}
+                    data={data}
+                    title={card.title}
+                    actionButtons={makeActionButtons(
+                      card.title,
+                      () => retry(card.id),
+                      () => showInfo(card.id),
+                    )}
+                  />
+                </ErrorBoundary>
+              </div>
+            ))}
+          </ResultsMasonryGrid>
+        </ResultsContent>
+        <ViewRaw
+          everything={renderable.map((r) => ({
+            id: r.card.id,
+            title: r.card.title,
+            result: r.data,
+          }))}
+        />
+        <AdditionalResources url={address} />
 
-      <Modal isOpen={modalOpen} closeModal={() => setModalOpen(false)}>
-        {modalContent}
-      </Modal>
-      <ToastContainer
-        limit={3}
-        draggablePercent={60}
-        autoClose={2500}
-        theme="dark"
-        position="bottom-right"
-      />
-      <Footer />
+        <Modal isOpen={modalOpen} closeModal={() => setModalOpen(false)}>
+          {modalContent}
+        </Modal>
+        <ToastContainer
+          limit={3}
+          draggablePercent={60}
+          autoClose={2500}
+          theme="dark"
+          position="bottom-right"
+        />
+        <Footer />
+      </ResultsFrame>
     </ResultsOuter>
   );
 };

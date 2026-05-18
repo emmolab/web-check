@@ -3,13 +3,11 @@ import Button from 'client/components/Form/Button';
 import colors from 'client/styles/colors';
 
 const ActionButtonContainer = styled.div`
-  position: absolute;
-  top: 0.25rem;
-  right: 0.25rem;
   opacity: 0.75;
   display: flex;
-  gap: 0.125rem;
-  align-items: baseline;
+  gap: 0.25rem;
+  align-items: center;
+  flex-shrink: 0;
 `;
 
 interface Action {
@@ -25,8 +23,10 @@ const actionButtonStyles = `
   width: 1.5rem;
   height: 1.5rem;
   color: ${colors.textColor};
-  background: none;
+  background: ${colors.background};
   box-shadow: none;
+  border-radius: 999px;
+  border: 1px solid ${colors.primaryTransparent};
   transition: all 0.2s ease-in-out;
   margin: 0;
   display: flex;

@@ -16,10 +16,11 @@ export interface RowProps {
 }
 
 export const StyledRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  padding: 0.25rem;
+  display: grid;
+  grid-template-columns: minmax(8rem, 12rem) minmax(0, 1fr);
+  gap: 0.35rem 0.85rem;
+  align-items: start;
+  padding: 0.45rem 0.2rem;
   &li {
     border-bottom: 1px dashed ${colors.primaryTransparent} !important;
   }
@@ -28,18 +29,23 @@ export const StyledRow = styled.div`
   }
   span.lbl {
     font-weight: bold;
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    min-width: 0;
   }
   span.val {
-    max-width: 16rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    min-width: 0;
+    justify-self: end;
+    text-align: right;
+    white-space: normal;
+    overflow-wrap: anywhere;
     a {
       color: ${colors.primary};
+    }
+  }
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+    span.val {
+      justify-self: start;
+      text-align: left;
     }
   }
 `;
@@ -64,25 +70,26 @@ export const Details = styled.details`
 
 const SubRowList = styled.ul`
   margin: 0;
-  padding: 0.25rem;
+  padding: 0.35rem 0.5rem;
   background: ${colors.primaryTransparent};
+  border-radius: 12px;
 `;
 
 const PlainText = styled.pre`
   background: ${colors.background};
-  width: 95%;
+  grid-column: 1 / -1;
   white-space: pre-wrap;
   word-wrap: break-word;
-  border-radius: 4px;
-  padding: 0.25rem;
+  border-radius: 8px;
+  padding: 0.5rem 0.65rem;
 `;
 
 const List = styled.ul`
-  // background: ${colors.background};
-  width: 95%;
+  grid-column: 1 / -1;
+  width: 100%;
   white-space: pre-wrap;
   word-wrap: break-word;
-  border-radius: 4px;
+  border-radius: 8px;
   margin: 0;
   padding: 0.25rem 0.25rem 0.25rem 1rem;
   li {
@@ -198,13 +205,11 @@ export const ListRow = (props: { list: string[]; title: string }) => {
       <Heading as="h4" size="small" align="left" color={colors.primary}>
         {title}
       </Heading>
-      {list.map((entry: string, index: number) => {
-        return (
-          <Row lbl="" val="" key={`${entry}-${title.toLocaleLowerCase()}-${index}`}>
-            <span>{entry}</span>
-          </Row>
-        );
-      })}
+      <Row
+        lbl={title}
+        val={`${list.length} item${list.length === 1 ? '' : 's'}`}
+        listResults={list}
+      />
     </>
   );
 };
