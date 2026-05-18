@@ -62,7 +62,13 @@ const runtime = `
   cyberbroForm?.addEventListener('submit', (event) => {
     event.preventDefault();
     const fd = new FormData(cyberbroForm);
+    let existing = {};
+    try {
+      existing = JSON.parse(window.localStorage.getItem(CYBERBRO_STORAGE_KEY) || '{}');
+    } catch {}
     const settings = {
+      ...defaultsCyberbro,
+      ...existing,
       enabled: fd.get('enabled') === 'on',
       baseUrl: fd.get('baseUrl'),
       timeoutMs: fd.get('timeoutMs'),
@@ -95,9 +101,7 @@ const runtime = `
     <main>
       <div class="intro card">
         <h1>Settings</h1>
-        <p>
-          Branding is now env-driven only. It is not editable from the GUI.
-        </p>
+        <p>Branding is now env-driven only. It is not editable from the GUI.</p>
       </div>
 
       <div class="editor-grid">
@@ -109,7 +113,8 @@ const runtime = `
           </p>
           <pre>BRANDING_ENV_FILE=/branding/branding.full.env</pre>
           <p class="muted small">
-            This is the right option when the user can place files on disk or attach them to the container.
+            This is the right option when the user can place files on disk or attach them to the
+            container.
           </p>
         </section>
 
@@ -120,24 +125,32 @@ const runtime = `
           </p>
           <pre>BRANDING_ENV_URL=https://example.com/branding/full.env</pre>
           <p class="muted small">
-            Useful when branding is managed centrally and multiple deployments should share one source.
+            Useful when branding is managed centrally and multiple deployments should share one
+            source.
           </p>
         </section>
 
         <section class="card full-width">
           <h2>Example env files</h2>
-          <p>
-            Start from one of these templates, then upload it or host it somewhere accessible.
-          </p>
+          <p>Start from one of these templates, then upload it or host it somewhere accessible.</p>
           <ul>
-            <li><a href="/branding/branding.minimal.env" target="_blank" rel="noreferrer">branding.minimal.env</a></li>
-            <li><a href="/branding/branding.full.env" target="_blank" rel="noreferrer">branding.full.env</a></li>
+            <li>
+              <a href="/branding/branding.minimal.env" target="_blank" rel="noreferrer"
+                >branding.minimal.env</a>
+            </li>
+            <li>
+              <a href="/branding/branding.full.env" target="_blank" rel="noreferrer"
+                >branding.full.env</a>
+            </li>
           </ul>
           <p class="muted small">
-            Load order: local <code>.env</code> first, then <code>BRANDING_ENV_URL</code>, then <code>BRANDING_ENV_FILE</code>.
+            Load order: local <code>.env</code> first, then <code>BRANDING_ENV_URL</code>, then <code
+              >BRANDING_ENV_FILE</code
+            >.
           </p>
           <p class="muted small">
-            After changing branding inputs in Docker, bring the stack down and back up so the container re-runs its startup build with the updated branding.
+            After changing branding inputs in Docker, bring the stack down and back up so the
+            container re-runs its startup build with the updated branding.
           </p>
         </section>
       </div>
@@ -145,15 +158,23 @@ const runtime = `
       <div class="intro card cyberbro-intro">
         <h1>Cyberbro Integration</h1>
         <p>
-          Cyberbro runtime testing still supports browser-local overrides here, because those do not rebrand the app.
+          Cyberbro runtime testing still supports browser-local overrides here, because those do not
+          rebrand the app.
         </p>
       </div>
 
       <form id="cyberbro-form" class="editor-grid cyberbro-grid">
         <section class="card">
           <h2>Runtime settings</h2>
-          <label class="checkbox"><input type="checkbox" name="enabled" /> Enable Cyberbro cards</label>
-          <label>Cyberbro API base URL<input name="baseUrl" placeholder="http://cyberbro:5000/api" /></label>
+          <label class="checkbox"
+            ><input type="checkbox" name="enabled" /> Enable Cyberbro cards</label
+          >
+          <label
+            >Cyberbro API base URL<input
+              name="baseUrl"
+              placeholder="http://cyberbro:5000/api"
+            /></label
+          >
           <label>Timeout (ms)<input name="timeoutMs" inputmode="numeric" /></label>
           <label>
             Engine preset
@@ -165,43 +186,51 @@ const runtime = `
           </label>
           <label>
             Engines (comma-separated)
-            <textarea name="engines" rows="6" placeholder="ipapi,reverse_dns,rdap_whois,google_dns,github,urlscan"></textarea>
+            <textarea
+              name="engines"
+              rows="6"
+              placeholder="ipapi,reverse_dns,rdap_whois,google_dns,github,urlscan"></textarea>
           </label>
         </section>
 
         <section class="card actions">
           <h2>Notes</h2>
           <p class="muted">
-            These values affect the {branding.name} Cyberbro threat cards on future fetches. They do not rewrite the
-            server env, and they do not reconfigure the Cyberbro container itself.
+            These values affect the {branding.name} Cyberbro threat cards on future fetches. They do not
+            rewrite the server env, and they do not reconfigure the Cyberbro container itself.
           </p>
           <div class="button-row">
             <button type="submit" class="primary">Save Cyberbro settings</button>
             <button type="button" id="reset-cyberbro">Reset to defaults</button>
           </div>
           <p id="cyberbro-status" class="status muted">No Cyberbro override status yet.</p>
-          <p class="muted small">Free preset uses engines tagged <code>free_no_key</code> in Cyberbro's own GUI metadata.</p>
+          <p class="muted small">
+            Free preset uses engines tagged <code>free_no_key</code> in Cyberbro's own GUI metadata.
+          </p>
         </section>
 
         <section class="card full-width">
           <h2>Available engines</h2>
           <p class="muted small">
-            Web Check now exposes the broader Cyberbro engine catalog. Choose a preset above or switch to custom and edit the CSV directly.
+            Web Check now exposes the broader Cyberbro engine catalog. Choose a preset above or
+            switch to custom and edit the CSV directly.
           </p>
           <ul>
-            {cyberbroEngineCatalog.map((engine) => (
-              <li>
-                <code>{engine.name}</code> - {engine.label} - {engine.description}
-                {engine.supports.includes('free_no_key') ? ' (free/no-key)' : ''}
-              </li>
-            ))}
+            {
+              cyberbroEngineCatalog.map((engine) => (
+                <li>
+                  <code>{engine.name}</code> - {engine.label} - {engine.description}
+                  {engine.supports.includes('free_no_key') ? ' (free/no-key)' : ''}
+                </li>
+              ))
+            }
           </ul>
         </section>
       </form>
     </main>
     <Footer />
   </div>
-  <script is:inline set:html={runtime}></script>
+  <script is:inline set:html={runtime} />
 </BaseLayout>
 
 <style lang="scss">
@@ -251,7 +280,8 @@ const runtime = `
     grid-column: 1 / -1;
   }
 
-  h1, h2 {
+  h1,
+  h2 {
     margin-top: 0;
   }
 
@@ -263,11 +293,17 @@ const runtime = `
     font-weight: 600;
   }
 
-  input, textarea, button, code, pre {
+  input,
+  textarea,
+  button,
+  code,
+  pre {
     font: inherit;
   }
 
-  input, textarea, pre {
+  input,
+  textarea,
+  pre {
     background: var(--background-lighter);
     color: var(--text-color);
     border: 1px solid var(--primary-transparent);

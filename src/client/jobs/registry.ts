@@ -118,6 +118,8 @@ const fetchCyberbro = async (ctx: JobContext) => {
   params.set('enabled', String(settings.enabled));
   params.set('baseUrl', settings.baseUrl);
   params.set('timeoutMs', String(settings.timeoutMs));
+  params.set('preset', settings.preset || 'manual');
+  params.set('freeOnly', String(Boolean(settings.freeOnly)));
   params.set('engineMode', settings.engineMode || 'free');
   params.set('engines', settings.engines);
   const res = await fetch(`${ctx.api}/cyberbro?${params.toString()}`, { signal: ctx.signal });

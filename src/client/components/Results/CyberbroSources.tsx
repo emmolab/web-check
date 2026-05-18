@@ -22,15 +22,14 @@ const Badge = styled.span<{ tone: 'hit' | 'intel' | 'clear' | 'no-data' }>`
   padding: 0.2rem 0.65rem;
   font-size: 0.85rem;
   font-weight: 700;
-  background:
-    ${(props) =>
-      props.tone === 'hit'
-        ? 'var(--danger-soft)'
-        : props.tone === 'intel'
-          ? 'var(--info-soft)'
-          : props.tone === 'clear'
-            ? 'var(--success-soft)'
-            : colors.primaryTransparent};
+  background: ${(props) =>
+    props.tone === 'hit'
+      ? 'var(--danger-soft)'
+      : props.tone === 'intel'
+        ? 'var(--info-soft)'
+        : props.tone === 'clear'
+          ? 'var(--success-soft)'
+          : colors.primaryTransparent};
   border: 1px solid
     ${(props) =>
       props.tone === 'hit'
@@ -66,7 +65,11 @@ const getStatusMeta = (engine: any) => {
   }
 };
 
-const CyberbroSourcesCard = (props: { data: any; title: string; actionButtons: any }): JSX.Element => {
+const CyberbroSourcesCard = (props: {
+  data: any;
+  title: string;
+  actionButtons: any;
+}): JSX.Element => {
   const engines = props.data.engines || [];
   const analysisId = props.data.analysisId;
   const settings = props.data.settings || {};
@@ -81,7 +84,11 @@ const CyberbroSourcesCard = (props: { data: any; title: string; actionButtons: a
         if (engine.summary) rows.push({ lbl: 'Summary', val: engine.summary });
         if (engine.link) rows.push({ lbl: 'Link', val: engine.link });
         if (engine.raw) {
-          rows.push({ lbl: 'Raw JSON', val: 'expand to inspect', plaintext: JSON.stringify(engine.raw, null, 2) });
+          rows.push({
+            lbl: 'Raw JSON',
+            val: 'expand to inspect',
+            plaintext: JSON.stringify(engine.raw, null, 2),
+          });
         }
 
         return rows.length > 0 ? (
@@ -106,6 +113,10 @@ const CyberbroSourcesCard = (props: { data: any; title: string; actionButtons: a
       })}
       {graphPath && <Row lbl="Graph" val={graphPath} />}
       {resultsPath && <Row lbl="Cyberbro Results" val={resultsPath} />}
+      {settings.preset && <Row lbl="Preset" val={settings.preset} />}
+      {'freeOnly' in settings && (
+        <Row lbl="Free-only" val={settings.freeOnly ? 'Enabled' : 'Disabled'} />
+      )}
       {settings.engineMode && <Row lbl="Engine Mode" val={settings.engineMode} />}
       {settings.baseUrl && <Row lbl="Cyberbro API" val={settings.baseUrl} />}
       {analysisId && <Note>Cyberbro analysis id: {analysisId}</Note>}

@@ -47,9 +47,38 @@ const placeholderFilePath = path.join(__dirname, 'public', 'placeholder.html');
 const errorFilePath = path.join(__dirname, 'public', 'error.html');
 const handlers = {}; // Will store list of API endpoints
 process.env.WC_SERVER = 'true'; // Tells middleware to return in non-lambda mode
+const CYBERBRO_BASE_URL_COOKIE = 'webcheck_cyberbro_base_url';
+
+const parseCookies = (cookieHeader = '') =>
+  Object.fromEntries(
+    cookieHeader
+      .split(';')
+      .map((entry) => entry.trim())
+      .filter(Boolean)
+      .map((entry) => {
+        const splitIndex = entry.indexOf('=');
+        const key = splitIndex === -1 ? entry : entry.slice(0, splitIndex);
+        const value = splitIndex === -1 ? '' : entry.slice(splitIndex + 1);
+        return [key, decodeURIComponent(value)];
+      }),
+  );
+
+const persistCyberbroBaseUrl = (req, res) => {
+  const baseUrl = req?.query?.baseUrl;
+  if (!baseUrl) return;
+  res.append(
+    'Set-Cookie',
+    `${CYBERBRO_BASE_URL_COOKIE}=${encodeURIComponent(String(baseUrl))}; Path=/cyberbro; SameSite=Lax`,
+  );
+};
 
 const getCyberbroConsoleBaseUrl = (req) =>
-  String(req?.query?.baseUrl || process.env.CYBERBRO_BASE_URL || 'http://cyberbro:5000/api')
+  String(
+    req?.query?.baseUrl ||
+      parseCookies(req?.headers?.cookie || '')[CYBERBRO_BASE_URL_COOKIE] ||
+      process.env.CYBERBRO_BASE_URL ||
+      'http://cyberbro:5000/api',
+  )
     .replace(/\/$/, '')
     .replace(/\/api$/, '');
 
@@ -62,9 +91,12 @@ const rewriteCyberbroHtml = (html) =>
     .replaceAll('fetch("/api/', 'fetch("/cyberbro/api/')
     .replaceAll("fetch('/api/", "fetch('/cyberbro/api/")
     .replaceAll("window.location.href='/results/", "window.location.href='/cyberbro/results/")
+    .replaceAll("window.location.href='/graph/", "window.location.href='/cyberbro/graph/")
+    .replaceAll("location.href='/results/", "location.href='/cyberbro/results/")
+    .replaceAll("location.href='/graph/", "location.href='/cyberbro/graph/")
     .replaceAll('href="/results/', 'href="/cyberbro/results/')
     .replaceAll('href="/graph/', 'href="/cyberbro/graph/')
-    .replaceAll("action=\"/export/", "action=\"/cyberbro/export/")
+    .replaceAll('action="/export/', 'action="/cyberbro/export/')
     .replaceAll("location.href='/'", "location.href='/cyberbro/'");
 
 // Enable CORS
@@ -107,6 +139,7 @@ if (process.env.API_ENABLE_RATE_LIMIT === 'true') {
 
 app.get(/^\/cyberbro\/static\/(.+)$/, async (req, res) => {
   try {
+    persistCyberbroBaseUrl(req, res);
     const assetPath = req.params[0];
     const upstream = await fetch(`${getCyberbroConsoleBaseUrl(req)}/static/${assetPath}`);
     const body = await upstream.arrayBuffer();
@@ -121,6 +154,7 @@ app.get(/^\/cyberbro\/static\/(.+)$/, async (req, res) => {
 
 app.get(/^\/cyberbro\/api\/(.+)$/, async (req, res) => {
   try {
+    persistCyberbroBaseUrl(req, res);
     const upstreamPath = req.params[0];
     const upstream = await fetch(`${getCyberbroConsoleBaseUrl(req)}/api/${upstreamPath}`);
     const body = await upstream.arrayBuffer();
@@ -135,6 +169,7 @@ app.get(/^\/cyberbro\/api\/(.+)$/, async (req, res) => {
 
 const proxyCyberbroHtml = async (req, res, pathName) => {
   try {
+    persistCyberbroBaseUrl(req, res);
     const upstream = await fetch(`${getCyberbroConsoleBaseUrl(req)}${pathName}`);
     const html = await upstream.text();
     res.status(upstream.status).setHeader('content-type', 'text/html; charset=utf-8');
@@ -154,12 +189,14 @@ app.get('/cyberbro/graph/:analysisId', async (req, res) => {
 
 app.get('/cyberbro/export/:analysisId', async (req, res) => {
   try {
+    persistCyberbroBaseUrl(req, res);
     const upstreamUrl = new URL(
       `${getCyberbroConsoleBaseUrl(req)}/export/${req.params.analysisId}`,
     );
     for (const [key, value] of Object.entries(req.query || {})) {
       if (key === 'baseUrl') continue;
-      if (Array.isArray(value)) value.forEach((entry) => upstreamUrl.searchParams.append(key, String(entry)));
+      if (Array.isArray(value))
+        value.forEach((entry) => upstreamUrl.searchParams.append(key, String(entry)));
       else if (value !== undefined) upstreamUrl.searchParams.set(key, String(value));
     }
     const upstream = await fetch(upstreamUrl);

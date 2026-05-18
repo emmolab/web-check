@@ -7,7 +7,7 @@ import {
   ALL_CYBERBRO_ENGINES,
   cyberbroEngineMap,
   formatCyberbroEngineCsv,
-  resolveCyberbroEngines,
+  resolveCyberbroSelection,
 } from '../src/config/cyberbro-engines.js';
 
 const CYBERBRO_ENABLED = process.env.CYBERBRO_ENABLED !== 'false';
@@ -20,7 +20,13 @@ const CYBERBRO_TIMEOUT_MS_DEFAULT = parseInt(
   10,
 );
 const CYBERBRO_ENGINE_MODE_DEFAULT = (process.env.CYBERBRO_ENGINE_MODE || 'all').toLowerCase();
-const CYBERBRO_THREAT_ENGINES_DEFAULT = resolveCyberbroEngines({
+const CYBERBRO_PRESET_DEFAULT = (process.env.CYBERBRO_LOOKUP_PRESET || 'cyber_intel').toLowerCase();
+const CYBERBRO_FREE_ONLY_DEFAULT = ['1', 'true', 'yes', 'on'].includes(
+  String(process.env.CYBERBRO_FREE_ONLY || '').toLowerCase(),
+);
+const CYBERBRO_THREAT_ENGINES_DEFAULT = resolveCyberbroSelection({
+  preset: CYBERBRO_PRESET_DEFAULT,
+  freeOnly: CYBERBRO_FREE_ONLY_DEFAULT,
   engineMode: CYBERBRO_ENGINE_MODE_DEFAULT,
   engines: process.env.CYBERBRO_THREAT_ENGINES || formatCyberbroEngineCsv(ALL_CYBERBRO_ENGINES),
 });
@@ -118,25 +124,44 @@ const engineCatalog = {
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const getQueryValue = (request, key) => request?.query?.[key] || request?.queryStringParameters?.[key];
+const getQueryValue = (request, key) =>
+  request?.query?.[key] || request?.queryStringParameters?.[key];
 
 const getRuntimeSettings = (request) => {
   const enabledRaw = getQueryValue(request, 'enabled');
-  const baseUrl = (getQueryValue(request, 'baseUrl') || CYBERBRO_BASE_URL_DEFAULT).replace(/\/$/, '');
+  const baseUrl = (getQueryValue(request, 'baseUrl') || CYBERBRO_BASE_URL_DEFAULT).replace(
+    /\/$/,
+    '',
+  );
   const timeoutRaw = getQueryValue(request, 'timeoutMs');
+  const presetRaw = getQueryValue(request, 'preset');
+  const freeOnlyRaw = getQueryValue(request, 'freeOnly');
   const engineModeRaw = getQueryValue(request, 'engineMode');
   const enginesRaw = getQueryValue(request, 'engines');
-  const engineMode = engineModeRaw ? String(engineModeRaw).toLowerCase() : CYBERBRO_ENGINE_MODE_DEFAULT;
-  const engines = resolveCyberbroEngines({
+  const preset = presetRaw ? String(presetRaw).toLowerCase() : CYBERBRO_PRESET_DEFAULT;
+  const freeOnly =
+    freeOnlyRaw === undefined
+      ? CYBERBRO_FREE_ONLY_DEFAULT
+      : ['1', 'true', 'yes', 'on'].includes(String(freeOnlyRaw).toLowerCase());
+  const engineMode = engineModeRaw
+    ? String(engineModeRaw).toLowerCase()
+    : CYBERBRO_ENGINE_MODE_DEFAULT;
+  const engines = resolveCyberbroSelection({
+    preset,
+    freeOnly,
     engineMode,
     engines: enginesRaw || formatCyberbroEngineCsv(CYBERBRO_THREAT_ENGINES_DEFAULT),
   });
 
   return {
     enabled:
-      enabledRaw === undefined ? CYBERBRO_ENABLED : !['false', '0', 'off'].includes(String(enabledRaw).toLowerCase()),
+      enabledRaw === undefined
+        ? CYBERBRO_ENABLED
+        : !['false', '0', 'off'].includes(String(enabledRaw).toLowerCase()),
     baseUrl,
     timeoutMs: timeoutRaw ? parseInt(String(timeoutRaw), 10) : CYBERBRO_TIMEOUT_MS_DEFAULT,
+    preset,
+    freeOnly,
     engineMode,
     engines,
   };
@@ -170,7 +195,10 @@ const buildEngineRows = (result, selectedEngines) => {
             ? {
                 status: raw.length > 0 ? 'intel' : 'clear',
                 hit: false,
-                summary: raw.length > 0 ? `${raw.length} result${raw.length === 1 ? '' : 's'} returned` : 'No results',
+                summary:
+                  raw.length > 0
+                    ? `${raw.length} result${raw.length === 1 ? '' : 's'} returned`
+                    : 'No results',
                 link: null,
               }
             : {
@@ -180,7 +208,13 @@ const buildEngineRows = (result, selectedEngines) => {
                   raw?.detection_ratio ||
                   raw?.summary ||
                   `${Object.keys(raw || {}).length} field${Object.keys(raw || {}).length === 1 ? '' : 's'} returned`,
-                link: raw?.link || raw?.url || raw?.result_url || raw?.permalink || raw?.phish_detail_page || null,
+                link:
+                  raw?.link ||
+                  raw?.url ||
+                  raw?.result_url ||
+                  raw?.permalink ||
+                  raw?.phish_detail_page ||
+                  null,
               };
     const classified = config?.classify ? config.classify(raw) : genericClassified;
     rows.push({
@@ -281,8 +315,10 @@ const cyberbroHandler = async (url, request) => {
       engines,
       highlights,
       analysisId,
-      graphPath: '/cyberbro/graph/' + analysisId + '?baseUrl=' + encodeURIComponent(settings.baseUrl),
-      resultsPath: '/cyberbro/results/' + analysisId + '?baseUrl=' + encodeURIComponent(settings.baseUrl),
+      graphPath:
+        '/cyberbro/graph/' + analysisId + '?baseUrl=' + encodeURIComponent(settings.baseUrl),
+      resultsPath:
+        '/cyberbro/results/' + analysisId + '?baseUrl=' + encodeURIComponent(settings.baseUrl),
       cyberbroConsoleBase,
       raw: primaryResult,
     };
