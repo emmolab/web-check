@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import colors from 'client/styles/colors';
 import Heading from 'client/components/Form/Heading';
@@ -7,7 +8,6 @@ import Footer from 'client/components/misc/Footer';
 import Nav from 'client/components/Form/Nav';
 import Button from 'client/components/Form/Button';
 import { StyledCard } from 'client/components/Form/Card';
-import { Link } from 'react-router-dom';
 import { branding } from '@/config/branding';
 
 interface ErrorBoundaryState {
@@ -18,6 +18,9 @@ interface ErrorBoundaryState {
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
+  routeKey: string;
+  currentPath: string;
+  onRecoverHome?: () => void;
 }
 
 const ErrorPageContainer = styled.div`
@@ -74,25 +77,33 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
     return { hasError: true, errorCount: 0, errorMessage: err.message };
   }
 
+  componentDidUpdate(prevProps: ErrorBoundaryProps) {
+    if (this.state.hasError && prevProps.routeKey !== this.props.routeKey) {
+      this.setState({ hasError: false, errorCount: 0, errorMessage: null });
+    }
+  }
+
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Uncaught error:', error, errorInfo);
     console.error(
       `%cCritical Error%c\n\nRoute or component failed to mount%c:%c\n` +
-        `${this.state.errorCount < 1 ? 'Will attempt a page reload' : ''}. ` +
+        'Route-aware boundary caught an exception. ' +
         `Error Details:\n${error}\n\n${JSON.stringify(errorInfo || {})}`,
       `background: ${colors.danger}; color:${colors.background}; padding: 4px 8px; font-size: 16px;`,
       `font-weight: bold; color: ${colors.danger};`,
       `color: ${colors.danger};`,
       `color: ${colors.warning};`,
     );
-    if (this.state.errorCount < 1) {
-      this.setState((prevState) => ({ errorCount: prevState.errorCount + 1 }));
-      window.location.reload();
+    if (this.props.currentPath !== '/' && this.props.onRecoverHome) {
+      window.setTimeout(() => this.props.onRecoverHome?.(), 0);
     }
   }
 
   render() {
     if (this.state.hasError) {
+      if (this.props.currentPath !== '/') {
+        return null;
+      }
       return (
         <ErrorPageContainer>
           <Nav>
@@ -143,4 +154,19 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 }
 
-export default ErrorBoundary;
+const RoutedErrorBoundary = (props: { children: React.ReactNode }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  return (
+    <ErrorBoundary
+      routeKey={location.key || location.pathname}
+      currentPath={location.pathname}
+      onRecoverHome={() => navigate('/', { replace: true })}
+      {...props}
+    >
+      {props.children}
+    </ErrorBoundary>
+  );
+};
+
+export default RoutedErrorBoundary;

@@ -513,7 +513,7 @@ const ProgressLoader = ({ loadStatus, showModal, showJobDocs }: ProgressLoaderPr
                   required info, or restrictions in the lambda function, or hitting an API limit.
                 </p>
               )}
-              <AboutPageLink href="/check/about" target="_blank" rel="noreferrer">
+              <AboutPageLink href="/about" target="_blank" rel="noreferrer">
                 Learn More about {branding.name}
               </AboutPageLink>
             </Details>

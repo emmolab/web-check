@@ -5,6 +5,7 @@ import colors from 'client/styles/colors';
 
 const StyledFooter = styled.footer`
   width: 100%;
+  box-sizing: border-box;
   text-align: center;
   padding: 1rem 1.1rem;
   background: color-mix(in srgb, ${colors.surfaceAccent} 84%, transparent);
@@ -15,6 +16,7 @@ const StyledFooter = styled.footer`
   align-items: center;
   flex-wrap: wrap;
   gap: 0.85rem 1.25rem;
+  margin-top: auto;
   opacity: 0.88;
   transition: all 0.2s ease-in-out;
   @media (max-width: 720px) {
@@ -59,7 +61,7 @@ const Footer = (props: { isFixed?: boolean }): JSX.Element => {
         View source at <ALink href={githubUrl}>{githubLabel}</ALink>
       </span>
       <span>
-        <Link to="/check/about">{branding.name}</Link> is licensed under{' '}
+        <Link to="/about">{branding.name}</Link> is licensed under{' '}
         <ALink href={licenseUrl}>{branding.copyrightLabel}</ALink> - ©{' '}
         <ALink href={authorUrl}>{branding.companyName}</ALink> {new Date().getFullYear()}
       </span>

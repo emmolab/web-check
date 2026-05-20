@@ -7,6 +7,7 @@ import Nav from 'client/components/Form/Nav';
 import Button from 'client/components/Form/Button';
 import { StyledCard } from 'client/components/Form/Card';
 import { branding } from '@/config/branding';
+import { Link } from 'react-router-dom';
 
 const AboutContainer = styled.div`
   width: 95vw;
@@ -60,9 +61,9 @@ const NotFound = (): JSX.Element => {
             Not Found
           </Heading>
           <HeaderLinkContainer>
-            <a href="/">
+            <Link to="/">
               <Button>Back to Homepage</Button>
-            </a>
+            </Link>
           </HeaderLinkContainer>
           <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
             Report Issue

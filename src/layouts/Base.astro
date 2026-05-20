@@ -1,5 +1,4 @@
 ---
-import { ClientRouter } from 'astro:transitions';
 import MetaTags from '@layouts/MetaTags.astro';
 import { brandThemeCss } from '@/config/branding';
 
@@ -26,7 +25,6 @@ const { preloadBodyFont = true } = Astro.props;
 <!doctype html>
 <html lang="en" data-theme="dark">
   <head>
-    <ClientRouter />
     <MetaTags {...Astro.props} />
     <slot name="head" />
     <style is:inline set:html={brandThemeCss}></style>

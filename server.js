@@ -324,14 +324,6 @@ app.get(API_DIR, async (req, res) => {
   res.json(results);
 });
 
-// Skip the marketing homepage, for self-hosted users
-app.use((req, res, next) => {
-  if (req.path === '/' && process.env.BOSS_SERVER !== 'true' && !process.env.DISABLE_GUI) {
-    return res.redirect(302, '/check');
-  }
-  next();
-});
-
 // Serve up the GUI - if build dir exists, and GUI feature enabled
 if (process.env.DISABLE_GUI && process.env.DISABLE_GUI !== 'false') {
   app.get('/', async (req, res) => {

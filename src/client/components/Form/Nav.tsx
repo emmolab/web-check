@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 
 import { branding } from '@/config/branding';
 import { StyledCard } from 'client/components/Form/Card';
@@ -28,9 +29,9 @@ const Nav = (props: { children?: ReactNode }) => {
           data-brand-src="appIconPath"
           data-brand-alt="name"
         />
-        <a href="/check" target="_self" data-brand-text="name">
+        <Link to="/" data-brand-text="name">
           {branding.name}
-        </a>
+        </Link>
       </Heading>
       {props.children && props.children}
     </Header>

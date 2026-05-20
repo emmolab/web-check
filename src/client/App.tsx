@@ -1,4 +1,4 @@
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
 
 import Home from 'client/views/Home.tsx';
 import Results from 'client/views/Results.tsx';
@@ -21,13 +21,18 @@ export default function App() {
   return (
     <ErrorBoundary>
       <Routes>
-        <Route path="/check" element={<Layout />}>
+        <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="home" element={<Home />} />
           <Route path="about" element={<About />} />
+        </Route>
+        <Route path="/check" element={<Layout />}>
+          <Route index element={<Navigate to="/" replace />} />
+          <Route path="home" element={<Navigate to="/" replace />} />
+          <Route path="about" element={<Navigate to="/about" replace />} />
           <Route path=":urlToScan" element={<Results />} />
           <Route path="*" element={<NotFound />} />
         </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </ErrorBoundary>
   );

@@ -7,11 +7,13 @@ import Input from 'client/components/Form/Input';
 import Button from 'client/components/Form/Button';
 import { StyledCard } from 'client/components/Form/Card';
 import Footer from 'client/components/misc/Footer';
-import FancyBackground from 'client/components/misc/FancyBackground';
 
-import docs from 'client/utils/docs';
 import colors from 'client/styles/colors';
-import { determineAddressType, normalizeAddress } from 'client/utils/address-type-checker';
+import {
+  determineAddressType,
+  normalizeAddress,
+  type AddressType,
+} from 'client/utils/address-type-checker';
 import { branding } from '@/config/branding';
 import { jobs as scanJobs } from 'client/jobs/registry';
 import {
@@ -24,34 +26,40 @@ import { defaultScanSettings, getScanSettings, saveScanSettings } from '@/config
 import { WEB_CHECK_SCAN_PRESETS, getScanPreset } from '@/config/scan-presets';
 
 const HomeContainer = styled.section`
-  position: relative;
-  min-height: 100%;
-  padding: 1.5rem 1rem 3rem;
+  min-height: 100vh;
+  padding: 1rem 1rem 2rem;
   font-family: var(--font-mono);
+  box-sizing: border-box;
+  display: flex;
 `;
 
 const Shell = styled.div`
-  position: relative;
-  z-index: 1;
-  width: min(1120px, 100%);
+  flex: 1;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  min-width: 0;
 `;
 
 const HeroGrid = styled.div`
+  flex: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.82fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 1rem;
-  @media (max-width: 960px) {
-    grid-template-columns: 1fr;
+  align-items: start;
+  min-width: 0;
+
+  > * {
+    min-width: 0;
   }
 `;
 
 const HeroCard = styled(StyledCard)`
-  padding: 1.3rem;
-  gap: 1rem;
+  padding: 1.2rem;
+  gap: 0.9rem;
 `;
 
 const BrandRow = styled.div`
@@ -110,9 +118,9 @@ const HeroTitleBlock = styled.div`
 
 const Headline = styled.p`
   margin: 0;
-  max-width: 44rem;
-  font-size: 1rem;
-  line-height: 1.65;
+  max-width: 42rem;
+  font-size: 0.98rem;
+  line-height: 1.6;
   color: ${colors.textColorSecondary};
 `;
 
@@ -136,29 +144,59 @@ const MetaPill = styled.span`
 const SearchForm = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 0.85rem;
 `;
 
 const LaunchRow = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.8rem;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const LaunchGroup = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
+  gap: 0.65rem 0.9rem;
+  align-items: flex-start;
+  justify-content: flex-start;
 `;
 
 const SummaryLine = styled.p`
   margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.55;
+  font-size: 0.9rem;
+  line-height: 1.5;
   color: ${colors.textColorSecondary};
+  max-width: 42rem;
+`;
+
+const InputHint = styled.p`
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: ${colors.textColorSecondary};
+`;
+
+const StatRow = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const StatCard = styled.div`
+  padding: 0.75rem 0.85rem;
+  border-radius: 14px;
+  border: 1px solid ${colors.borderSubtle};
+  background: ${colors.surfaceAccent};
+  strong {
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: ${colors.primary};
+  }
+  span {
+    font-size: 0.95rem;
+    line-height: 1.35;
+    color: ${colors.textColor};
+  }
 `;
 
 const ErrorMessage = styled.p`
@@ -167,8 +205,9 @@ const ErrorMessage = styled.p`
 `;
 
 const PanelCard = styled(StyledCard)`
-  padding: 1.1rem;
-  gap: 0.9rem;
+  padding: 1.05rem;
+  gap: 0.85rem;
+  min-width: 0;
 `;
 
 const SectionLabel = styled.span`
@@ -180,15 +219,15 @@ const SectionLabel = styled.span`
 
 const PresetList = styled.div`
   display: grid;
-  gap: 0.65rem;
+  gap: 0.55rem;
 `;
 
 const PresetButton = styled.button<{ active: boolean }>`
   width: 100%;
   text-align: left;
   cursor: pointer;
-  border-radius: 16px;
-  padding: 0.95rem 1rem;
+  border-radius: 14px;
+  padding: 0.8rem 0.9rem;
   border: 1px solid ${(props) => (props.active ? colors.borderStrong : colors.borderSubtle)};
   background: ${(props) =>
     props.active
@@ -207,6 +246,7 @@ const PresetButton = styled.button<{ active: boolean }>`
 
 const PresetTitle = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
@@ -222,17 +262,17 @@ const PresetTitle = styled.div`
 
 const PresetDescription = styled.p`
   margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 0.86rem;
+  line-height: 1.45;
   color: ${colors.textColorSecondary};
 `;
 
 const CustomBuilder = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
-  padding: 1rem;
-  border-radius: 16px;
+  gap: 0.75rem;
+  padding: 0.95rem;
+  border-radius: 14px;
   background: ${colors.surfaceAccent};
   border: 1px solid ${colors.borderSubtle};
 `;
@@ -263,35 +303,66 @@ const ToolbarButton = styled.button<{ active?: boolean }>`
 
 const BuilderNote = styled.p`
   margin: 0;
-  font-size: 0.88rem;
-  line-height: 1.5;
+  font-size: 0.84rem;
+  line-height: 1.45;
   color: ${colors.textColorSecondary};
+`;
+
+const BuilderCounts = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+`;
+
+const CountPill = styled.span<{ tone?: 'neutral' | 'warning' }>`
+  display: inline-flex;
+  align-items: center;
+  padding: 0.38rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  color: ${(props) => (props.tone === 'warning' ? colors.warning : colors.textColorSecondary)};
+  background: ${colors.surface};
+  border: 1px solid
+    ${(props) => (props.tone === 'warning' ? colors.warning : colors.borderSubtle)};
 `;
 
 const CustomGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.55rem;
-  @media (max-width: 720px) {
-    grid-template-columns: 1fr;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  max-height: 24rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.2rem;
+  @media (min-width: 1720px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  &::-webkit-scrollbar {
+    width: 0.55rem;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: ${colors.borderStrong};
+    border-radius: 999px;
   }
 `;
 
-const CustomOption = styled.label<{ active: boolean }>`
+const CustomOption = styled.label<{ active: boolean; disabled?: boolean }>`
   display: flex;
   gap: 0.7rem;
   align-items: flex-start;
-  padding: 0.75rem 0.8rem;
-  border-radius: 14px;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
   border: 1px solid ${(props) => (props.active ? colors.borderStrong : colors.borderSubtle)};
   background: ${(props) =>
     props.active
       ? 'color-mix(in srgb, var(--surface) 70%, var(--primary-transparent))'
       : 'var(--surface)'};
   cursor: pointer;
+  opacity: ${(props) => (props.disabled ? 0.58 : 1)};
   input {
-    margin-top: 0.15rem;
+    margin-top: 0.2rem;
     accent-color: ${colors.primary};
+    flex-shrink: 0;
   }
 `;
 
@@ -302,6 +373,7 @@ const OptionMeta = styled.div`
   min-width: 0;
   strong {
     font-size: 0.92rem;
+    line-height: 1.2;
   }
   span {
     font-size: 0.8rem;
@@ -309,6 +381,15 @@ const OptionMeta = styled.div`
     color: ${colors.textColorSecondary};
     overflow-wrap: anywhere;
   }
+`;
+
+const EmptyBuilderState = styled.div`
+  padding: 0.9rem;
+  border-radius: 12px;
+  border: 1px dashed ${colors.borderSubtle};
+  color: ${colors.textColorSecondary};
+  font-size: 0.84rem;
+  line-height: 1.45;
 `;
 
 const ToggleRow = styled.label`
@@ -325,63 +406,29 @@ const ToggleRow = styled.label`
   }
 `;
 
-const LowerGrid = styled.div`
+const SetupGrid = styled.div`
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
-  gap: 1rem;
-  @media (max-width: 960px) {
-    grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 0.8rem;
+  align-items: start;
+  min-width: 0;
+
+  > * {
+    min-width: 0;
   }
 `;
 
-const CheckList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-`;
-
-const CheckChip = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  padding: 0.5rem 0.75rem;
-  border-radius: 999px;
-  text-decoration: none;
-  color: ${colors.textColorSecondary};
-  background: ${colors.surfaceAccent};
-  border: 1px solid ${colors.borderSubtle};
-  font-size: 0.83rem;
-  transition:
-    color 0.18s ease,
-    border-color 0.18s ease;
-  &:hover {
-    color: ${colors.primary};
-    border-color: ${colors.borderStrong};
-  }
-`;
-
-const LinkStack = styled.div`
+const PresetColumn = styled.div`
   display: grid;
-  gap: 0.65rem;
-  a {
-    text-decoration: none;
-  }
+  gap: 0.7rem;
+  min-width: 0;
 `;
 
-const SupportNote = styled.p`
-  margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.55;
-  color: ${colors.textColorSecondary};
-  a {
-    color: ${colors.primary};
-  }
+const CustomColumn = styled.div`
+  display: grid;
+  gap: 0.7rem;
+  min-width: 0;
 `;
-
-const makeAnchor = (title: string): string =>
-  title
-    .toLowerCase()
-    .replace(/[^\w\s]|_/g, '')
-    .replace(/\s+/g, '-');
 
 const cyberbroModeOptions = [
   { id: 'web', label: 'Web Cyberbro' },
@@ -393,6 +440,13 @@ const scanJobOptions = scanJobs.map((job) => ({
   title: job.cards[0]?.title || job.id,
   tags: job.cards[0]?.tags || [],
 }));
+
+const isJobApplicable = (job: (typeof scanJobs)[number], addressType: AddressType) => {
+  if (addressType === 'empt' || addressType === 'err') return true;
+  if (job.needsIp) return addressType === 'url' || addressType === 'ipV4' || addressType === 'ipV6';
+  if (!job.expectedAddressTypes) return true;
+  return job.expectedAddressTypes.includes(addressType);
+};
 
 const persistCyberbroProfile = (preset: string, freeOnly: boolean) => {
   if (typeof window === 'undefined') return;
@@ -452,10 +506,10 @@ const Home = (): JSX.Element => {
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     const urlFromQuery = query.get('url');
-    if (urlFromQuery) {
-      const target = normalizeAddress(urlFromQuery);
-      if (target) navigate(`/check/${target}`, { replace: true });
-    }
+      if (urlFromQuery) {
+        const target = normalizeAddress(urlFromQuery);
+        if (target) navigate(`/check/${target}`, { replace: true });
+      }
   }, [navigate, location.search]);
 
   useEffect(() => {
@@ -536,10 +590,22 @@ const Home = (): JSX.Element => {
     preset: activePreset.cyberbroPreset,
     freeOnly,
   });
+  const draftAddressType = determineAddressType(userInput);
+  const applicableActiveJobs = activePreset.jobIds.filter((jobId) => {
+    const job = scanJobs.find((entry) => entry.id === jobId);
+    return job ? isJobApplicable(job, draftAddressType) : false;
+  });
+  const compatibleCustomJobs = scanJobOptions.filter((job) => {
+    const full = scanJobs.find((entry) => entry.id === job.id);
+    return full ? isJobApplicable(full, draftAddressType) : true;
+  });
+  const incompatibleCustomJobs = scanJobOptions.filter((job) => {
+    const full = scanJobs.find((entry) => entry.id === job.id);
+    return full ? !isJobApplicable(full, draftAddressType) : false;
+  });
 
   return (
     <HomeContainer>
-      <FancyBackground />
       <Shell>
         <HeroGrid>
           <HeroCard>
@@ -549,7 +615,7 @@ const Home = (): JSX.Element => {
                 <HeroTitleBlock>
                   <BrandKicker>Investigation Workspace</BrandKicker>
                   <Heading as="h1" size="xLarge" color={colors.textColor}>
-                    <a href="/check">{branding.name}</a>
+                    <Link to="/">{branding.name}</Link>
                   </Heading>
                 </HeroTitleBlock>
               </BrandBlock>
@@ -558,8 +624,8 @@ const Home = (): JSX.Element => {
             <Headline>{branding.heroSubtitle}</Headline>
             <CompactMeta>
               <MetaPill>Preset-driven scans</MetaPill>
-              <MetaPill>URL, domain, IPv4, and IPv6</MetaPill>
-              <MetaPill>Whitelabel-ready theme</MetaPill>
+              <MetaPill>IPv4, IPv6, domain, and URL</MetaPill>
+              <MetaPill>Faster triage, less filler</MetaPill>
             </CompactMeta>
 
             <SearchForm onSubmit={formSubmitEvent}>
@@ -567,7 +633,7 @@ const Home = (): JSX.Element => {
                 id="user-input"
                 value={userInput}
                 label="Target URL, domain, IPv4, or IPv6"
-                size="large"
+                size="medium"
                 orientation="vertical"
                 name="url"
                 placeholder={placeholder}
@@ -577,162 +643,203 @@ const Home = (): JSX.Element => {
               />
               {errorMsg && <ErrorMessage>{errorMsg}</ErrorMessage>}
               <LaunchRow>
-                <LaunchGroup>
-                  <Button
-                    type="submit"
-                    size="large"
-                    onClick={submit}
-                    styles="width: auto; min-width: 15rem; padding-inline: 1.1rem;"
-                  >
-                    Launch Analysis
-                  </Button>
-                </LaunchGroup>
+                <Button
+                  type="submit"
+                  size="large"
+                  onClick={submit}
+                  styles="width: auto; min-width: 14rem; padding-inline: 1rem;"
+                >
+                  Launch Analysis
+                </Button>
                 <SummaryLine>
-                  <strong>{activePreset.label}</strong> runs {activePreset.jobIds.length} Web Check
-                  job{activePreset.jobIds.length === 1 ? '' : 's'} and {resolvedEngines.length}{' '}
-                  Cyberbro engine{resolvedEngines.length === 1 ? '' : 's'}
+                  <strong>{activePreset.label}</strong> is set to {activePreset.jobIds.length} Web
+                  Check job{activePreset.jobIds.length === 1 ? '' : 's'}. For this target,{' '}
+                  <strong>{applicableActiveJobs.length}</strong> can actually run, plus{' '}
+                  {resolvedEngines.length} Cyberbro engine{resolvedEngines.length === 1 ? '' : 's'}
                   {freeOnly ? ' with free/no-key sources only.' : '.'}
                 </SummaryLine>
               </LaunchRow>
+              <StatRow>
+                <StatCard>
+                  <strong>Preset</strong>
+                  <span>{activePreset.label}</span>
+                </StatCard>
+                <StatCard>
+                  <strong>Configured</strong>
+                  <span>{activePreset.jobIds.length} jobs</span>
+                </StatCard>
+                <StatCard>
+                  <strong>Applicable</strong>
+                  <span>{applicableActiveJobs.length} for this target</span>
+                </StatCard>
+              </StatRow>
+              {(draftAddressType === 'ipV4' || draftAddressType === 'ipV6') && (
+                <InputHint>
+                  IPv4 and IPv6 targets only run the IP-aware checks. Domain-only checks stay
+                  configured in the preset but are skipped on purpose.
+                </InputHint>
+              )}
             </SearchForm>
           </HeroCard>
 
           <PanelCard>
-            <SectionLabel>Lookup Mode</SectionLabel>
-            <PresetList>
-              {WEB_CHECK_SCAN_PRESETS.map((preset) => (
-                <PresetButton
-                  key={preset.id}
-                  type="button"
-                  active={selectedPreset === preset.id}
-                  onClick={() => setSelectedPreset(preset.id)}
-                >
-                  <PresetTitle>
-                    <strong>{preset.label}</strong>
-                    <span>{preset.jobIds.length} jobs</span>
-                  </PresetTitle>
-                  <PresetDescription>{preset.description}</PresetDescription>
-                </PresetButton>
-              ))}
-            </PresetList>
-
-            {selectedPreset === 'custom' && (
-              <CustomBuilder>
-                <SectionLabel>Custom Builder</SectionLabel>
-                <CustomToolbar>
-                  <ToolbarButton type="button" onClick={() => applyCustomPreset('web')}>
-                    Load Web
-                  </ToolbarButton>
-                  <ToolbarButton type="button" onClick={() => applyCustomPreset('cyber_intel')}>
-                    Load Intel
-                  </ToolbarButton>
-                  <ToolbarButton type="button" onClick={() => applyCustomPreset('full_surface')}>
-                    Load Full
-                  </ToolbarButton>
-                  <ToolbarButton type="button" onClick={() => setCustomJobIds([])}>
-                    Clear
-                  </ToolbarButton>
-                </CustomToolbar>
-                <BuilderNote>
-                  Pick the exact Web Check jobs to run. If Cyberbro stays enabled below, you can
-                  still choose which Cyberbro profile backs the custom run.
-                </BuilderNote>
-                <CustomGrid>
-                  {scanJobOptions.map((job) => (
-                    <CustomOption key={job.id} active={customJobSet.has(job.id)}>
-                      <input
-                        type="checkbox"
-                        checked={customJobSet.has(job.id)}
-                        onChange={() => toggleCustomJob(job.id)}
-                      />
-                      <OptionMeta>
-                        <strong>{job.title}</strong>
+            <SectionLabel>Scan Setup</SectionLabel>
+            <SetupGrid>
+              <PresetColumn>
+                <Heading as="h2" size="small" align="left" color={colors.textColor}>
+                  Choose the scan profile
+                </Heading>
+                <PresetList>
+                  {WEB_CHECK_SCAN_PRESETS.map((preset) => (
+                    <PresetButton
+                      key={preset.id}
+                      type="button"
+                      active={selectedPreset === preset.id}
+                      onClick={() => setSelectedPreset(preset.id)}
+                    >
+                      <PresetTitle>
+                        <strong>{preset.label}</strong>
                         <span>
-                          {job.id}
-                          {job.tags.length ? ` • ${job.tags.join(', ')}` : ''}
+                          {preset.id === 'custom'
+                            ? compatibleCustomJobs.filter((job) => customJobIds.includes(job.id)).length
+                            : preset.jobIds.filter((jobId) => {
+                                const full = scanJobs.find((entry) => entry.id === jobId);
+                                return full ? isJobApplicable(full, draftAddressType) : false;
+                              }).length}
+                          {' '}live
                         </span>
-                      </OptionMeta>
-                    </CustomOption>
+                      </PresetTitle>
+                      <PresetDescription>{preset.description}</PresetDescription>
+                    </PresetButton>
                   ))}
-                </CustomGrid>
-                {customJobSet.has('cyberbro') && (
-                  <>
-                    <SectionLabel>Cyberbro Profile</SectionLabel>
-                    <CustomToolbar>
-                      {cyberbroModeOptions.map((option) => (
-                        <ToolbarButton
-                          key={option.id}
-                          type="button"
-                          active={customCyberbroPreset === option.id}
-                          onClick={() => setCustomCyberbroPreset(option.id)}
-                        >
-                          {option.label}
-                        </ToolbarButton>
-                      ))}
-                    </CustomToolbar>
-                  </>
-                )}
-              </CustomBuilder>
-            )}
+                </PresetList>
+                <ToggleRow>
+                  <input
+                    type="checkbox"
+                    checked={freeOnly}
+                    onChange={(event) => setFreeOnly(event.target.checked)}
+                  />
+                  <span>Use only free or no-key Cyberbro engines where possible.</span>
+                </ToggleRow>
+              </PresetColumn>
 
-            <ToggleRow>
-              <input
-                type="checkbox"
-                checked={freeOnly}
-                onChange={(event) => setFreeOnly(event.target.checked)}
-              />
-              <span>Use only free or no-key Cyberbro engines where possible.</span>
-            </ToggleRow>
-            <BuilderNote>
-              Need to override the backend or hand-pick engines? Use the account settings page for
-              the advanced controls.
-            </BuilderNote>
+              {selectedPreset === 'custom' ? (
+                <CustomColumn>
+                  <CustomBuilder>
+                    <SectionLabel>Custom Builder</SectionLabel>
+                    <BuilderNote>
+                      Pick the exact Web Check jobs to run. Incompatible jobs are dimmed so it is
+                      obvious why an IPv4 target may only execute a small subset.
+                    </BuilderNote>
+                    <BuilderCounts>
+                      <CountPill>{customJobIds.length} selected</CountPill>
+                      <CountPill>
+                        {
+                          compatibleCustomJobs.filter((job) => customJobIds.includes(job.id)).length
+                        } applicable
+                      </CountPill>
+                      {!!incompatibleCustomJobs.length &&
+                        (draftAddressType === 'ipV4' || draftAddressType === 'ipV6') && (
+                          <CountPill tone="warning">
+                            {incompatibleCustomJobs.length} domain-only
+                          </CountPill>
+                        )}
+                    </BuilderCounts>
+                    <CustomToolbar>
+                      <ToolbarButton type="button" onClick={() => applyCustomPreset('web')}>
+                        Load Web
+                      </ToolbarButton>
+                      <ToolbarButton type="button" onClick={() => applyCustomPreset('cyber_intel')}>
+                        Load Intel
+                      </ToolbarButton>
+                      <ToolbarButton type="button" onClick={() => applyCustomPreset('full_surface')}>
+                        Load Full
+                      </ToolbarButton>
+                      <ToolbarButton type="button" onClick={() => setCustomJobIds([])}>
+                        Clear
+                      </ToolbarButton>
+                    </CustomToolbar>
+                    <CustomGrid>
+                      {compatibleCustomJobs.map((job) => (
+                        <CustomOption key={job.id} active={customJobSet.has(job.id)}>
+                          <input
+                            type="checkbox"
+                            checked={customJobSet.has(job.id)}
+                            onChange={() => toggleCustomJob(job.id)}
+                          />
+                          <OptionMeta>
+                            <strong>{job.title}</strong>
+                            <span>
+                              {job.id}
+                              {job.tags.length ? ` • ${job.tags.join(', ')}` : ''}
+                            </span>
+                          </OptionMeta>
+                        </CustomOption>
+                      ))}
+                      {incompatibleCustomJobs.map((job) => (
+                        <CustomOption key={job.id} active={customJobSet.has(job.id)} disabled>
+                          <input
+                            type="checkbox"
+                            checked={customJobSet.has(job.id)}
+                            onChange={() => toggleCustomJob(job.id)}
+                          />
+                          <OptionMeta>
+                            <strong>{job.title}</strong>
+                            <span>
+                              {job.id}
+                              {job.tags.length ? ` • ${job.tags.join(', ')}` : ''} • domain-only
+                            </span>
+                          </OptionMeta>
+                        </CustomOption>
+                      ))}
+                      {!compatibleCustomJobs.length && (
+                        <EmptyBuilderState>
+                          No jobs are compatible with the current target type yet. Enter a domain or
+                          URL to unlock the broader website checks.
+                        </EmptyBuilderState>
+                      )}
+                    </CustomGrid>
+                    {customJobSet.has('cyberbro') && (
+                      <>
+                        <SectionLabel>Cyberbro Profile</SectionLabel>
+                        <CustomToolbar>
+                          {cyberbroModeOptions.map((option) => (
+                            <ToolbarButton
+                              key={option.id}
+                              type="button"
+                              active={customCyberbroPreset === option.id}
+                              onClick={() => setCustomCyberbroPreset(option.id)}
+                            >
+                              {option.label}
+                            </ToolbarButton>
+                          ))}
+                        </CustomToolbar>
+                      </>
+                    )}
+                  </CustomBuilder>
+                </CustomColumn>
+              ) : (
+                <CustomColumn>
+                  <CustomBuilder>
+                    <SectionLabel>Why this preset</SectionLabel>
+                    <Heading as="h2" size="small" align="left" color={colors.textColor}>
+                      {presetConfig.label}
+                    </Heading>
+                    <BuilderNote>{presetConfig.description}</BuilderNote>
+                    <BuilderNote>
+                      {draftAddressType === 'ipV4' || draftAddressType === 'ipV6'
+                        ? 'On an IP target, only the IP-aware subset will run even if the preset contains more website-specific checks.'
+                        : 'Need tighter control? Switch to Custom and choose the exact checks without leaving the top of the page.'}
+                    </BuilderNote>
+                    <BuilderNote>
+                      Cyberbro still follows the preset profile unless you switch to Custom and override it.
+                    </BuilderNote>
+                  </CustomBuilder>
+                </CustomColumn>
+              )}
+            </SetupGrid>
           </PanelCard>
         </HeroGrid>
-
-        <LowerGrid>
-          <PanelCard>
-            <SectionLabel>Supported Checks</SectionLabel>
-            <Heading as="h2" size="small" align="left" color={colors.textColor}>
-              Keep the scan set tight, not noisy
-            </Heading>
-            <CheckList>
-              {docs.map((doc, index) => (
-                <CheckChip key={index} to={`/check/about#${makeAnchor(doc.title)}`} title={doc.title}>
-                  {doc.title}
-                </CheckChip>
-              ))}
-              <CheckChip to="/check/about">Full documentation</CheckChip>
-            </CheckList>
-          </PanelCard>
-
-          <PanelCard>
-            <SectionLabel>Platform</SectionLabel>
-            <Heading as="h2" size="small" align="left" color={colors.textColor}>
-              Source, API, and self-hosting
-            </Heading>
-            <LinkStack>
-              <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
-                <Button styles="width: 100%;">{branding.sourceLabel}</Button>
-              </a>
-              <Link to="/self-hosted-setup">
-                <Button styles="width: 100%;">Self-host</Button>
-              </Link>
-              <Link to="/check/about#api-documentation">
-                <Button styles="width: 100%;">API Docs</Button>
-              </Link>
-            </LinkStack>
-            {branding.showSponsor && (
-              <SupportNote>
-                If this deployment is useful, support the maintainers or adapt it from{' '}
-                <a target="_blank" rel="noreferrer" href={branding.repoUrl}>
-                  the source repository
-                </a>
-                .
-              </SupportNote>
-            )}
-          </PanelCard>
-        </LowerGrid>
 
         <Footer />
       </Shell>
