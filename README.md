@@ -1,86 +1,194 @@
-# Web-Check (Emmolab Fork)
+# Web Check
 
-This repository is Emmolab's fork of [Lissy93/web-check](https://github.com/Lissy93/web-check), adapted for self-hosted branded deployments and bundled threat-intel workflows.
+Web Check is a self-hosted website intelligence and security inspection tool. Give it a URL, domain, IPv4, or IPv6 target and it runs a broad set of OSINT, web, DNS, TLS, and infrastructure checks, then presents the results in a single operator-friendly interface.
 
-## What's different in this fork
+This repository is the Emmolab fork of the original [Lissy93/web-check](https://github.com/Lissy93/web-check), with a stronger focus on self-hosted deployments, environment-driven branding, and bundled threat-intelligence workflows.
 
-- **Whitelabel branding support** via environment variables or external env files
-- **Branding env ingestion** from either a mounted/uploaded file path or a remote URL
-- **Bundled Cyberbro integration** with extra threat-intel cards
-- **Docker / GHCR-first deployment path** for pull-based installs
-- **Removed unused repo automation** for external mirrors and release flows we aren't using
+## What This Fork Adds
 
-## Container images
+- Environment-driven whitelabel branding for self-hosted deployments
+- External branding env loading from a mounted file or remote URL
+- Bundled Cyberbro integration with extra threat-intel result cards
+- GHCR-first Docker deployment flow
+- A simplified self-hosted UI flow tailored to the Emmolab deployment
 
-- `ghcr.io/emmolab/web-check:latest`
-- `ghcr.io/emmolab/web-check-cyberbro:latest`
+## Core Features
 
-## Quick start with Docker Compose
+- Website and domain inspection
+- IPv4 and IPv6 target support
+- DNS, WHOIS, headers, cookies, redirects, robots.txt, security.txt, and TLS checks
+- Infrastructure discovery such as hostnames, server info, ports, and geolocation
+- Threat-intelligence aggregation through Cyberbro
+- Preset-based and custom scan selection
+- Self-hosted branding without editing frontend code
+
+## Project Structure
+
+- `src/client/` - React client app, result cards, styles, routing, and analysis logic
+- `src/pages/` - Astro entry pages and server-rendered routes
+- `api/` - backend handlers for scan jobs and integrations
+- `vendor/cyberbro/` - bundled Cyberbro source and data volumes
+- `docs/` - focused docs for branding and Cyberbro setup
+- `.env.sample` - optional environment variables
+- `docker-compose.yml` - default pull-based deployment stack
+
+## Quick Start
+
+### Docker Compose
+
+This is the easiest path for a self-hosted deployment.
 
 ```bash
 git clone https://github.com/emmolab/web-check.git
 cd web-check
-
-export WEB_CHECK_IMAGE=ghcr.io/emmolab/web-check:latest
-export CYBERBRO_IMAGE=ghcr.io/emmolab/web-check-cyberbro:latest
-
+cp .env.sample .env
 docker compose pull
-docker compose down
 docker compose up -d
 ```
 
-The bundled `docker-compose.yml` now defaults to pulling the published GHCR images directly.
-It also passes your local `.env` into the containers and performs a runtime frontend build on container start, so branding env changes apply to pulled images.
-If you want to build locally instead, run `docker build` manually or create a compose override for local builds.
+Default ports:
 
-## Key docs
+- Web Check: `http://localhost:3000`
+- Cyberbro: `http://localhost:5000`
 
-- [`docs/whitelabel.md`](docs/whitelabel.md) - branding and fork customisation
-- [`docs/cyberbro.md`](docs/cyberbro.md) - Cyberbro setup and configuration
-- [`.env.sample`](.env.sample) - environment variables
-- [`docker-compose.yml`](docker-compose.yml) - GHCR pull deployment
+The compose stack pulls:
 
-## Branding
+- `ghcr.io/emmolab/web-check:latest`
+- `ghcr.io/emmolab/web-check-cyberbro:latest`
 
-This fork supports environment-driven branding, including values such as:
+### Local Development
+
+Requirements:
+
+- Node.js `>= 22`
+- Yarn `1.x` via Corepack
+
+Install and run:
+
+```bash
+corepack enable
+yarn install
+yarn dev
+```
+
+Useful commands:
+
+```bash
+yarn build
+yarn typecheck
+yarn lint
+yarn hold-my-beer
+```
+
+`yarn dev` runs the backend API and Astro frontend together.
+
+## Configuration
+
+Everything is optional, but many checks depend on external APIs and keys.
+
+Start with:
+
+```bash
+cp .env.sample .env
+```
+
+Common categories in `.env.sample`:
+
+- External API keys for scan providers
+- Cyberbro integration settings
+- Branding and whitelabel values
+- Runtime settings like `PORT`, `DISABLE_GUI`, and `PUBLIC_API_TIMEOUT_LIMIT`
+
+## Branding / Whitelabel
+
+Branding is environment-driven. There is no production GUI editor for branding.
+
+Supported sources:
+
+1. Local `.env`
+2. `BRANDING_ENV_URL`
+3. `BRANDING_ENV_FILE`
+
+Useful variables include:
 
 - `PUBLIC_BRAND_NAME`
 - `PUBLIC_BRAND_TITLE_LONG`
 - `PUBLIC_BRAND_DESCRIPTION`
 - `PUBLIC_BRAND_REPO_URL`
-- `PUBLIC_BRAND_DOCKER_IMAGE`
+- `PUBLIC_BRAND_COMPANY_NAME`
+- `PUBLIC_BRAND_COMPANY_URL`
+- `PUBLIC_BRAND_PRIMARY_COLOR`
+- `PUBLIC_BRAND_APP_ICON_PATH`
 
-Branding is not editable from the GUI.
-Instead, users can either:
+See:
 
-- upload or mount an env file and set `BRANDING_ENV_FILE=/path/to/branding.env`
-- host an env file remotely and set `BRANDING_ENV_URL=https://example.com/branding.env`
+- [docs/whitelabel.md](docs/whitelabel.md)
+- [.env.sample](.env.sample)
 
-Example files are available at:
+## Cyberbro Integration
 
-- `/branding/branding.minimal.env`
-- `/branding/branding.full.env`
+This fork includes bundled Cyberbro support for additional threat-intelligence workflows.
 
-After changing branding inputs in Docker, run `docker compose down && docker compose up -d` so the container re-runs its startup build with the new branding.
+What it adds:
 
-## Cyberbro integration
+- `Cyberbro Threat Intel` result card
+- `Cyberbro Sources` result card
+- `Cyberbro Graph` result card
+- Preset-aware Cyberbro engine selection
+- Browser-local Cyberbro overrides on `/account`
 
-Cyberbro is shipped alongside Web-Check and exposed through additional result cards. Runtime settings can still be previewed through the `/account` settings UI.
+Common Cyberbro settings:
 
-## Development
+- `CYBERBRO_ENABLED`
+- `CYBERBRO_BASE_URL`
+- `CYBERBRO_ENGINE_MODE`
+- `CYBERBRO_THREAT_ENGINES`
+- `CYBERBRO_TIMEOUT_MS`
+
+Useful related API keys:
+
+- `GOOGLE_SAFE_BROWSING`
+- `VIRUSTOTAL`
+- `THREATFOX`
+- `ALIENVAULT`
+- `CRIMINALIP_API_KEY`
+- `RANSOMWARE_LIVE_API_KEY`
+
+See:
+
+- [docs/cyberbro.md](docs/cyberbro.md)
+
+## App Routes
+
+Main self-hosted routes:
+
+- `/` - home / scan launcher
+- `/check/<target>` - results page for a scanned target
+- `/about` - about page
+- `/account` - browser-local Cyberbro settings
+- `/web-check-api/` - API docs landing page
+
+## Deployment Notes
+
+- `docker-compose.yml` is set up for pull-based deployments from GHCR
+- The web container reads `.env` and optional branding sources at startup
+- Branding changes should be followed by a container restart so the frontend rebuild picks them up
+- Cyberbro is expected to be reachable at `http://cyberbro:5000/api` inside Docker by default
+
+For Docker-based updates:
 
 ```bash
-corepack yarn install
-corepack yarn dev
+docker compose pull
+docker compose up -d
 ```
 
-Useful checks:
+## Documentation
 
-```bash
-corepack yarn typecheck
-corepack yarn build
-```
+- [docs/whitelabel.md](docs/whitelabel.md) - branding and fork customization
+- [docs/cyberbro.md](docs/cyberbro.md) - Cyberbro setup and runtime behavior
+- [.env.sample](.env.sample) - environment variables and examples
+- [docker-compose.yml](docker-compose.yml) - default deployment stack
 
-## Upstream credit
+## Upstream Credit
 
-This project is based on the excellent upstream work at [Lissy93/web-check](https://github.com/Lissy93/web-check). This fork keeps that foundation while tailoring deployment, branding, and threat-intel behaviour for Emmolab.
+This project is based on [Lissy93/web-check](https://github.com/Lissy93/web-check). This fork keeps that foundation while adapting the product and deployment model for Emmolab’s self-hosted and branded use cases.
