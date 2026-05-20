@@ -1,13 +1,20 @@
-import { ComposableMap, Geographies, Geography, Annotation } from 'react-simple-maps';
 import styled from '@emotion/styled';
+import { useEffect, useState } from 'react';
 
 import colors from 'client/styles/colors';
-import MapFeatures from 'client/assets/data/map-features.json';
 
 interface Props {
   lat: number;
   lon: number;
   label?: string;
+}
+
+interface MapDeps {
+  ComposableMap: any;
+  Geographies: any;
+  Geography: any;
+  Marker: any;
+  geography: any;
 }
 
 const MapShell = styled.div`
@@ -22,25 +29,64 @@ const MapShell = styled.div`
     display: block;
     width: 100%;
     height: auto;
-    min-height: 220px;
+    min-height: 240px;
   }
+`;
+
+const MapFallback = styled.div`
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${colors.textColorSecondary};
+  font-size: 0.88rem;
 `;
 
 const MapChart = (location: Props) => {
   const { lat, lon, label } = location;
+  const [deps, setDeps] = useState<MapDeps | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([
+      import('react-simple-maps'),
+      import('client/assets/data/map-features.json'),
+    ]).then(([maps, geography]) => {
+      if (!active) return;
+      setDeps({
+        ComposableMap: maps.ComposableMap,
+        Geographies: maps.Geographies,
+        Geography: maps.Geography,
+        Marker: maps.Marker,
+        geography: geography.default,
+      });
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (!deps) {
+    return (
+      <MapShell>
+        <MapFallback>Loading map…</MapFallback>
+      </MapShell>
+    );
+  }
+
+  const { ComposableMap, Geographies, Geography, Marker, geography } = deps;
 
   return (
     <MapShell>
       <ComposableMap
-        projection="geoAzimuthalEqualArea"
+        projection="geoMercator"
         projectionConfig={{
-          rotate: [0, 0, 0],
-          center: [lon + 5, lat - 25],
-          scale: 200,
+          center: [lon, lat],
+          scale: 700,
         }}
       >
         <Geographies
-          geography={MapFeatures}
+          geography={geography}
           fill={colors.backgroundDarker}
           stroke={colors.primary}
           strokeWidth={0.5}
@@ -49,20 +95,15 @@ const MapChart = (location: Props) => {
             geographies.map((geo: any) => <Geography key={geo.rsmKey} geography={geo} />)
           }
         </Geographies>
-        <Annotation
-          subject={[lon, lat]}
-          dx={-56}
-          dy={-44}
-          connectorProps={{
-            stroke: colors.textColor,
-            strokeWidth: 2,
-            strokeLinecap: 'round',
-          }}
-        >
-          <text x="-8" textAnchor="end" fill={colors.textColor} fontSize={16}>
-            {label || 'Server'}
-          </text>
-        </Annotation>
+        <Marker coordinates={[lon, lat]}>
+          <circle
+            r={6}
+            fill={colors.primary}
+            stroke={colors.background}
+            strokeWidth={2}
+          />
+          <circle r={12} fill={colors.primaryTransparent} />
+        </Marker>
       </ComposableMap>
     </MapShell>
   );

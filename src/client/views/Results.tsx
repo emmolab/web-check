@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, type ReactNode } from 'react';
+import { startTransition, useState, useEffect, useMemo, type ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { ToastContainer } from 'react-toastify';
@@ -12,7 +12,6 @@ import Footer from 'client/components/misc/Footer';
 import Nav from 'client/components/Form/Nav';
 import Loader from 'client/components/misc/Loader';
 import ErrorBoundary from 'client/components/misc/ErrorBoundary';
-import DocContent from 'client/components/misc/DocContent';
 import ProgressBar, {
   type LoadingJob,
   type LoadingState,
@@ -257,9 +256,13 @@ const Results = (props: { address?: string }): JSX.Element => {
     });
   }, [jobsState]);
 
-  const showInfo = (id: string) => {
-    setModalContent(DocContent(id));
+  const showInfo = async (id: string) => {
+    setModalContent(<SubtleText>Loading documentation…</SubtleText>);
     setModalOpen(true);
+    const { default: DocContent } = await import('client/components/misc/DocContent');
+    startTransition(() => {
+      setModalContent(DocContent(id));
+    });
   };
 
   const showErrorModal = (content: ReactNode) => {

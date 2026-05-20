@@ -1,18 +1,21 @@
+import { Suspense, lazy } from 'react';
 import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
-
-import Home from 'client/views/Home.tsx';
-import Results from 'client/views/Results.tsx';
-import About from 'client/views/About.tsx';
-import NotFound from 'client/views/NotFound.tsx';
 
 import ErrorBoundary from 'client/components/boundaries/PageError.tsx';
 import GlobalStyles from './styles/globals.tsx';
+
+const Home = lazy(() => import('client/views/Home.tsx'));
+const Results = lazy(() => import('client/views/Results.tsx'));
+const About = lazy(() => import('client/views/About.tsx'));
+const NotFound = lazy(() => import('client/views/NotFound.tsx'));
 
 const Layout = () => {
   return (
     <>
       <GlobalStyles />
-      <Outlet />
+      <Suspense fallback={null}>
+        <Outlet />
+      </Suspense>
     </>
   );
 };
