@@ -2,15 +2,15 @@
 
 Web Check is a self-hosted website intelligence and security inspection tool. Give it a URL, domain, IPv4, or IPv6 target and it runs a broad set of OSINT, web, DNS, TLS, and infrastructure checks, then presents the results in a single operator-friendly interface.
 
-This repository is the Emmolab fork of the original [Lissy93/web-check](https://github.com/Lissy93/web-check), with a stronger focus on self-hosted deployments, environment-driven branding, and bundled threat-intelligence workflows.
+This version focuses on self-hosted deployments, environment-driven branding, and bundled threat-intelligence workflows.
 
-## What This Fork Adds
+## Key Additions
 
 - Environment-driven whitelabel branding for self-hosted deployments
 - External branding env loading from a mounted file or remote URL
 - Bundled Cyberbro integration with extra threat-intel result cards
 - GHCR-first Docker deployment flow
-- A simplified self-hosted UI flow tailored to the Emmolab deployment
+- A simplified self-hosted UI flow
 
 ## Core Features
 
@@ -127,7 +127,7 @@ See:
 
 ## Cyberbro Integration
 
-This fork includes bundled Cyberbro support for additional threat-intelligence workflows.
+This project includes bundled Cyberbro support for additional threat-intelligence workflows.
 
 What it adds:
 
@@ -184,11 +184,11 @@ docker compose up -d
 
 ## Documentation
 
-- [docs/whitelabel.md](docs/whitelabel.md) - branding and fork customization
+- [docs/whitelabel.md](docs/whitelabel.md) - branding and customization
 - [docs/cyberbro.md](docs/cyberbro.md) - Cyberbro setup and runtime behavior
 - [.env.sample](.env.sample) - environment variables and examples
 - [docker-compose.yml](docker-compose.yml) - default deployment stack
 
 ## Upstream Credit
 
-This project is based on [Lissy93/web-check](https://github.com/Lissy93/web-check). This fork keeps that foundation while adapting the product and deployment model for Emmolab’s self-hosted and branded use cases.
+This project is based on [Lissy93/web-check](https://github.com/Lissy93/web-check) and extends that foundation for self-hosted, branded, and threat-intel-focused deployments.
