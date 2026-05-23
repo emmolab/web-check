@@ -4,7 +4,10 @@ if (import.meta.env.SSR) {
 }
 
 const env = import.meta.env as Record<string, string | undefined>;
-const processEnv = process.env as Record<string, string | undefined>;
+const processEnv =
+  typeof process !== 'undefined'
+    ? (process.env as Record<string, string | undefined>)
+    : ({} as Record<string, string | undefined>);
 
 const getEnvValue = (key: string) => env[key] ?? processEnv[key];
 

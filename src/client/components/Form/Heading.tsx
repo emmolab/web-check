@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import colors from 'client/styles/colors';
 import { TextSizes } from 'client/styles/typography';
 import type { ReactNode } from 'react';
 
@@ -15,20 +14,21 @@ interface HeadingProps {
 }
 
 const StyledHeading = styled.h1<HeadingProps>`
-  margin: 0.5rem 0;
-  text-shadow: 2px 2px 0px ${colors.bgShadowColor};
+  margin: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.75rem;
   align-items: center;
   font-size: ${TextSizes.medium};
+  font-family: var(--font-sans);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
   img {
-    // Some titles have an icon
     width: 2.5rem;
-    border-radius: 4px;
+    border-radius: 12px;
   }
   a {
-    // If a title is a link, keep title styles
     color: inherit;
     text-decoration: none;
     display: flex;

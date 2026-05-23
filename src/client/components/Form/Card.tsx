@@ -7,17 +7,24 @@ import colors from 'client/styles/colors';
 
 export const StyledCard = styled.section<{ styles?: string }>`
   background:
-    linear-gradient(180deg, color-mix(in srgb, ${colors.surfaceElevated} 92%, transparent), ${colors.surface});
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, ${colors.surfaceElevated} 94%, transparent),
+      color-mix(in srgb, ${colors.surface} 96%, ${colors.background})
+    );
   color: ${colors.textColor};
-  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.22);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 color-mix(in srgb, ${colors.textColor} 10%, transparent);
   border: 1px solid ${colors.borderSubtle};
-  border-radius: 18px;
-  padding: 1rem 1rem 1.1rem 1rem;
+  border-radius: 24px;
+  padding: 1.1rem 1.1rem 1.2rem 1.1rem;
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.95rem;
   overflow: hidden;
+  backdrop-filter: blur(18px);
   ${(props) => props.styles}
 `;
 

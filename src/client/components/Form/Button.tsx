@@ -21,23 +21,47 @@ interface ButtonProps {
 
 const StyledButton = styled.button<ButtonProps>`
   cursor: pointer;
-  border: none;
-  border-radius: 0.25rem;
+  border: 1px solid color-mix(in srgb, ${colors.primary} 22%, transparent);
+  border-radius: 14px;
   font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.01em;
   box-sizing: border-box;
-  width: -moz-available;
+  width: 100%;
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  box-shadow: 3px 3px 0px ${colors.fgShadowColor};
+  align-items: center;
+  gap: 0.65rem;
+  box-shadow:
+    0 14px 30px color-mix(in srgb, ${colors.fgShadowColor} 18%, transparent),
+    inset 0 1px 0 color-mix(in srgb, ${colors.textColor} 14%, transparent);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    filter 0.18s ease;
   &:hover {
-    box-shadow: 5px 5px 0px ${colors.fgShadowColor};
+    transform: translateY(-1px);
+    box-shadow:
+      0 18px 36px color-mix(in srgb, ${colors.fgShadowColor} 26%, transparent),
+      inset 0 1px 0 color-mix(in srgb, ${colors.textColor} 18%, transparent);
+    filter: brightness(1.03);
   }
   &:active {
-    box-shadow: -3px -3px 0px ${colors.fgShadowColor};
+    transform: translateY(0);
+    box-shadow:
+      0 10px 20px color-mix(in srgb, ${colors.fgShadowColor} 20%, transparent),
+      inset 0 1px 0 color-mix(in srgb, ${colors.textColor} 10%, transparent);
+  }
+  &:focus-visible {
+    outline: 2px solid color-mix(in srgb, ${colors.primary} 60%, white);
+    outline-offset: 2px;
   }
   ${(props) => applySize(props.size)};
-  ${(props) => (props.bgColor ? `background: ${props.bgColor};` : `background: ${colors.primary};`)}
+  ${(props) =>
+    props.bgColor
+      ? `background: ${props.bgColor};`
+      : `background: linear-gradient(135deg, color-mix(in srgb, ${colors.primaryLighter} 70%, white), ${colors.primary});`}
   ${(props) => (props.fgColor ? `color: ${props.fgColor};` : `color: ${colors.background};`)}
   ${(props) => props.styles}
 `;

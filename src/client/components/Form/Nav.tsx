@@ -14,8 +14,9 @@ const Header = styled(StyledCard)`
   justify-content: space-between;
   align-items: center;
   gap: 0.85rem;
-  padding: 0.85rem 1rem;
+  padding: 0.95rem 1.15rem;
   width: 100%;
+  background: color-mix(in srgb, ${colors.surfaceElevated} 92%, transparent);
 `;
 
 const Nav = (props: { children?: ReactNode }) => {

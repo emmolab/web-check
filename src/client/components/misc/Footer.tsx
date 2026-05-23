@@ -7,10 +7,10 @@ const StyledFooter = styled.footer`
   width: 100%;
   box-sizing: border-box;
   text-align: center;
-  padding: 1rem 1.1rem;
-  background: color-mix(in srgb, ${colors.surfaceAccent} 84%, transparent);
+  padding: 1.1rem 1.2rem;
+  background: color-mix(in srgb, ${colors.surfaceAccent} 78%, transparent);
   border: 1px solid ${colors.borderSubtle};
-  border-radius: 18px;
+  border-radius: 22px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -19,6 +19,7 @@ const StyledFooter = styled.footer`
   margin-top: auto;
   opacity: 0.88;
   transition: all 0.2s ease-in-out;
+  backdrop-filter: blur(16px);
   @media (max-width: 720px) {
     flex-direction: column;
     align-items: flex-start;
@@ -39,9 +40,9 @@ const StyledFooter = styled.footer`
 
 const ALink = styled.a`
   color: ${colors.primary};
-  font-weight: bold;
-  border-radius: 4px;
-  padding: 0.1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.12rem 0.3rem;
   transition: all 0.2s ease-in-out;
   &:hover {
     background: ${colors.primaryTransparent};

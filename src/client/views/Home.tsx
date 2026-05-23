@@ -27,8 +27,8 @@ import { WEB_CHECK_SCAN_PRESETS, getScanPreset } from '@/config/scan-presets';
 
 const HomeContainer = styled.section`
   min-height: 100vh;
-  padding: 1rem 1rem 2rem;
-  font-family: var(--font-mono);
+  padding: 1.5rem 1.25rem 2rem;
+  font-family: var(--font-sans);
   box-sizing: border-box;
   display: flex;
 `;
@@ -36,21 +36,25 @@ const HomeContainer = styled.section`
 const Shell = styled.div`
   flex: 1;
   width: 100%;
-  max-width: 100%;
+  max-width: 1380px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.2rem;
   min-width: 0;
 `;
 
 const HeroGrid = styled.div`
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
-  gap: 1rem;
+  grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
+  gap: 1.2rem;
   align-items: start;
   min-width: 0;
+
+  @media (max-width: 1120px) {
+    grid-template-columns: 1fr;
+  }
 
   > * {
     min-width: 0;
@@ -58,8 +62,8 @@ const HeroGrid = styled.div`
 `;
 
 const HeroCard = styled(StyledCard)`
-  padding: 1.2rem;
-  gap: 0.9rem;
+  padding: 1.5rem;
+  gap: 1rem;
 `;
 
 const BrandRow = styled.div`
@@ -95,11 +99,11 @@ const BrandKicker = styled.span`
   width: fit-content;
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.12em;
   color: ${colors.primary};
-  background: color-mix(in srgb, ${colors.surfaceAccent} 78%, ${colors.primaryTransparent});
+  background: color-mix(in srgb, ${colors.surfaceAccent} 72%, ${colors.primaryTransparent});
   border: 1px solid ${colors.borderStrong};
 `;
 
@@ -119,8 +123,8 @@ const HeroTitleBlock = styled.div`
 const Headline = styled.p`
   margin: 0;
   max-width: 42rem;
-  font-size: 0.98rem;
-  line-height: 1.6;
+  font-size: 1.05rem;
+  line-height: 1.7;
   color: ${colors.textColorSecondary};
 `;
 
@@ -133,32 +137,32 @@ const CompactMeta = styled.div`
 const MetaPill = styled.span`
   display: inline-flex;
   align-items: center;
-  padding: 0.45rem 0.75rem;
+  padding: 0.5rem 0.8rem;
   border-radius: 999px;
   font-size: 0.82rem;
   color: ${colors.textColorSecondary};
-  background: ${colors.surfaceAccent};
+  background: color-mix(in srgb, ${colors.surfaceAccent} 84%, transparent);
   border: 1px solid ${colors.borderSubtle};
 `;
 
 const SearchForm = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 1rem;
 `;
 
 const LaunchRow = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65rem 0.9rem;
-  align-items: flex-start;
+  gap: 0.9rem 1rem;
+  align-items: center;
   justify-content: flex-start;
 `;
 
 const SummaryLine = styled.p`
   margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 0.94rem;
+  line-height: 1.6;
   color: ${colors.textColorSecondary};
   max-width: 42rem;
 `;
@@ -166,7 +170,7 @@ const SummaryLine = styled.p`
 const InputHint = styled.p`
   margin: 0;
   font-size: 0.82rem;
-  line-height: 1.4;
+  line-height: 1.55;
   color: ${colors.textColorSecondary};
 `;
 
@@ -180,13 +184,13 @@ const StatRow = styled.div`
 `;
 
 const StatCard = styled.div`
-  padding: 0.75rem 0.85rem;
-  border-radius: 14px;
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
   border: 1px solid ${colors.borderSubtle};
-  background: ${colors.surfaceAccent};
+  background: color-mix(in srgb, ${colors.surfaceAccent} 88%, transparent);
   strong {
     display: block;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.28rem;
     font-size: 0.76rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -205,15 +209,15 @@ const ErrorMessage = styled.p`
 `;
 
 const PanelCard = styled(StyledCard)`
-  padding: 1.05rem;
-  gap: 0.85rem;
+  padding: 1.4rem;
+  gap: 1rem;
   min-width: 0;
 `;
 
 const SectionLabel = styled.span`
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   color: ${colors.primary};
 `;
 
@@ -226,8 +230,8 @@ const PresetButton = styled.button<{ active: boolean }>`
   width: 100%;
   text-align: left;
   cursor: pointer;
-  border-radius: 14px;
-  padding: 0.8rem 0.9rem;
+  border-radius: 18px;
+  padding: 0.95rem 1rem;
   border: 1px solid ${(props) => (props.active ? colors.borderStrong : colors.borderSubtle)};
   background: ${(props) =>
     props.active
@@ -237,10 +241,12 @@ const PresetButton = styled.button<{ active: boolean }>`
   transition:
     border-color 0.18s ease,
     transform 0.18s ease,
-    background 0.18s ease;
+    background 0.18s ease,
+    box-shadow 0.18s ease;
   &:hover {
     transform: translateY(-1px);
     border-color: ${colors.borderStrong};
+    box-shadow: 0 16px 32px color-mix(in srgb, ${colors.bgShadowColor} 16%, transparent);
   }
 `;
 
@@ -270,10 +276,10 @@ const PresetDescription = styled.p`
 const CustomBuilder = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 0.95rem;
-  border-radius: 14px;
-  background: ${colors.surfaceAccent};
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: color-mix(in srgb, ${colors.surfaceAccent} 88%, transparent);
   border: 1px solid ${colors.borderSubtle};
 `;
 
@@ -286,7 +292,7 @@ const CustomToolbar = styled.div`
 const ToolbarButton = styled.button<{ active?: boolean }>`
   cursor: pointer;
   border-radius: 999px;
-  padding: 0.45rem 0.8rem;
+  padding: 0.52rem 0.9rem;
   border: 1px solid ${(props) => (props.active ? colors.borderStrong : colors.borderSubtle)};
   background: ${(props) =>
     props.active
@@ -294,10 +300,16 @@ const ToolbarButton = styled.button<{ active?: boolean }>`
       : 'var(--surface)'};
   color: ${props => props.active ? colors.primary : colors.textColor};
   font-family: var(--font-mono);
-  font-size: 0.83rem;
+  font-size: 0.82rem;
+  transition:
+    border-color 0.18s ease,
+    color 0.18s ease,
+    background 0.18s ease,
+    transform 0.18s ease;
   &:hover {
     border-color: ${colors.borderStrong};
     color: ${colors.primary};
+    transform: translateY(-1px);
   }
 `;
 
@@ -321,7 +333,7 @@ const CountPill = styled.span<{ tone?: 'neutral' | 'warning' }>`
   border-radius: 999px;
   font-size: 0.78rem;
   color: ${(props) => (props.tone === 'warning' ? colors.warning : colors.textColorSecondary)};
-  background: ${colors.surface};
+  background: color-mix(in srgb, ${colors.surface} 88%, transparent);
   border: 1px solid
     ${(props) => (props.tone === 'warning' ? colors.warning : colors.borderSubtle)};
 `;
@@ -350,8 +362,8 @@ const CustomOption = styled.label<{ active: boolean; disabled?: boolean }>`
   display: flex;
   gap: 0.7rem;
   align-items: flex-start;
-  padding: 0.65rem 0.75rem;
-  border-radius: 12px;
+  padding: 0.75rem 0.8rem;
+  border-radius: 16px;
   border: 1px solid ${(props) => (props.active ? colors.borderStrong : colors.borderSubtle)};
   background: ${(props) =>
     props.active
@@ -359,6 +371,14 @@ const CustomOption = styled.label<{ active: boolean; disabled?: boolean }>`
       : 'var(--surface)'};
   cursor: pointer;
   opacity: ${(props) => (props.disabled ? 0.58 : 1)};
+  transition:
+    border-color 0.18s ease,
+    transform 0.18s ease,
+    background 0.18s ease;
+  &:hover {
+    transform: ${(props) => (props.disabled ? 'none' : 'translateY(-1px)')};
+    border-color: ${(props) => (props.disabled ? colors.borderSubtle : colors.borderStrong)};
+  }
   input {
     margin-top: 0.2rem;
     accent-color: ${colors.primary};
@@ -396,7 +416,7 @@ const ToggleRow = styled.label`
   display: flex;
   align-items: flex-start;
   gap: 0.7rem;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   line-height: 1.5;
   color: ${colors.textColorSecondary};
   cursor: pointer;
@@ -647,7 +667,7 @@ const Home = (): JSX.Element => {
                   type="submit"
                   size="large"
                   onClick={submit}
-                  styles="width: auto; min-width: 14rem; padding-inline: 1rem;"
+                  styles="width: auto; min-width: 15rem; padding-inline: 1.2rem;"
                 >
                   Launch Analysis
                 </Button>

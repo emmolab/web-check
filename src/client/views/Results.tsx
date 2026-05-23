@@ -33,7 +33,7 @@ import { getScanPreset } from '@/config/scan-presets';
 
 const ResultsOuter = styled.div`
   min-height: 100vh;
-  padding: 1rem 1rem 2rem;
+  padding: 1.5rem 1.25rem 2rem;
   box-sizing: border-box;
   display: flex;
 `;
@@ -41,16 +41,16 @@ const ResultsOuter = styled.div`
 const ResultsFrame = styled.div`
   flex: 1;
   width: 100%;
-  max-width: 100%;
+  max-width: 1440px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 1rem;
 `;
 
 const Masthead = styled(StyledCard)`
-  gap: 0.85rem;
-  padding: 1rem 1.05rem;
+  gap: 1rem;
+  padding: 1.15rem 1.2rem;
 `;
 
 const MastheadTop = styled.div`
@@ -124,13 +124,13 @@ const AddressCode = styled.code`
 
 const MetaGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.7rem;
 `;
 
 const MetaCard = styled.div`
-  padding: 0.75rem 0.8rem;
-  border-radius: 12px;
+  padding: 0.9rem 0.95rem;
+  border-radius: 16px;
   background: ${colors.surfaceAccent};
   border: 1px solid ${colors.borderSubtle};
   strong {
@@ -393,7 +393,7 @@ const Results = (props: { address?: string }): JSX.Element => {
         <AdvisoryPanel findings={findings} onJumpTo={jumpToCard} />
 
         <ResultsContent>
-          <ResultsMasonryGrid minColWidth={300} gap={18}>
+          <ResultsMasonryGrid minColWidth={320} gap={18}>
             {cardsToShow.map(({ card, data }) => (
               <div id={`card-${card.id}`} key={`eb-${card.id}`}>
                 <ErrorBoundary title={card.title}>
