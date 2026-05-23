@@ -33,7 +33,7 @@ import { getScanPreset } from '@/config/scan-presets';
 
 const ResultsOuter = styled.div`
   min-height: 100vh;
-  padding: 1.5rem 1.25rem 2rem;
+  padding: clamp(1rem, 1.4vw, 1.5rem) clamp(0.9rem, 1.6vw, 1.5rem) 2rem;
   box-sizing: border-box;
   display: flex;
 `;
@@ -41,7 +41,7 @@ const ResultsOuter = styled.div`
 const ResultsFrame = styled.div`
   flex: 1;
   width: 100%;
-  max-width: 1440px;
+  max-width: min(1880px, 100%);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -222,7 +222,6 @@ const FindingDot = styled.span<{ tone: string }>`
 `;
 
 const ResultsContent = styled.section`
-  flex: 1;
   width: 100%;
   @keyframes cardFlash {
     0%,
@@ -573,7 +572,7 @@ const Results = (props: { address?: string }): JSX.Element => {
         <AdvisoryPanel findings={findings} onJumpTo={jumpToCard} />
 
         <ResultsContent>
-          <ResultsMasonryGrid minColWidth={320} gap={18}>
+          <ResultsMasonryGrid minColWidth={360} gap={18}>
             {cardsToShow.map(({ card, data }) => (
               <div id={`card-${card.id}`} key={`eb-${card.id}`}>
                 <ErrorBoundary title={card.title}>

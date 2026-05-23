@@ -45,7 +45,8 @@ const ResultsMasonryGrid = ({
       const rowSpan = MASONRY_ROW_HEIGHT + gap;
 
       items.forEach((item) => {
-        const height = item.getBoundingClientRect().height;
+        const content = (item.firstElementChild as HTMLElement | null) ?? item;
+        const height = Math.max(content.getBoundingClientRect().height, content.scrollHeight);
         const span = Math.max(1, Math.ceil((height + gap) / rowSpan));
         item.style.setProperty('--masonry-span', String(span));
       });

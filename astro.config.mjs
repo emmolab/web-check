@@ -53,4 +53,20 @@ console.log(
 );
 
 // Export Astro configuration
-export default defineConfig({ output, base, integrations, site, adapter });
+export default defineConfig({
+  output,
+  base,
+  integrations,
+  site,
+  adapter,
+  vite: {
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://127.0.0.1:3001',
+          changeOrigin: true,
+        },
+      },
+    },
+  },
+});

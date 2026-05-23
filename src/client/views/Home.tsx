@@ -36,7 +36,7 @@ const HomeContainer = styled.section`
 const Shell = styled.div`
   flex: 1;
   width: 100%;
-  max-width: 1380px;
+  max-width: min(1680px, 100%);
   margin: 0 auto;
   display: flex;
   flex-direction: column;

@@ -6,37 +6,43 @@ import Button from 'client/components/Form/Button';
 
 const CardStyles = `
 margin: 0 auto;
-width: 95vw;
+width: 100%;
+max-width: 100%;
 position: relative;
 transition: all 0.2s ease-in-out;
 display: flex;
 flex-direction: column;
-max-height: 100%;
+gap: 0.85rem;
 a {
   color: ${colors.primary};
 }
 .controls {
   display: flex;
   flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
   button {
-    max-width: 300px;
+    width: auto;
+    min-width: 11rem;
+    max-width: 100%;
   }
 }
 small {
-  margin-top: 0.5rem;
-  font-size: 0.8rem;
-  opacity: 0.5;
+  margin-top: 0.15rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  opacity: 0.72;
 }
 `;
 
 const StyledIframe = styled.iframe`
-  width: calc(100% - 2rem);
+  width: 100%;
   outline: none;
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   min-height: 50vh;
   height: 100%;
-  margin: 1rem;
+  margin: 0;
   background: ${colors.background};
 `;
 
