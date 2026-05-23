@@ -149,6 +149,78 @@ const MetaCard = styled.div`
   }
 `;
 
+const OverviewGrid = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(220px, 0.9fr));
+  gap: 0.85rem;
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const OverviewCard = styled(StyledCard)`
+  padding: 1rem 1.05rem;
+  gap: 0.75rem;
+`;
+
+const OverviewLabel = styled.span`
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, ${colors.surfaceAccent} 78%, ${colors.primaryTransparent});
+  border: 1px solid ${colors.borderSubtle};
+  color: ${colors.primary};
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+`;
+
+const OverviewMetric = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem;
+  strong {
+    font-size: 1.3rem;
+    line-height: 1.05;
+    color: ${colors.textColor};
+  }
+  span {
+    font-size: 0.9rem;
+    color: ${colors.textColorSecondary};
+  }
+`;
+
+const FindingsPreview = styled.ul`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+  li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.55rem;
+    align-items: start;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: ${colors.textColorSecondary};
+  }
+  strong {
+    color: ${colors.textColor};
+  }
+`;
+
+const FindingDot = styled.span<{ tone: string }>`
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 999px;
+  margin-top: 0.42rem;
+  background: ${(props) => props.tone};
+  box-shadow: 0 0 0 5px color-mix(in srgb, ${(props) => props.tone} 18%, transparent);
+`;
+
 const ResultsContent = styled.section`
   flex: 1;
   width: 100%;
@@ -281,6 +353,49 @@ const Results = (props: { address?: string }): JSX.Element => {
   const cardsToShow = renderable.filter(({ data, entry }) => hasData(data) && !entry?.error);
 
   const findings = useMemo(() => runAnalysis(jobsState, activeCards), [activeCards, jobsState]);
+  const severityCounts = useMemo(
+    () =>
+      findings.reduce(
+        (acc, finding) => {
+          acc[finding.severity] += 1;
+          return acc;
+        },
+        { critical: 0, issue: 0, warning: 0, info: 0, pass: 0 },
+      ),
+    [findings],
+  );
+  const postureSummary = useMemo(() => {
+    if (severityCounts.critical) {
+      return {
+        label: 'Critical attention required',
+        tone: colors.danger,
+        detail: `${severityCounts.critical} critical finding${severityCounts.critical === 1 ? '' : 's'} surfaced immediately.`,
+      };
+    }
+    if (severityCounts.issue) {
+      return {
+        label: 'Hardening gaps detected',
+        tone: colors.error,
+        detail: `${severityCounts.issue} issue${severityCounts.issue === 1 ? '' : 's'} should be reviewed before sharing externally.`,
+      };
+    }
+    if (severityCounts.warning) {
+      return {
+        label: 'Review recommended',
+        tone: colors.warning,
+        detail: `${severityCounts.warning} warning${severityCounts.warning === 1 ? '' : 's'} could affect trust signals or resilience.`,
+      };
+    }
+    return {
+      label: 'Healthy first pass',
+      tone: colors.success,
+      detail: 'No critical findings are currently blocking this scan summary.',
+    };
+  }, [severityCounts]);
+  const topFindings = useMemo(
+    () => findings.filter((finding) => finding.severity !== 'pass').slice(0, 3),
+    [findings],
+  );
 
   const apiUnreachable = useMemo(() => {
     const entries = Object.values(jobsState);
@@ -371,6 +486,71 @@ const Results = (props: { address?: string }): JSX.Element => {
             </MetaCard>
           </MetaGrid>
         </Masthead>
+
+        <OverviewGrid>
+          <OverviewCard>
+            <OverviewLabel>Overall posture</OverviewLabel>
+            <OverviewMetric>
+              <strong style={{ color: postureSummary.tone }}>{postureSummary.label}</strong>
+              <span>{severityCounts.pass} passes logged</span>
+            </OverviewMetric>
+            <SubtleText>{postureSummary.detail}</SubtleText>
+            <FindingsPreview>
+              {topFindings.length ? (
+                topFindings.map((finding, index) => {
+                  const tone =
+                    finding.severity === 'critical'
+                      ? colors.danger
+                      : finding.severity === 'issue'
+                        ? colors.error
+                        : finding.severity === 'warning'
+                          ? colors.warning
+                          : colors.info;
+                  return (
+                    <li key={`${finding.cardId}-${index}`}>
+                      <FindingDot tone={tone} />
+                      <span>
+                        <strong>{finding.title}</strong>
+                        {finding.detail ? ` — ${finding.detail}` : ''}
+                      </span>
+                    </li>
+                  );
+                })
+              ) : (
+                <li>
+                  <FindingDot tone={colors.success} />
+                  <span>
+                    <strong>No urgent issues surfaced yet.</strong> As more jobs settle, this panel stays focused on the highest-signal findings.
+                  </span>
+                </li>
+              )}
+            </FindingsPreview>
+          </OverviewCard>
+
+          <OverviewCard>
+            <OverviewLabel>Advisory mix</OverviewLabel>
+            <OverviewMetric>
+              <strong>{severityCounts.critical + severityCounts.issue + severityCounts.warning}</strong>
+              <span>items worth review</span>
+            </OverviewMetric>
+            <SubtleText>
+              {severityCounts.critical} critical · {severityCounts.issue} issues · {severityCounts.warning} warnings · {severityCounts.info} informational
+            </SubtleText>
+          </OverviewCard>
+
+          <OverviewCard>
+            <OverviewLabel>Scan progress</OverviewLabel>
+            <OverviewMetric>
+              <strong>{loadingJobs.filter((job) => job.state !== 'loading').length} / {loadingJobs.length}</strong>
+              <span>jobs settled</span>
+            </OverviewMetric>
+            <SubtleText>
+              {failedJobs.length
+                ? `${failedJobs.length} failed job${failedJobs.length === 1 ? '' : 's'} still ${failedJobs.length === 1 ? 'deserves' : 'deserve'} a retry or explanation review.`
+                : 'No failed jobs are currently blocking the analyst-facing summary.'}
+            </SubtleText>
+          </OverviewCard>
+        </OverviewGrid>
 
         {errorKind && (
           <>

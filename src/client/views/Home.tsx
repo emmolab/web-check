@@ -141,8 +141,38 @@ const MetaPill = styled.span`
   border-radius: 999px;
   font-size: 0.82rem;
   color: ${colors.textColorSecondary};
-  background: color-mix(in srgb, ${colors.surfaceAccent} 84%, transparent);
+  background: color-mix(in srgb, ${colors.surfaceAccent} 92%, transparent);
   border: 1px solid ${colors.borderSubtle};
+`;
+
+const FlowList = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const FlowStep = styled.div`
+  padding: 0.8rem 0.9rem;
+  border-radius: 16px;
+  border: 1px solid ${colors.borderSubtle};
+  background: color-mix(in srgb, ${colors.surfaceAccent} 82%, transparent);
+  strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: ${colors.primary};
+  }
+  span {
+    display: block;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: ${colors.textColorSecondary};
+  }
 `;
 
 const SearchForm = styled.form`
@@ -235,9 +265,13 @@ const PresetButton = styled.button<{ active: boolean }>`
   border: 1px solid ${(props) => (props.active ? colors.borderStrong : colors.borderSubtle)};
   background: ${(props) =>
     props.active
-      ? 'color-mix(in srgb, var(--surface-accent) 76%, var(--primary-transparent))'
+      ? 'linear-gradient(180deg, color-mix(in srgb, var(--surface-accent) 86%, var(--primary-transparent)), color-mix(in srgb, var(--surface) 92%, var(--primary-transparent)))'
       : 'var(--surface-accent)'};
   color: ${colors.textColor};
+  box-shadow: ${(props) =>
+    props.active
+      ? `0 18px 34px color-mix(in srgb, ${colors.bgShadowColor} 22%, transparent)`
+      : 'none'};
   transition:
     border-color 0.18s ease,
     transform 0.18s ease,
@@ -248,6 +282,23 @@ const PresetButton = styled.button<{ active: boolean }>`
     border-color: ${colors.borderStrong};
     box-shadow: 0 16px 32px color-mix(in srgb, ${colors.bgShadowColor} 16%, transparent);
   }
+`;
+
+const PresetStatus = styled.span<{ active?: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: ${(props) => (props.active ? colors.background : colors.primary)};
+  background: ${(props) =>
+    props.active
+      ? `linear-gradient(135deg, ${colors.primaryLighter}, ${colors.primary})`
+      : `color-mix(in srgb, ${colors.surface} 92%, transparent)`};
+  border: 1px solid ${(props) => (props.active ? 'transparent' : colors.borderSubtle)};
 `;
 
 const PresetTitle = styled.div`
@@ -420,6 +471,10 @@ const ToggleRow = styled.label`
   line-height: 1.5;
   color: ${colors.textColorSecondary};
   cursor: pointer;
+  padding: 0.85rem 0.95rem;
+  border-radius: 16px;
+  border: 1px solid ${colors.borderSubtle};
+  background: color-mix(in srgb, ${colors.surfaceAccent} 90%, transparent);
   input {
     margin-top: 0.2rem;
     accent-color: ${colors.primary};
@@ -648,6 +703,21 @@ const Home = (): JSX.Element => {
               <MetaPill>Faster triage, less filler</MetaPill>
             </CompactMeta>
 
+            <FlowList>
+              <FlowStep>
+                <strong>1 · Select</strong>
+                <span>Choose the scan profile that matches the investigation depth you need.</span>
+              </FlowStep>
+              <FlowStep>
+                <strong>2 · Target</strong>
+                <span>Paste a URL, domain, IPv4, or IPv6 and let Web Check trim incompatible jobs.</span>
+              </FlowStep>
+              <FlowStep>
+                <strong>3 · Launch</strong>
+                <span>Start the scan and review the advisory-first results workspace as jobs settle.</span>
+              </FlowStep>
+            </FlowList>
+
             <SearchForm onSubmit={formSubmitEvent}>
               <Input
                 id="user-input"
@@ -719,17 +789,22 @@ const Home = (): JSX.Element => {
                     >
                       <PresetTitle>
                         <strong>{preset.label}</strong>
-                        <span>
+                        <PresetStatus active={selectedPreset === preset.id}>
+                          {selectedPreset === preset.id ? 'Active' : 'Available'}
+                        </PresetStatus>
+                      </PresetTitle>
+                      <PresetDescription>
+                        {preset.description}{' '}
+                        <strong>
                           {preset.id === 'custom'
                             ? compatibleCustomJobs.filter((job) => customJobIds.includes(job.id)).length
                             : preset.jobIds.filter((jobId) => {
                                 const full = scanJobs.find((entry) => entry.id === jobId);
                                 return full ? isJobApplicable(full, draftAddressType) : false;
-                              }).length}
-                          {' '}live
-                        </span>
-                      </PresetTitle>
-                      <PresetDescription>{preset.description}</PresetDescription>
+                              }).length}{' '}
+                          live checks
+                        </strong>
+                      </PresetDescription>
                     </PresetButton>
                   ))}
                 </PresetList>
@@ -739,7 +814,7 @@ const Home = (): JSX.Element => {
                     checked={freeOnly}
                     onChange={(event) => setFreeOnly(event.target.checked)}
                   />
-                  <span>Use only free or no-key Cyberbro engines where possible.</span>
+                  <span>Prefer free or no-key Cyberbro sources for a lighter branded default.</span>
                 </ToggleRow>
               </PresetColumn>
 
