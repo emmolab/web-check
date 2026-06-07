@@ -1,42 +1,36 @@
 # Web Check
 
-Web Check is a self-hosted website intelligence and security inspection tool. Give it a URL, domain, IPv4, or IPv6 target and it runs a broad set of OSINT, web, DNS, TLS, and infrastructure checks, then presents the results in a single operator-friendly interface.
+Self-hosted website intelligence for MSPs, MSSPs, and operators who need a fast view of what a domain exposes. Web Check accepts a URL, domain, IPv4, or IPv6 target, runs web, DNS, TLS, infrastructure, and threat-intelligence checks, then presents the findings in a single investigation workspace.
 
-This version focuses on self-hosted deployments, environment-driven branding, and bundled threat-intelligence workflows.
+This fork focuses on self-hosted deployments, environment-driven branding, Cyberbro threat-intel enrichment, and a versioned API for PSA / automation workflows.
 
-## Key Additions
+## Screenshots
 
-- Environment-driven whitelabel branding for self-hosted deployments
-- External branding env loading from a mounted file or remote URL
-- Bundled Cyberbro integration with extra threat-intel result cards
+### Investigation workspace
+
+![Web Check scan launcher](docs/assets/web-check-home.png)
+
+### Example scan results
+
+![Web Check results for github.com](docs/assets/web-check-results-github.png)
+
+### API and PSA integrations
+
+![Web Check API page](docs/assets/web-check-api.png)
+
+## Highlights
+
+- Preset-driven scans for websites, domains, IPv4, and IPv6 targets
+- DNS, WHOIS, HTTP headers, cookies, redirects, robots.txt, security.txt, TLS, and server-status checks
+- Infrastructure discovery including IP, ports, geolocation, hostnames, and server metadata
+- Cyberbro-backed threat-intelligence cards for deeper suspicious-domain workflows
+- Environment-driven whitelabel branding for self-hosted MSP/MSSP deployments
+- Versioned `/api/v1` enrichment API for HaloPSA, ConnectWise, n8n, and internal automations
 - GHCR-first Docker deployment flow
-- A simplified self-hosted UI flow
 
-## Core Features
-
-- Website and domain inspection
-- IPv4 and IPv6 target support
-- DNS, WHOIS, headers, cookies, redirects, robots.txt, security.txt, and TLS checks
-- Infrastructure discovery such as hostnames, server info, ports, and geolocation
-- Threat-intelligence aggregation through Cyberbro
-- Preset-based and custom scan selection
-- Self-hosted branding without editing frontend code
-
-## Project Structure
-
-- `src/client/` - React client app, result cards, styles, routing, and analysis logic
-- `src/pages/` - Astro entry pages and server-rendered routes
-- `api/` - backend handlers for scan jobs and integrations
-- `vendor/cyberbro/` - bundled Cyberbro source and data volumes
-- `docs/` - focused docs for branding and Cyberbro setup
-- `.env.sample` - optional environment variables
-- `docker-compose.yml` - default pull-based deployment stack
-
-## Quick Start
+## Quick start
 
 ### Docker Compose
-
-This is the easiest path for a self-hosted deployment.
 
 ```bash
 git clone https://github.com/emmolab/web-check.git
@@ -46,24 +40,17 @@ docker compose pull
 docker compose up -d
 ```
 
-Default ports:
+Default services:
 
 - Web Check: `http://localhost:3000`
 - Cyberbro: `http://localhost:5000`
 
-The compose stack pulls:
-
-- `ghcr.io/emmolab/web-check:latest`
-- `ghcr.io/emmolab/web-check-cyberbro:latest`
-
-### Local Development
+### Local development
 
 Requirements:
 
 - Node.js `>= 22`
 - Yarn `1.x` via Corepack
-
-Install and run:
 
 ```bash
 corepack enable
@@ -71,124 +58,80 @@ yarn install
 yarn dev
 ```
 
-Useful commands:
+Useful checks:
 
 ```bash
-yarn build
-yarn typecheck
 yarn lint
-yarn hold-my-beer
+yarn typecheck
+yarn build
 ```
 
-`yarn dev` runs the backend API and Astro frontend together.
+## API v1 for MSP / PSA workflows
+
+API v1 provides a stable JSON surface for automations that need compact, predictable enrichment fields.
+
+Key endpoints:
+
+- `GET /api/v1/health`
+- `GET /api/v1/capabilities`
+- `GET /api/v1/lookup?target=<domain-or-url>`
+
+Set `WEB_CHECK_API_KEY` to require `X-API-Key` or `Authorization: Bearer` authentication on v1 routes. Leave it unset for private local development.
+
+Example:
+
+```bash
+curl -H 'X-API-Key: your-key' \
+  'https://your-web-check.example/api/v1/lookup?target=example.com'
+```
+
+See [docs/api-v1.md](docs/api-v1.md) for the response contract, OpenAPI links, and HaloPSA / ConnectWise / n8n examples.
 
 ## Configuration
 
-Everything is optional, but many checks depend on external APIs and keys.
-
-Start with:
+Start by copying the sample environment file:
 
 ```bash
 cp .env.sample .env
 ```
 
-Common categories in `.env.sample`:
+Common configuration areas:
 
-- External API keys for scan providers
-- Cyberbro integration settings
-- Branding and whitelabel values
-- Runtime settings like `PORT`, `DISABLE_GUI`, and `PUBLIC_API_TIMEOUT_LIMIT`
+- External provider API keys for optional scan providers
+- `WEB_CHECK_API_KEY` for versioned API auth
+- Cyberbro runtime settings
+- Whitelabel branding values
+- Runtime settings such as `PORT`, `DISABLE_GUI`, and `PUBLIC_API_TIMEOUT_LIMIT`
 
-## Branding / Whitelabel
+Branding is environment-driven. Supported sources are local `.env`, `BRANDING_ENV_FILE`, and `BRANDING_ENV_URL`.
 
-Branding is environment-driven. There is no production GUI editor for branding.
+## Project layout
 
-Supported sources:
+- `src/client/` — React client app, result cards, routing, and analysis UI
+- `src/pages/` — Astro pages and server-rendered routes
+- `api/` — backend scan handlers and versioned API routes
+- `vendor/cyberbro/` — bundled Cyberbro source and data volumes
+- `docs/` — focused setup and API documentation
+- `docker-compose.yml` — default pull-based self-hosted stack
 
-1. Local `.env`
-2. `BRANDING_ENV_URL`
-3. `BRANDING_ENV_FILE`
+## Documentation
 
-Useful variables include:
+- [API v1 and PSA examples](docs/api-v1.md)
+- [Whitelabel branding](docs/whitelabel.md)
+- [Cyberbro integration](docs/cyberbro.md)
+- [Environment sample](.env.sample)
+- [Docker Compose stack](docker-compose.yml)
+- [OpenAPI spec](src/templates/openapi-spec.yml)
 
-- `PUBLIC_BRAND_NAME`
-- `PUBLIC_BRAND_TITLE_LONG`
-- `PUBLIC_BRAND_DESCRIPTION`
-- `PUBLIC_BRAND_REPO_URL`
-- `PUBLIC_BRAND_COMPANY_NAME`
-- `PUBLIC_BRAND_COMPANY_URL`
-- `PUBLIC_BRAND_PRIMARY_COLOR`
-- `PUBLIC_BRAND_APP_ICON_PATH`
-
-See:
-
-- [docs/whitelabel.md](docs/whitelabel.md)
-- [.env.sample](.env.sample)
-
-## Cyberbro Integration
-
-This project includes bundled Cyberbro support for additional threat-intelligence workflows.
-
-What it adds:
-
-- `Cyberbro Threat Intel` result card
-- `Cyberbro Sources` result card
-- `Cyberbro Graph` result card
-- Preset-aware Cyberbro engine selection
-- Browser-local Cyberbro overrides on `/account`
-
-Common Cyberbro settings:
-
-- `CYBERBRO_ENABLED`
-- `CYBERBRO_BASE_URL`
-- `CYBERBRO_ENGINE_MODE`
-- `CYBERBRO_THREAT_ENGINES`
-- `CYBERBRO_TIMEOUT_MS`
-
-Useful related API keys:
-
-- `GOOGLE_SAFE_BROWSING`
-- `VIRUSTOTAL`
-- `THREATFOX`
-- `ALIENVAULT`
-- `CRIMINALIP_API_KEY`
-- `RANSOMWARE_LIVE_API_KEY`
-
-See:
-
-- [docs/cyberbro.md](docs/cyberbro.md)
-
-## App Routes
-
-Main self-hosted routes:
-
-- `/` - home / scan launcher
-- `/check/<target>` - results page for a scanned target
-- `/about` - about page
-- `/account` - browser-local Cyberbro settings
-- `/web-check-api/` - API docs landing page
-
-## Deployment Notes
-
-- `docker-compose.yml` is set up for pull-based deployments from GHCR
-- The web container reads `.env` and optional branding sources at startup
-- Branding changes should be followed by a container restart so the frontend rebuild picks them up
-- Cyberbro is expected to be reachable at `http://cyberbro:5000/api` inside Docker by default
-
-For Docker-based updates:
+## Updating a Docker deployment
 
 ```bash
 docker compose pull
 docker compose up -d
 ```
 
-## Documentation
+Branding changes require a container restart so the frontend can rebuild with the updated environment values.
 
-- [docs/whitelabel.md](docs/whitelabel.md) - branding and customization
-- [docs/cyberbro.md](docs/cyberbro.md) - Cyberbro setup and runtime behavior
-- [.env.sample](.env.sample) - environment variables and examples
-- [docker-compose.yml](docker-compose.yml) - default deployment stack
-
-## Upstream Credit
+## Upstream credit
 
 This project is based on [Lissy93/web-check](https://github.com/Lissy93/web-check) and extends that foundation for self-hosted, branded, and threat-intel-focused deployments.

@@ -4,6 +4,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
+import requireApiKey from './api/_common/api-auth.js';
+import capabilitiesHandler from './api/v1/capabilities.js';
+import healthHandler from './api/v1/health.js';
+import lookupHandler from './api/v1/lookup.js';
 import { loadExternalBrandingEnv } from './src/config/branding-env.js';
 
 // Load environment variables from .env file
@@ -211,6 +215,12 @@ app.get('/cyberbro/export/:analysisId', async (req, res) => {
     res.status(502).send(String(error?.message || error));
   }
 });
+
+// Versioned API routes. Auth is optional unless WEB_CHECK_API_KEY is set.
+app.use('/api/v1', requireApiKey);
+app.get('/api/v1/health', healthHandler);
+app.get('/api/v1/capabilities', capabilitiesHandler);
+app.get('/api/v1/lookup', lookupHandler);
 
 // Read and register each API function as an Express routes
 fs.readdirSync(dirPath, { withFileTypes: true })

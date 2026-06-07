@@ -32,7 +32,15 @@ tags:
     description: Endpoints providing information about the server hosting the website.
   - name: Client-Side Information
     description: Endpoints providing metrics about the website's client-side content.
+  - name: API v1
+    description: Versioned MSP/PSA-friendly enrichment API with authentication.
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication. Set WEB_CHECK_API_KEY in environment to enable.
   responses:
     Error:
       description: Internal Server Error - An error occurred while processing the request.
@@ -83,6 +91,218 @@ components:
         skipped:
           type: string
           description: A description of why the check was skipped
+    V1HealthResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: true
+        service:
+          type: string
+          example: 'web-check-api'
+        version:
+          type: string
+          example: 'v1'
+        auth:
+          type: object
+          properties:
+            configured:
+              type: boolean
+              example: true
+        generatedAt:
+          type: string
+          format: date-time
+          example: '2026-06-06T00:00:00.000Z'
+    V1CapabilitiesResponse:
+      type: object
+      properties:
+        service:
+          type: string
+          example: 'web-check-api'
+        version:
+          type: string
+          example: 'v1'
+        auth:
+          type: object
+          properties:
+            configured:
+              type: boolean
+              example: true
+            supportedHeaders:
+              type: array
+              items:
+                type: string
+              example: ['X-API-Key', 'Authorization: Bearer <token>']
+        sections:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              routeName:
+                type: string
+              label:
+                type: string
+              description:
+                type: string
+              optional:
+                type: boolean
+              enabled:
+                type: boolean
+              requiresEnv:
+                type: array
+                items:
+                  type: string
+              configured:
+                type: boolean
+        generatedAt:
+          type: string
+          format: date-time
+    V1LookupResponse:
+      type: object
+      properties:
+        target:
+          type: object
+          properties:
+            input:
+              type: string
+            normalizedUrl:
+              type: string
+              format: uri
+            hostname:
+              type: string
+            port:
+              type: [integer, 'null']
+            protocol:
+              type: string
+        summary:
+          type: object
+          properties:
+            hostname:
+              type: string
+            normalizedUrl:
+              type: string
+              format: uri
+            status:
+              type: [integer, 'null']
+            responseTimeMs:
+              type: [integer, 'null']
+            primaryIp:
+              type: [string, 'null']
+            primaryIpFamily:
+              type: [integer, 'null']
+            dns:
+              type: object
+              properties:
+                aRecords:
+                  type: array
+                  items:
+                    type: string
+                aaaaRecords:
+                  type: array
+                  items:
+                    type: string
+                mxRecords:
+                  type: array
+                  items:
+                    type: object
+                nsRecords:
+                  type: array
+                  items:
+                    type: string
+                hasDnsRecords:
+                  type: boolean
+            tls:
+              type: object
+              properties:
+                protocol:
+                  type: [string, 'null']
+                authorized:
+                  type: [boolean, 'null']
+                authError:
+                  type: [string, 'null']
+                ocspStapled:
+                  type: [boolean, 'null']
+                forwardSecrecy:
+                  type: [boolean, 'null']
+                certificateValid:
+                  type: [boolean, 'null']
+                certificateValidTo:
+                  type: [string, 'null']
+            mailSecurity:
+              type: object
+              properties:
+                mxCount:
+                  type: integer
+                providers:
+                  type: array
+                  items:
+                    type: string
+                spf:
+                  type: boolean
+                dmarc:
+                  type: boolean
+                dkimDetected:
+                  type: boolean
+            httpSecurity:
+              type: object
+              properties:
+                present:
+                  type: integer
+                total:
+                  type: integer
+                score:
+                  type: [integer, 'null']
+                posture:
+                  type: string
+                  enum: ['good', 'fair', 'needs-review']
+            threat:
+              type: object
+              properties:
+                level:
+                  type: string
+                  enum: ['low', 'elevated']
+                unsafe:
+                  type: boolean
+                skippedSources:
+                  type: array
+                  items:
+                    type: string
+                errorSources:
+                  type: array
+                  items:
+                    type: string
+        sections:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              id:
+                type: string
+              routeName:
+                type: string
+              status:
+                type: string
+                enum: ['ok', 'error', 'skipped']
+              error:
+                type: [string, 'null']
+              reason:
+                type: [string, 'null']
+              data:
+                type: object
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              section:
+                type: string
+              message:
+                type: string
+        generatedAt:
+          type: string
+          format: date-time
 paths:
   /archives:
     get:
@@ -3150,5 +3370,100 @@ paths:
           $ref: '#/components/responses/MissingParam'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+# Web Check API v1
+  /api/v1/health:
+    get:
+      summary: API health check
+      tags:
+        - API v1
+      description: Simple health endpoint for uptime monitoring and integration checks.
+      security: []
+      parameters: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V1HealthResponse'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /api/v1/capabilities:
+    get:
+      summary: API capabilities and feature status
+      tags:
+        - API v1
+      description: Returns which enrichment sections are enabled and whether their optional dependencies are configured. Useful for integration setup and feature discovery.
+      security:
+        - ApiKeyAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: Capabilities listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V1CapabilitiesResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /api/v1/lookup:
+    get:
+      summary: Aggregated domain/website enrichment lookup (PSA/automation-friendly)
+      tags:
+        - API v1
+      description: >
+        Main MSP/PSA enrichment endpoint. Returns a normalized target, a compact summary
+        with high-signal fields, optional detailed sections, and any non-fatal errors.
+        Supports selecting a subset of sections via the `sections` query parameter
+        and per-section timeout via `sectionTimeoutMs`.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: target
+          in: query
+          required: true
+          description: Target URL, domain, IPv4, or IPv6 address to enrich.
+          schema:
+            type: string
+          example: 'example.com'
+        - name: sections
+          in: query
+          required: false
+          description: >-
+            Comma-separated list of section IDs or legacy route names to include.
+            Supported IDs: getIp, status, dns, txtRecords, mailConfig, headers,
+            httpSecurity, tlsConnection, ssl, whois, threats, cyberbro.
+          schema:
+            type: string
+          example: 'getIp,status,dns,mailConfig,httpSecurity,tlsConnection,ssl'
+        - name: sectionTimeoutMs
+          in: query
+          required: false
+          description: Per-section timeout in milliseconds (default 10000).
+          schema:
+            type: integer
+            minimum: 1000
+            maximum: 60000
+          example: 8000
+      responses:
+        '200':
+          description: Enrichment result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V1LookupResponse'
+        '400':
+          $ref: '#/components/responses/MissingParam'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Error'
         '429':
           $ref: '#/components/responses/TooManyRequests'
