@@ -63,6 +63,12 @@ ENV CHROME_PATH='/usr/bin/chromium' \
     PUPPETEER_EXECUTABLE_PATH='/usr/bin/chromium' \
     PUPPETEER_SKIP_DOWNLOAD='true'
 
+LABEL org.opencontainers.image.title="Web-Check" \
+      org.opencontainers.image.description="Self-hosted website intelligence and security inspection tool" \
+      org.opencontainers.image.url="https://github.com/emmolab/web-check" \
+      org.opencontainers.image.source="https://github.com/emmolab/web-check" \
+      org.opencontainers.image.licenses="MIT"
+
 # Build frontend assets from runtime env, then start the app
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 CMD ["/usr/local/bin/docker-entrypoint.sh"]
